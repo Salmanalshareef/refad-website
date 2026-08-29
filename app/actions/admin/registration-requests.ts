@@ -15,8 +15,10 @@ export async function approveRegistrationRequest(id: string) {
     id: string;
     full_name: string;
     national_id: string;
+    gender: "male" | "female" | null;
     phone: string;
-    email: string;
+    email: string | null;
+    birth_date: string | null;
   }[];
 
   const request = rows[0];
@@ -41,12 +43,12 @@ export async function approveRegistrationRequest(id: string) {
 
   try {
     await sql`
-      INSERT INTO profiles (id, full_name, national_id, phone, role)
-      VALUES (${userId}, ${request.full_name}, ${request.national_id}, ${request.phone}, 'member')
+      INSERT INTO profiles (id, full_name, national_id, gender, phone, birth_date, role)
+      VALUES (${userId}, ${request.full_name}, ${request.national_id}, ${request.gender}, ${request.phone}, ${request.birth_date}, 'member')
     `;
   } catch {
     await sql`DELETE FROM users WHERE id = ${userId}`;
-    return { error: "تعذر إنشاء الملف الشخصي للعضو." };
+    return { error: "تعذر إنشاء الملف الشخصي للعضو. تأكد من أن رقم الجوال غير مستخدم من قبل عضو آخر." };
   }
 
   // Link this new account to a matching family-tree entry, if one was

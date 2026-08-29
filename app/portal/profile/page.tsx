@@ -18,6 +18,7 @@ export default async function ProfilePage() {
         phone={profile.phone}
         nationalId={profile.national_id}
         email={user?.email}
+        birthDate={profile.birth_date}
       />
     </div>
   );

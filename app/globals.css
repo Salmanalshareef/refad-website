@@ -1,36 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbfaf6;
-  --foreground: #1c1f1c;
+  --background: #f4f7f6;
+  --foreground: #1a2220;
 
-  --color-primary-50: #eaf5ef;
-  --color-primary-100: #cde8db;
-  --color-primary-200: #a0d4b9;
-  --color-primary-300: #6cb992;
-  --color-primary-400: #3f9d72;
-  --color-primary-500: #1f7e56;
-  --color-primary-600: #146443;
-  --color-primary-700: #0f4f37;
-  --color-primary-800: #0c3f2c;
-  --color-primary-900: #0a3224;
+  /* Primary: 286E62 (brand teal-green), anchored at 600; 900 is 163F47 */
+  --color-primary-50: #eef6f3;
+  --color-primary-100: #d7eae3;
+  --color-primary-200: #b0d5c8;
+  --color-primary-300: #82bba9;
+  --color-primary-400: #549c87;
+  --color-primary-500: #34806a;
+  --color-primary-600: #286e62;
+  --color-primary-700: #1f5850;
+  --color-primary-800: #1a4a44;
+  --color-primary-900: #163f47;
 
-  --color-gold-50: #fbf6e9;
-  --color-gold-100: #f3e6bd;
-  --color-gold-200: #e9d38c;
-  --color-gold-300: #dcbb5c;
-  --color-gold-400: #cca43c;
-  --color-gold-500: #b08d2f;
-  --color-gold-600: #8f7025;
+  /* Gold: DFBC95 (brand tan) is the workhorse shade; C99A5D anchors the deepest step */
+  --color-gold-50: #fbf6ee;
+  --color-gold-100: #f5e9d6;
+  --color-gold-200: #eedabe;
+  --color-gold-300: #e6cba5;
+  --color-gold-400: #dfbc95;
+  --color-gold-500: #d3a87a;
+  --color-gold-600: #c99a5d;
 
-  --color-neutral-50: #fbfaf6;
-  --color-neutral-100: #f2f0e9;
-  --color-neutral-200: #e4e1d6;
-  --color-neutral-300: #cdc9b8;
-  --color-neutral-600: #6b6a5f;
-  --color-neutral-700: #4a4942;
-  --color-neutral-800: #2e2d29;
-  --color-neutral-900: #1c1f1c;
+  /* Neutral: FFFFFF is the workhorse surface, F4F7F6 the subtle tint */
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #f4f7f6;
+  --color-neutral-200: #e4e9e7;
+  --color-neutral-300: #cbd3d0;
+  --color-neutral-600: #6e7876;
+  --color-neutral-700: #4a524f;
+  --color-neutral-800: #2e3634;
+  --color-neutral-900: #1a2220;
 }
 
 @theme inline {

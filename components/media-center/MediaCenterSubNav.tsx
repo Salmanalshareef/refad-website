@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { href: "/media-center/family-news", label: "أخبار العائلة" },
+  { href: "/media-center/family-news", label: "أخبار الأسرة" },
   { href: "/media-center/fund-news", label: "أخبار الصندوق" },
   { href: "/media-center/videos", label: "مكتبة الفيديو" },
-  { href: "/media-center/magazine", label: "مجلة العائلة" },
+  { href: "/media-center/magazine", label: "مجلة الأسرة" },
 ];
 
 export function MediaCenterSubNav() {

@@ -7,18 +7,18 @@ const values = [
   {
     icon: Users,
     title: "صلة الرحم",
-    description: "الدافع الأول لكل ما نقوم به من أعمال وبرامج داخل العائلة.",
+    description: "الدافع الأول لكل ما نقوم به من أعمال وبرامج داخل الأسرة.",
   },
   {
     icon: HeartHandshake,
     title: "التكافل الاجتماعي",
-    description: "دعم أفراد العائلة في مختلف الظروف والمناسبات الحياتية.",
+    description: "دعم أفراد الأسرة في مختلف الظروف والمناسبات الحياتية.",
   },
   {
     icon: Sparkles,
     title: "التميز والتمكين",
     description:
-      "رعاية المواهب من أبناء العائلة وتشجيعهم على التفوق العلمي والمهني.",
+      "رعاية المواهب من أبناء الأسرة وتشجيعهم على التفوق العلمي والمهني.",
   },
 ];
 
@@ -27,15 +27,15 @@ export default function AboutFamilyPage() {
     <>
       <PageHeader
         eyebrow="عن الأسرة"
-        title="عائلة المعجب"
+        title="عائلة آل معجب"
         description="تاريخ عريق ومبادئ راسخة تجمعنا على مر الأجيال."
       />
 
       <Section>
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-bold text-primary-900">نبذة عن العائلة</h2>
+          <h2 className="text-2xl font-bold text-primary-900">نبذة عن الأسرة</h2>
           <p className="mt-4 leading-relaxed text-neutral-700">
-            تتحد عائلة المعجب بتاريخ عريق ومبادئ راسخة، وتحرص على تعزيز أواصر
+            تتحد عائلة آل معجب بتاريخ عريق ومبادئ راسخة، وتحرص على تعزيز أواصر
             القربى وترسيخ التكافل بين أبنائها عبر الأجيال المتعاقبة، سعيًا نحو
             بناء منظومة أسرية متماسكة تحفظ الهوية وتدعم التطور المستمر.
           </p>
@@ -69,11 +69,11 @@ export default function AboutFamilyPage() {
               <GitBranch className="h-6 w-6" />
             </div>
             <h2 className="text-2xl font-bold text-primary-900">
-              شجرة العائلة
+              شجرة الأسرة
             </h2>
             <p className="mt-4 leading-relaxed text-neutral-700">
-              تضم عائلة المعجب عددًا من الفروع والأجيال الممتدة عبر السنين.
-              يمكن لأفراد العائلة المسجلين تصفح الشجرة التفاعلية الكاملة التي
+              تضم عائلة آل معجب عددًا من الفروع والأجيال الممتدة عبر السنين.
+              يمكن لأفراد الأسرة المسجلين تصفح الشجرة التفاعلية الكاملة التي
               توثق الأنساب والفروع العائلية بعد تسجيل الدخول إلى المنصة.
             </p>
             <div className="mt-6">
@@ -83,7 +83,7 @@ export default function AboutFamilyPage() {
           <div className="rounded-2xl border border-dashed border-primary-300 bg-primary-50 p-10 text-center text-primary-700">
             <GitBranch className="mx-auto mb-4 h-16 w-16 opacity-60" />
             <p className="text-sm font-medium">
-              معاينة تعريفية لفروع العائلة — الشجرة الكاملة متاحة للأعضاء
+              معاينة تعريفية لفروع الأسرة — الشجرة الكاملة متاحة للأعضاء
               المسجلين فقط.
             </p>
           </div>

@@ -10,6 +10,7 @@ import {
   registrationRequestStatusLabels,
   registrationRequestStatusStyles,
 } from "@/lib/labels/registration-requests";
+import { formatHijriDisplay } from "@/lib/hijri";
 import type { RegistrationRequest } from "@/types/db";
 
 export function RegistrationRequestRow({ request }: { request: RegistrationRequest }) {
@@ -40,7 +41,7 @@ export function RegistrationRequestRow({ request }: { request: RegistrationReque
               </span>
             </p>
             <p dir="ltr" className="text-end text-xs text-neutral-500">
-              {request.email}
+              {request.phone}
             </p>
           </div>
         </div>
@@ -58,6 +59,18 @@ export function RegistrationRequestRow({ request }: { request: RegistrationReque
               <span className="text-xs text-neutral-500">رقم الجوال: </span>
               <span dir="ltr">{request.phone}</span>
             </p>
+            {request.birth_date && (
+              <p>
+                <span className="text-xs text-neutral-500">تاريخ الميلاد: </span>
+                <span>{formatHijriDisplay(request.birth_date)}</span>
+              </p>
+            )}
+            {request.email && (
+              <p>
+                <span className="text-xs text-neutral-500">البريد الإلكتروني: </span>
+                <span dir="ltr">{request.email}</span>
+              </p>
+            )}
           </div>
 
           {generatedPassword && (

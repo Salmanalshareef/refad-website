@@ -3,44 +3,34 @@
 import { useActionState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { Button } from "@/components/shared/Button";
+import { formatHijriDisplay } from "@/lib/hijri";
 
 export function ProfileForm({
   fullName,
   phone,
   nationalId,
   email,
+  birthDate,
 }: {
   fullName: string;
-  phone: string | null;
+  phone: string;
   nationalId: string | null;
-  email: string | undefined;
+  email: string | null | undefined;
+  birthDate: string | null;
 }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
 
   return (
     <form action={action} className="max-w-lg space-y-5">
       <div>
-        <label htmlFor="full_name" className="mb-1.5 block text-sm font-medium text-neutral-800">
+        <label className="mb-1.5 block text-sm font-medium text-neutral-800">
           الاسم الكامل
         </label>
         <input
-          id="full_name"
-          name="full_name"
-          defaultValue={fullName}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-neutral-800">
-          رقم الجوال
-        </label>
-        <input
-          id="phone"
-          name="phone"
-          dir="ltr"
-          defaultValue={phone ?? ""}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          value={fullName}
+          disabled
+          placeholder="يتم تعديله من قِبل الإدارة فقط"
+          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
         />
       </div>
 
@@ -60,13 +50,41 @@ export function ProfileForm({
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-neutral-800">
-          البريد الإلكتروني
+          تاريخ الميلاد
         </label>
         <input
-          dir="ltr"
-          value={email ?? ""}
+          value={formatHijriDisplay(birthDate) ?? ""}
           disabled
+          placeholder="لم يتم تسجيله بعد — يتم تعديله من قِبل الإدارة فقط"
           className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-neutral-800">
+          رقم الجوال
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          dir="ltr"
+          required
+          defaultValue={phone}
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-800">
+          البريد الإلكتروني (اختياري)
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          dir="ltr"
+          defaultValue={email ?? ""}
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
 

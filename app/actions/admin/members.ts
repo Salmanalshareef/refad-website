@@ -16,6 +16,7 @@ export async function createMember(
   const validatedFields = CreateMemberFormSchema.safeParse({
     full_name: formData.get("full_name"),
     national_id: formData.get("national_id"),
+    phone: formData.get("phone"),
     email: formData.get("email"),
     password: formData.get("password"),
   });
@@ -24,14 +25,14 @@ export async function createMember(
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { full_name, national_id, email, password } = validatedFields.data;
+  const { full_name, national_id, phone, email, password } = validatedFields.data;
   const passwordHash = await hashPassword(password);
 
   let userId: string;
   try {
     const rows = (await sql`
       INSERT INTO users (email, password_hash)
-      VALUES (${email}, ${passwordHash})
+      VALUES (${email ?? null}, ${passwordHash})
       RETURNING id
     `) as { id: string }[];
     userId = rows[0].id;
@@ -41,12 +42,12 @@ export async function createMember(
 
   try {
     await sql`
-      INSERT INTO profiles (id, full_name, national_id, role)
-      VALUES (${userId}, ${full_name}, ${national_id ?? null}, 'member')
+      INSERT INTO profiles (id, full_name, national_id, phone, role)
+      VALUES (${userId}, ${full_name}, ${national_id ?? null}, ${phone}, 'member')
     `;
   } catch {
     await sql`DELETE FROM users WHERE id = ${userId}`;
-    return { error: "تعذر إنشاء الملف الشخصي للعضو." };
+    return { error: "تعذر إنشاء الملف الشخصي للعضو. تأكد من أن رقم الجوال غير مستخدم من قبل عضو آخر." };
   }
 
   // Link this new account to a matching family-tree entry, if one was

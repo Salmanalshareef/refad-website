@@ -12,7 +12,7 @@ export type RegistrationRequestStatus = "pending" | "approved" | "rejected";
 
 export type User = {
   id: string;
-  email: string;
+  email: string | null;
   password_hash: string;
   created_at: string;
 };
@@ -20,8 +20,10 @@ export type User = {
 export type Profile = {
   id: string;
   full_name: string;
-  phone: string | null;
+  phone: string;
   national_id: string | null;
+  gender: Gender | null;
+  birth_date: string | null;
   avatar_url: string | null;
   role: ProfileRole;
   family_member_id: string | null;
@@ -42,10 +44,15 @@ export type FamilyMember = {
   gender: Gender;
   birth_date: string | null;
   death_date: string | null;
+  is_living: boolean;
   father_id: string | null;
-  mother_id: string | null;
+  mother_name: string | null;
   branch_id: string | null;
   photo_url: string | null;
+};
+
+export type FamilyMemberWithProfile = FamilyMember & {
+  profile_birth_date: string | null;
 };
 
 export type BoardMember = {
@@ -161,7 +168,13 @@ export type MemberRequest = {
   id: string;
   profile_id: string;
   type: MemberRequestType;
-  details: string;
+  details: string | null;
+  image_url: string | null;
+  first_name: string | null;
+  second_name: string | null;
+  third_name: string | null;
+  fourth_name: string | null;
+  national_id: string | null;
   status: MemberRequestStatus;
   admin_comment: string | null;
   created_at: string;
@@ -169,6 +182,7 @@ export type MemberRequest = {
 
 export type MemberRequestWithDetails = MemberRequest & {
   member_name: string;
+  applicant_national_id: string | null;
 };
 
 export type RegistrationRequest = {
@@ -176,7 +190,9 @@ export type RegistrationRequest = {
   full_name: string;
   national_id: string;
   phone: string;
-  email: string;
+  email: string | null;
+  gender: Gender | null;
+  birth_date: string | null;
   status: RegistrationRequestStatus;
   admin_comment: string | null;
   created_at: string;

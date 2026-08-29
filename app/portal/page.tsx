@@ -5,7 +5,7 @@ import { GitBranch, Settings, User, Wallet } from "lucide-react";
 
 const quickLinks = [
   { href: "/portal/profile", label: "الملف الشخصي", icon: User, description: "عرض وتحديث بياناتك." },
-  { href: "/portal/family-tree", label: "شجرة العائلة", icon: GitBranch, description: "استعرض شجرة العائلة التفاعلية." },
+  { href: "/portal/family-tree", label: "شجرة الأسرة", icon: GitBranch, description: "استعرض شجرة الأسرة التفاعلية." },
   { href: "/portal/services", label: "المبادرات", icon: Settings, description: "تصفح المبادرات وقدّم طلب دعم." },
   { href: "/portal/subscriptions", label: "الاشتراكات", icon: Wallet, description: "تابع حالة اشتراكك." },
 ];

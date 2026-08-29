@@ -6,7 +6,8 @@ const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 export const CreateMemberFormSchema = z.object({
   full_name: z.string().trim().min(2, "الرجاء إدخال الاسم الكامل."),
   national_id: z.preprocess(emptyToUndefined, NationalIdSchema.optional()),
-  email: z.email("الرجاء إدخال بريد إلكتروني صحيح."),
+  phone: z.string().trim().min(9, "الرجاء إدخال رقم جوال صحيح."),
+  email: z.preprocess(emptyToUndefined, z.email("الرجاء إدخال بريد إلكتروني صحيح.").optional()),
   password: z.string().min(8, "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."),
 });
 

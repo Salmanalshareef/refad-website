@@ -25,7 +25,7 @@ import { logout } from "@/app/actions/auth";
 const links = [
   { href: "/portal", label: "لوحة التحكم", icon: LayoutDashboard, exact: true },
   { href: "/portal/profile", label: "الملف الشخصي", icon: User },
-  { href: "/portal/family-tree", label: "شجرة العائلة", icon: GitBranch },
+  { href: "/portal/family-tree", label: "شجرة الأسرة", icon: GitBranch },
   { href: "/portal/services", label: "المبادرات", icon: Settings },
   { href: "/portal/requests", label: "طلباتي", icon: ClipboardList },
   { href: "/portal/subscriptions", label: "الاشتراكات", icon: Wallet },
@@ -46,7 +46,7 @@ const adminGroups = [
     icon: Users2,
     items: [
       { href: "/portal/admin/members", label: "الأعضاء" },
-      { href: "/portal/admin/family-members", label: "شجرة العائلة" },
+      { href: "/portal/admin/family-members", label: "شجرة الأسرة" },
     ],
   },
   {
@@ -64,10 +64,10 @@ const adminGroups = [
     title: "المركز الإعلامي والمحتوى",
     icon: Newspaper,
     items: [
-      { href: "/portal/admin/media/family-news", label: "أخبار العائلة" },
+      { href: "/portal/admin/media/family-news", label: "أخبار الأسرة" },
       { href: "/portal/admin/media/fund-news", label: "أخبار الصندوق" },
       { href: "/portal/admin/media/videos", label: "مكتبة الفيديو" },
-      { href: "/portal/admin/media/magazine", label: "مجلة العائلة" },
+      { href: "/portal/admin/media/magazine", label: "مجلة الأسرة" },
     ],
   },
   {

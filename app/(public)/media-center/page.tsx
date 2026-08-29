@@ -7,8 +7,8 @@ const sections = [
   {
     href: "/media-center/family-news",
     icon: Newspaper,
-    title: "أخبار العائلة",
-    description: "آخر مستجدات وأخبار عائلة المعجب.",
+    title: "أخبار الأسرة",
+    description: "آخر مستجدات وأخبار عائلة آل معجب.",
   },
   {
     href: "/media-center/fund-news",
@@ -20,13 +20,13 @@ const sections = [
     href: "/media-center/videos",
     icon: PlayCircle,
     title: "مكتبة الفيديو",
-    description: "مقاطع فيديو من فعاليات ومبادرات العائلة والصندوق.",
+    description: "مقاطع فيديو من فعاليات ومبادرات الأسرة والصندوق.",
   },
   {
     href: "/media-center/magazine",
     icon: BookOpen,
-    title: "مجلة العائلة",
-    description: "أعداد مجلة العائلة الدورية.",
+    title: "مجلة الأسرة",
+    description: "أعداد مجلة الأسرة الدورية.",
   },
 ];
 
@@ -36,7 +36,7 @@ export default function MediaCenterPage() {
       <PageHeader
         eyebrow="مركز الإعلام"
         title="مركز الإعلام"
-        description="آخر أخبار العائلة والصندوق، ومكتبة الفيديو، ومجلة العائلة."
+        description="آخر أخبار الأسرة والصندوق، ومكتبة الفيديو، ومجلة الأسرة."
       />
 
       <Section>

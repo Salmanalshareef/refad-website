@@ -1,19 +1,29 @@
 import { sql } from "@/lib/db";
-import type { FamilyMember } from "@/types/db";
+import { formatHijriDisplay, gregorianToHijriYear } from "@/lib/hijri";
+import type { FamilyMemberWithProfile } from "@/types/db";
+
+export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue";
 
 export type FamilyTreeNode = {
   name: string;
   attributes?: Record<string, string>;
   children?: FamilyTreeNode[];
+  firstName: string;
+  yearRange: string;
+  statusColor: NodeStatusColor;
 };
 
-export async function getFamilyMembers(): Promise<FamilyMember[]> {
-  return (await sql`SELECT * FROM family_members`) as FamilyMember[];
+export async function getFamilyMembers(): Promise<FamilyMemberWithProfile[]> {
+  return (await sql`
+    SELECT fm.*, p.birth_date AS profile_birth_date
+    FROM family_members fm
+    LEFT JOIN profiles p ON p.id = fm.profile_id
+  `) as FamilyMemberWithProfile[];
 }
 
-export function buildFamilyTree(members: FamilyMember[]): FamilyTreeNode[] {
+export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeNode[] {
   const byId = new Map(members.map((m) => [m.id, m]));
-  const childrenByFather = new Map<string, FamilyMember[]>();
+  const childrenByFather = new Map<string, FamilyMemberWithProfile[]>();
 
   for (const member of members) {
     if (!member.father_id) continue;
@@ -22,12 +32,36 @@ export function buildFamilyTree(members: FamilyMember[]): FamilyTreeNode[] {
     childrenByFather.set(member.father_id, list);
   }
 
-  function toNode(member: FamilyMember): FamilyTreeNode {
+  function toNode(member: FamilyMemberWithProfile): FamilyTreeNode {
     const children = childrenByFather.get(member.id);
+    const hasChildren = Boolean(children && children.length > 0);
+    const isLiving = member.is_living;
+    const effectiveBirthDate = member.profile_id ? member.profile_birth_date : member.birth_date;
+
+    const birthYear = gregorianToHijriYear(effectiveBirthDate);
+    const deathYear = gregorianToHijriYear(member.death_date);
+    const yearRange = isLiving
+      ? (birthYear ?? "")
+      : [birthYear ?? "", deathYear ?? ""].join(" - ");
+
+    let statusColor: NodeStatusColor;
+    if (isLiving) {
+      statusColor = hasChildren ? "green" : "lightblue";
+    } else {
+      statusColor = hasChildren ? "white" : "yellow";
+    }
+
     return {
       name: member.full_name,
+      firstName: member.full_name.trim().split(/\s+/)[0] ?? member.full_name,
+      yearRange: String(yearRange),
+      statusColor,
       attributes: {
-        الميلاد: member.birth_date ?? "غير معروف",
+        الحالة: isLiving ? "على قيد الحياة" : "متوفى",
+        "تاريخ الميلاد": formatHijriDisplay(effectiveBirthDate) ?? "غير معروف",
+        ...(isLiving
+          ? {}
+          : { "تاريخ الوفاة": formatHijriDisplay(member.death_date) ?? "غير معروف" }),
       },
       ...(children && children.length > 0
         ? { children: children.map(toNode) }

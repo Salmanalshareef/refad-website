@@ -19,7 +19,7 @@ create type registration_request_status as enum ('pending', 'approved', 'rejecte
 -- ── Tables ───────────────────────────────────────────────────────────────
 create table users (
   id uuid primary key default gen_random_uuid(),
-  email text not null unique,
+  email text unique,
   password_hash text not null,
   created_at timestamptz not null default now()
 );
@@ -38,8 +38,9 @@ create table family_members (
   gender gender not null,
   birth_date date,
   death_date date,
+  is_living boolean not null default true,
   father_id uuid references family_members (id) on delete set null,
-  mother_id uuid references family_members (id) on delete set null,
+  mother_name text,
   branch_id uuid references family_branches (id) on delete set null,
   photo_url text
 );
@@ -47,8 +48,10 @@ create table family_members (
 create table profiles (
   id uuid primary key references users (id) on delete cascade,
   full_name text not null,
-  phone text,
+  phone text not null unique,
   national_id text,
+  gender gender,
+  birth_date date,
   avatar_url text,
   role profile_role not null default 'member',
   family_member_id uuid references family_members (id) on delete set null,
@@ -159,7 +162,13 @@ create table member_requests (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles (id) on delete cascade,
   type member_request_type not null,
-  details text not null,
+  details text,
+  image_url text,
+  first_name text,
+  second_name text,
+  third_name text,
+  fourth_name text,
+  national_id text,
   status member_request_status not null default 'pending',
   admin_comment text,
   created_at timestamptz not null default now()
@@ -170,7 +179,9 @@ create table registration_requests (
   full_name text not null,
   national_id text not null,
   phone text not null,
-  email text not null,
+  email text,
+  gender gender,
+  birth_date date,
   status registration_request_status not null default 'pending',
   admin_comment text,
   created_at timestamptz not null default now()

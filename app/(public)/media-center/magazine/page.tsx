@@ -10,7 +10,7 @@ export default async function MagazinePage() {
 
   return (
     <>
-      <PageHeader eyebrow="مركز الإعلام" title="مجلة العائلة" />
+      <PageHeader eyebrow="مركز الإعلام" title="مجلة الأسرة" />
       <MediaCenterSubNav />
 
       <Section>

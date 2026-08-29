@@ -13,13 +13,13 @@ export function LoginForm({ next }: { next?: string }) {
       {next && <input type="hidden" name="next" value={next} />}
 
       <div>
-        <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-800">
-          البريد الإلكتروني
+        <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-neutral-800">
+          رقم الجوال
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
+          id="phone"
+          name="phone"
+          type="tel"
           dir="ltr"
           required
           className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"

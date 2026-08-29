@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { Check, ChevronDown, ChevronUp, Inbox } from "lucide-react";
 import { updateMemberRequest } from "@/app/actions/admin/member-requests";
 import {
@@ -45,7 +46,40 @@ export function MemberRequestRow({ request }: { request: MemberRequestWithDetail
 
       {open && (
         <div className="mt-4 space-y-3 border-t border-neutral-100 pt-4">
-          <p className="text-sm text-neutral-700">{request.details}</p>
+          {request.type === "family_member" ? (
+            <div className="grid gap-2 rounded-lg bg-neutral-50 p-3 text-sm sm:grid-cols-2">
+              <p>
+                <span className="text-xs text-neutral-500">اسم الفرد: </span>
+                {[request.first_name, request.second_name, request.third_name, request.fourth_name]
+                  .filter(Boolean)
+                  .join(" ")}
+              </p>
+              <p>
+                <span className="text-xs text-neutral-500">رقم هوية الفرد: </span>
+                <span dir="ltr">{request.national_id}</span>
+              </p>
+              <p>
+                <span className="text-xs text-neutral-500">رقم هوية مقدّم الطلب: </span>
+                <span dir="ltr">{request.applicant_national_id ?? "غير مسجل"}</span>
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-neutral-700">{request.details}</p>
+              {request.image_url && (
+                <a href={request.image_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src={request.image_url}
+                    alt=""
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="h-24 w-24 rounded-lg object-cover"
+                  />
+                </a>
+              )}
+            </>
+          )}
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-neutral-600">

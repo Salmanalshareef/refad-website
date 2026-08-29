@@ -10,7 +10,7 @@ export default async function AdminLayout({
       <div>
         <h1 className="text-2xl font-bold text-primary-900">لوحة الإدارة</h1>
         <p className="mt-1 text-sm text-neutral-600">
-          إدارة محتوى الموقع وبيانات العائلة والصندوق.
+          إدارة محتوى الموقع وبيانات الأسرة والصندوق.
         </p>
       </div>
 

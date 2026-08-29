@@ -14,10 +14,10 @@ const refadFundLinks = [
 ];
 
 const mediaCenterLinks = [
-  { href: "/media-center/family-news", label: "أخبار العائلة" },
+  { href: "/media-center/family-news", label: "أخبار الأسرة" },
   { href: "/media-center/fund-news", label: "أخبار الصندوق" },
   { href: "/media-center/videos", label: "مكتبة الفيديو" },
-  { href: "/media-center/magazine", label: "مجلة العائلة" },
+  { href: "/media-center/magazine", label: "مجلة الأسرة" },
 ];
 
 const navLinks = [
@@ -37,7 +37,7 @@ export function Header() {
           <Link href="/" className="flex items-center">
             <Image
               src="/logo-website.png"
-              alt="عائلة المعجب"
+              alt="عائلة آل معجب"
               width={140}
               height={140}
               className="h-[140px] w-[140px] object-contain"

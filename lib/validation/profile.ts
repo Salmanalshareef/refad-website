@@ -1,8 +1,10 @@
 import * as z from "zod";
 
+const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
 export const ProfileFormSchema = z.object({
-  full_name: z.string().trim().min(2, "الرجاء إدخال الاسم الكامل."),
-  phone: z.string().trim().optional(),
+  phone: z.string().trim().min(9, "الرجاء إدخال رقم جوال صحيح."),
+  email: z.preprocess(emptyToUndefined, z.email("الرجاء إدخال بريد إلكتروني صحيح.").optional()),
 });
 
 export const NationalIdSchema = z

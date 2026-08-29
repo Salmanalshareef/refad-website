@@ -21,7 +21,7 @@ export function Footer() {
           <div className="flex items-center">
             <Image
               src="/logo-website.png"
-              alt="عائلة المعجب"
+              alt="عائلة آل معجب"
               width={140}
               height={140}
               className="h-[140px] w-[140px] object-contain"

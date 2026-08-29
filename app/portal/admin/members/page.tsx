@@ -1,6 +1,6 @@
 import { getProfilesByRole } from "@/lib/data/members";
 import { MemberForm } from "@/components/admin/MemberForm";
-import { MemberRow } from "@/components/admin/MemberRow";
+import { MemberList } from "@/components/admin/MemberList";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function AdminMembersPage() {
@@ -13,15 +13,11 @@ export default async function AdminMembersPage() {
         <MemberForm />
       </div>
 
-      <div className="space-y-3">
-        {profiles === null && (
-          <EmptyState message="تعذر تحميل البيانات. تأكد من إعداد الاتصال بقاعدة البيانات." />
-        )}
-        {profiles?.length === 0 && <EmptyState message="لا يوجد أعضاء مسجلون بعد." />}
-        {profiles?.map((profile) => (
-          <MemberRow key={profile.id} profile={profile} />
-        ))}
-      </div>
+      {profiles === null ? (
+        <EmptyState message="تعذر تحميل البيانات. تأكد من إعداد الاتصال بقاعدة البيانات." />
+      ) : (
+        <MemberList profiles={profiles} />
+      )}
     </div>
   );
 }

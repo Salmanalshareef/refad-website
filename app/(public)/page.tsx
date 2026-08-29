@@ -12,7 +12,7 @@ const values = [
   {
     icon: HeartHandshake,
     title: "التكافل الاجتماعي",
-    description: "دعم أفراد العائلة في مختلف الظروف الحياتية.",
+    description: "دعم أفراد الأسرة في مختلف الظروف الحياتية.",
   },
   {
     icon: Sparkles,
@@ -33,7 +33,7 @@ export default function HomePage() {
             جذور راسخة، ومستقبل مشرق
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-primary-100">
-            مرحبًا بكم في المنصة الرقمية لعائلة المعجب، حيث نتواصل ونبني جسور
+            مرحبًا بكم في المنصة الرقمية لعائلة آل معجب، حيث نتواصل ونبني جسور
             التواصل ونمكّن أجيالنا نحو مستقبل مستدام ومتماسك.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -59,7 +59,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-primary-900">قيمنا العائلية</h2>
           <p className="mt-3 text-neutral-700">
-            تتحد عائلة المعجب بتاريخ عريق ومبادئ راسخة، تكرّس لتعزيز أواصر
+            تتحد عائلة آل معجب بتاريخ عريق ومبادئ راسخة، تكرّس لتعزيز أواصر
             القربى وترسيخ التكافل بين الأجيال.
           </p>
         </div>

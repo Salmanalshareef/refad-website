@@ -5,14 +5,14 @@ import { Link2, Pencil, User } from "lucide-react";
 import { FamilyMemberForm } from "@/components/admin/FamilyMemberForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { deleteFamilyMember } from "@/app/actions/admin/family-members";
-import type { FamilyMember } from "@/types/db";
+import type { FamilyMemberWithProfile } from "@/types/db";
 
 export function FamilyMemberRow({
   member,
   allMembers,
 }: {
-  member: FamilyMember;
-  allMembers: FamilyMember[];
+  member: FamilyMemberWithProfile;
+  allMembers: FamilyMemberWithProfile[];
 }) {
   const [editing, setEditing] = useState(false);
   const father = allMembers.find((m) => m.id === member.father_id);

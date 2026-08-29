@@ -9,7 +9,7 @@ export default async function FamilyNewsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="مركز الإعلام" title="أخبار العائلة" />
+      <PageHeader eyebrow="مركز الإعلام" title="أخبار الأسرة" />
       <MediaCenterSubNav />
 
       <Section>

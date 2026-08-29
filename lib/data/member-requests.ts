@@ -17,7 +17,7 @@ export async function getMyMemberRequests(profileId: string) {
 
 export async function getAllMemberRequests() {
   return (await sql`
-    SELECT mr.*, p.full_name AS member_name
+    SELECT mr.*, p.full_name AS member_name, p.national_id AS applicant_national_id
     FROM member_requests mr
     JOIN profiles p ON p.id = mr.profile_id
     ORDER BY mr.created_at DESC

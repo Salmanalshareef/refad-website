@@ -12,24 +12,29 @@ export async function updateProfile(
   const session = await requireUser();
 
   const validatedFields = ProfileFormSchema.safeParse({
-    full_name: formData.get("full_name"),
     phone: formData.get("phone"),
+    email: formData.get("email"),
   });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { full_name, phone } = validatedFields.data;
+  const { phone, email } = validatedFields.data;
 
   try {
     await sql`
       UPDATE profiles
-      SET full_name = ${full_name}, phone = ${phone ?? null}
+      SET phone = ${phone}
+      WHERE id = ${session.sub}
+    `;
+    await sql`
+      UPDATE users
+      SET email = ${email ?? null}
       WHERE id = ${session.sub}
     `;
   } catch {
-    return { error: "تعذر حفظ التغييرات، حاول مرة أخرى." };
+    return { error: "تعذر حفظ التغييرات، تأكد من أن رقم الجوال أو البريد الإلكتروني غير مستخدم من قبل." };
   }
 
   revalidatePath("/portal/profile");

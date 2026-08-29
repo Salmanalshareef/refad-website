@@ -24,11 +24,17 @@ export function MemberForm() {
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
       />
       <input
+        name="phone"
+        dir="ltr"
+        placeholder="رقم الجوال"
+        required
+        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+      />
+      <input
         name="email"
         type="email"
         dir="ltr"
-        placeholder="البريد الإلكتروني"
-        required
+        placeholder="البريد الإلكتروني (اختياري)"
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
       />
       <input
