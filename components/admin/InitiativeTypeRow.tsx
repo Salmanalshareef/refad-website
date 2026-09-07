@@ -8,6 +8,7 @@ import { DeleteButton } from "@/components/admin/DeleteButton";
 import {
   deleteInitiativeType,
   toggleInitiativeTypePublished,
+  toggleInitiativeTypeRequestable,
 } from "@/app/actions/admin/initiative-types";
 import { cn } from "@/lib/utils";
 import type { InitiativeType } from "@/types/db";
@@ -58,6 +59,23 @@ export function InitiativeTypeRow({
           )}
         >
           {type.is_published ? "منشور على الموقع" : "غير منشور"}
+        </button>
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() =>
+            startTransition(() =>
+              toggleInitiativeTypeRequestable(type.id, !type.is_requestable)
+            )
+          }
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
+            type.is_requestable
+              ? "bg-gold-100 text-gold-700 hover:bg-gold-200"
+              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+          )}
+        >
+          {type.is_requestable ? "متاح لتقديم الطلبات" : "غير متاح للطلب"}
         </button>
         <button
           type="button"

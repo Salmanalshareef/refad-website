@@ -1,3 +1,5 @@
+import { Reveal } from "@/components/shared/Reveal";
+
 export function PageHeader({
   eyebrow,
   title,
@@ -9,7 +11,7 @@ export function PageHeader({
 }) {
   return (
     <div className="bg-primary-800 text-white">
-      <div className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
+      <Reveal className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
         {eyebrow && (
           <p className="mb-2 text-sm font-semibold text-gold-300">{eyebrow}</p>
         )}
@@ -17,7 +19,7 @@ export function PageHeader({
         {description && (
           <p className="mt-3 max-w-2xl text-primary-100">{description}</p>
         )}
-      </div>
+      </Reveal>
     </div>
   );
 }

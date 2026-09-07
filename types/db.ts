@@ -1,7 +1,7 @@
 export type ProfileRole = "member" | "admin";
 export type ReportType = "financial" | "performance" | "minutes";
 export type SubscriptionStatus = "active" | "pending" | "expired";
-export type SupportRequestStatus = "pending" | "rejected" | "completed";
+export type SupportRequestStatus = "draft" | "pending" | "rejected" | "completed";
 export type ContactMessageStatus = "new" | "read" | "archived";
 export type Gender = "male" | "female";
 export type NewsCategory = "family" | "fund";
@@ -19,6 +19,7 @@ export type User = {
 
 export type Profile = {
   id: string;
+  member_number: number;
   full_name: string;
   phone: string;
   national_id: string | null;
@@ -71,6 +72,7 @@ export type InitiativeType = {
   icon: string | null;
   order_index: number;
   is_published: boolean;
+  is_requestable: boolean;
 };
 
 export type Initiative = {
@@ -78,8 +80,10 @@ export type Initiative = {
   initiative_type_id: string;
   title: string;
   description: string;
+  requirements: string | null;
   icon: string | null;
   order_index: number;
+  is_requestable: boolean;
 };
 
 export type Report = {
@@ -103,9 +107,12 @@ export type Subscription = {
 
 export type SupportRequest = {
   id: string;
+  request_number: number;
   profile_id: string;
   initiative_id: string | null;
-  description: string;
+  description: string | null;
+  attachment_url: string | null;
+  terms_accepted: boolean;
   status: SupportRequestStatus;
   admin_comment: string | null;
   created_at: string;

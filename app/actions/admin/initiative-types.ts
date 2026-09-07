@@ -93,6 +93,21 @@ export async function toggleInitiativeTypePublished(id: string, isPublished: boo
   revalidatePath("/refad-fund/initiatives");
 }
 
+export async function toggleInitiativeTypeRequestable(id: string, isRequestable: boolean) {
+  await requireAdmin();
+  await sql`UPDATE initiative_types SET is_requestable = ${isRequestable} WHERE id = ${id}`;
+
+  // Sub-services can't be requestable while their type isn't — turning the
+  // type off pulls all of its sub-services down with it.
+  if (!isRequestable) {
+    await sql`UPDATE initiatives SET is_requestable = false WHERE initiative_type_id = ${id}`;
+  }
+
+  revalidatePath("/portal/admin/initiative-types");
+  revalidatePath("/portal/admin/initiatives");
+  revalidatePath("/portal/services");
+}
+
 export async function deleteInitiativeType(id: string) {
   await requireAdmin();
 

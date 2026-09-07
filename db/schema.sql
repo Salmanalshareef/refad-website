@@ -7,7 +7,7 @@ create extension if not exists "pgcrypto";
 create type profile_role as enum ('member', 'admin');
 create type report_type as enum ('financial', 'performance', 'minutes');
 create type subscription_status as enum ('active', 'pending', 'expired');
-create type support_request_status as enum ('pending', 'rejected', 'completed');
+create type support_request_status as enum ('draft', 'pending', 'rejected', 'completed');
 create type contact_message_status as enum ('new', 'read', 'archived');
 create type gender as enum ('male', 'female');
 create type news_category as enum ('family', 'fund');
@@ -47,6 +47,7 @@ create table family_members (
 
 create table profiles (
   id uuid primary key references users (id) on delete cascade,
+  member_number serial unique,
   full_name text not null,
   phone text not null unique,
   national_id text,
@@ -73,7 +74,8 @@ create table initiative_types (
   description text,
   icon text,
   order_index int not null default 0,
-  is_published boolean not null default true
+  is_published boolean not null default true,
+  is_requestable boolean not null default true
 );
 
 create table initiatives (
@@ -81,8 +83,10 @@ create table initiatives (
   initiative_type_id uuid not null references initiative_types (id) on delete cascade,
   title text not null,
   description text not null,
+  requirements text,
   icon text,
-  order_index int not null default 0
+  order_index int not null default 0,
+  is_requestable boolean not null default true
 );
 
 create table reports (
@@ -106,9 +110,12 @@ create table subscriptions (
 
 create table support_requests (
   id uuid primary key default gen_random_uuid(),
+  request_number serial unique,
   profile_id uuid not null references profiles (id) on delete cascade,
   initiative_id uuid references initiatives (id) on delete set null,
-  description text not null,
+  description text,
+  attachment_url text,
+  terms_accepted boolean not null default false,
   status support_request_status not null default 'pending',
   admin_comment text,
   created_at timestamptz not null default now()

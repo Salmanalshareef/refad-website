@@ -27,7 +27,7 @@ const links = [
   { href: "/portal/profile", label: "الملف الشخصي", icon: User },
   { href: "/portal/family-tree", label: "شجرة الأسرة", icon: GitBranch },
   { href: "/portal/services", label: "المبادرات", icon: Settings },
-  { href: "/portal/requests", label: "طلباتي", icon: ClipboardList },
+  { href: "/portal/requests", label: "الطلبات الإدارية", icon: ClipboardList },
   { href: "/portal/subscriptions", label: "الاشتراكات", icon: Wallet },
 ];
 
@@ -54,8 +54,8 @@ const adminGroups = [
     icon: LifeBuoy,
     items: [
       { href: "/portal/admin/tasks", label: "المهام" },
-      { href: "/portal/admin/support-requests", label: "طلبات الدعم" },
-      { href: "/portal/admin/member-requests", label: "دعم طلبات الأعضاء" },
+      { href: "/portal/admin/support-requests", label: "طلبات المبادرات" },
+      { href: "/portal/admin/member-requests", label: "الطلبات الإدارية للأعضاء" },
       { href: "/portal/admin/registration-requests", label: "طلبات التسجيل" },
       { href: "/portal/admin/messages", label: "رسائل التواصل" },
     ],

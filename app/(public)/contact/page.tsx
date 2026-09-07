@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
+import { Reveal } from "@/components/shared/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Mail, MapPin, Phone } from "lucide-react";
 
@@ -14,7 +15,7 @@ export default function ContactPage() {
 
       <Section>
         <div className="grid gap-12 lg:grid-cols-5">
-          <div className="lg:col-span-2">
+          <Reveal className="lg:col-span-2">
             <h2 className="mb-6 text-xl font-bold text-primary-900">
               معلومات التواصل
             </h2>
@@ -41,11 +42,13 @@ export default function ContactPage() {
                 </div>
               </li>
             </ul>
-          </div>
+          </Reveal>
 
-          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8 lg:col-span-3">
-            <ContactForm />
-          </div>
+          <Reveal delay={150} className="lg:col-span-3">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
+              <ContactForm />
+            </div>
+          </Reveal>
         </div>
       </Section>
     </>

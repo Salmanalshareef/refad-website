@@ -43,6 +43,7 @@ export default async function AdminInitiativesPage() {
                         initiative={initiative}
                         types={types}
                         typeName={typeNameById.get(initiative.initiative_type_id) ?? ""}
+                        typeIsRequestable={type.is_requestable}
                       />
                     ))}
                   </div>

@@ -1,22 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
 import { InitiativeForm } from "@/components/admin/InitiativeForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteInitiative } from "@/app/actions/admin/initiatives";
+import {
+  deleteInitiative,
+  toggleInitiativeRequestable,
+} from "@/app/actions/admin/initiatives";
+import { cn } from "@/lib/utils";
 import type { Initiative, InitiativeType } from "@/types/db";
 
 export function InitiativeRow({
   initiative,
   types,
   typeName,
+  typeIsRequestable,
 }: {
   initiative: Initiative;
   types: InitiativeType[];
   typeName: string;
+  typeIsRequestable: boolean;
 }) {
   const [editing, setEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   if (editing) {
     return (
@@ -33,6 +40,28 @@ export function InitiativeRow({
         <p className="font-medium text-primary-900">{initiative.title}</p>
       </div>
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={isPending || !typeIsRequestable}
+          title={
+            !typeIsRequestable
+              ? "النوع غير متاح للطلب حاليًا — لا يمكن تفعيل هذه الخدمة قبل تفعيل النوع."
+              : undefined
+          }
+          onClick={() =>
+            startTransition(() =>
+              toggleInitiativeRequestable(initiative.id, !initiative.is_requestable)
+            )
+          }
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+            initiative.is_requestable
+              ? "bg-gold-100 text-gold-700 hover:bg-gold-200"
+              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+          )}
+        >
+          {initiative.is_requestable ? "متاح لتقديم الطلبات" : "غير متاح للطلب"}
+        </button>
         <button
           type="button"
           onClick={() => setEditing(true)}

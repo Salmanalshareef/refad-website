@@ -1,111 +1,47 @@
+import Link from "next/link";
+import { ListChecks, Plus } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { getInitiativeTypes } from "@/lib/data/initiative-types";
 import { getInitiatives } from "@/lib/data/initiatives";
-import {
-  getMySupportRequests,
-  supportRequestStatusLabels,
-  supportRequestStatusStyles,
-} from "@/lib/data/support-requests";
-import { SupportRequestForm } from "@/components/portal/SupportRequestForm";
-import { Card } from "@/components/shared/Card";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
+import { InitiativesBrowser } from "@/components/portal/InitiativesBrowser";
 
 export default async function ServicesPage() {
-  const profile = await requireProfile();
-  const [types, initiatives, myRequests] = await Promise.all([
+  await requireProfile();
+  const [types, initiatives] = await Promise.all([
     getInitiativeTypes().catch(() => []),
     getInitiatives().catch(() => []),
-    getMySupportRequests(profile.id).catch(() => null),
   ]);
 
-  const initiativeTitleById = new Map(initiatives.map((i) => [i.id, i.title]));
+  const requestableTypes = types.filter((t) => t.is_requestable);
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-primary-900">المبادرات</h1>
-        <p className="mt-1 text-sm text-neutral-600">
-          تصفح مبادرات الصندوق وقدّم طلب دعم عند الحاجة.
-        </p>
-      </div>
-
-      <div className="space-y-8">
-        {types.map((type) => {
-          const items = initiatives.filter((i) => i.initiative_type_id === type.id);
-          if (items.length === 0) return null;
-          return (
-            <div key={type.id}>
-              <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-primary-900">
-                <InitiativeIcon src={type.icon} size={20} className="text-primary-700" />
-                {type.title}
-              </h2>
-              <div className="grid gap-6 sm:grid-cols-2">
-                {items.map((initiative) => (
-                  <Card key={initiative.id}>
-                    <h3 className="font-bold text-primary-900">{initiative.title}</h3>
-                    <p className="mt-1 text-sm text-neutral-600">{initiative.description}</p>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="mb-4 text-lg font-bold text-primary-900">تقديم طلب دعم</h2>
-          {initiatives.length > 0 ? (
-            <SupportRequestForm initiatives={initiatives} />
-          ) : (
-            <EmptyState message="لا توجد خدمات متاحة حاليًا لتقديم الطلبات." />
-          )}
+          <h1 className="text-2xl font-bold text-primary-900">المبادرات</h1>
+          <p className="mt-1 text-sm text-neutral-600">
+            اختر مبادرة، ثم خدمة فرعية منها لتقديم طلب دعم.
+          </p>
         </div>
-
-        <div>
-          <h2 className="mb-4 text-lg font-bold text-primary-900">طلباتي السابقة</h2>
-          {myRequests === null && (
-            <EmptyState message="تعذر تحميل طلباتك السابقة." />
-          )}
-          {myRequests?.length === 0 && (
-            <EmptyState message="لم تقم بتقديم أي طلبات بعد." />
-          )}
-          {myRequests && myRequests.length > 0 && (
-            <div className="space-y-3">
-              {myRequests.map((request) => (
-                <Card key={request.id}>
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-primary-900">
-                      {(request.initiative_id &&
-                        initiativeTitleById.get(request.initiative_id)) ??
-                        "خدمة"}
-                    </p>
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${supportRequestStatusStyles[request.status]}`}
-                    >
-                      {supportRequestStatusLabels[request.status]}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm text-neutral-600">{request.description}</p>
-                  {request.admin_comment && (
-                    <p
-                      className={`mt-3 rounded-lg p-3 text-sm ${
-                        request.status === "rejected"
-                          ? "bg-red-50 text-red-700"
-                          : "bg-neutral-50 text-neutral-700"
-                      }`}
-                    >
-                      <span className="font-semibold">ملاحظة الإدارة: </span>
-                      {request.admin_comment}
-                    </p>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/portal/services/requests"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
+          >
+            <ListChecks className="h-4 w-4" />
+            طلباتي السابقة
+          </Link>
+          <Link
+            href="/portal/services/new-request"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+          >
+            <Plus className="h-4 w-4" />
+            طلب جديد
+          </Link>
         </div>
       </div>
+
+      <InitiativesBrowser types={requestableTypes} initiatives={initiatives} />
     </div>
   );
 }

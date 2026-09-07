@@ -16,6 +16,7 @@ export async function saveInitiative(
     initiative_type_id: formData.get("initiative_type_id"),
     title: formData.get("title"),
     description: formData.get("description"),
+    requirements: formData.get("requirements"),
     order_index: formData.get("order_index") || 0,
   });
 
@@ -23,20 +24,22 @@ export async function saveInitiative(
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { id, initiative_type_id, title, description, order_index } = validatedFields.data;
+  const { id, initiative_type_id, title, description, requirements, order_index } =
+    validatedFields.data;
 
   try {
     if (id) {
       await sql`
         UPDATE initiatives
         SET initiative_type_id = ${initiative_type_id}, title = ${title},
-            description = ${description}, order_index = ${order_index}
+            description = ${description}, requirements = ${requirements ?? null},
+            order_index = ${order_index}
         WHERE id = ${id}
       `;
     } else {
       await sql`
-        INSERT INTO initiatives (initiative_type_id, title, description, order_index)
-        VALUES (${initiative_type_id}, ${title}, ${description}, ${order_index})
+        INSERT INTO initiatives (initiative_type_id, title, description, requirements, order_index)
+        VALUES (${initiative_type_id}, ${title}, ${description}, ${requirements ?? null}, ${order_index})
       `;
     }
   } catch {
@@ -48,6 +51,27 @@ export async function saveInitiative(
   revalidatePath("/refad-fund/initiatives");
   revalidatePath("/portal/services");
   return undefined;
+}
+
+export async function toggleInitiativeRequestable(id: string, isRequestable: boolean) {
+  await requireAdmin();
+
+  if (isRequestable) {
+    const rows = (await sql`
+      SELECT it.is_requestable
+      FROM initiatives i
+      JOIN initiative_types it ON it.id = i.initiative_type_id
+      WHERE i.id = ${id}
+    `) as { is_requestable: boolean }[];
+
+    // Can't enable a sub-service while its type is marked not requestable.
+    if (!rows[0]?.is_requestable) return;
+  }
+
+  await sql`UPDATE initiatives SET is_requestable = ${isRequestable} WHERE id = ${id}`;
+
+  revalidatePath("/portal/admin/initiatives");
+  revalidatePath("/portal/services");
 }
 
 export async function deleteInitiative(id: string) {

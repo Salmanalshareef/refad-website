@@ -11,7 +11,13 @@ const inputClasses =
 const readOnlyClasses =
   "w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500";
 
-export function MemberRequestForm({ applicantFullName }: { applicantFullName: string }) {
+export function MemberRequestForm({
+  applicantFullName,
+  memberNumber,
+}: {
+  applicantFullName: string;
+  memberNumber: number;
+}) {
   const [state, action, pending] = useActionState(submitMemberRequest, undefined);
   const [type, setType] = useState<MemberRequestType>("news");
 
@@ -22,6 +28,19 @@ export function MemberRequestForm({ applicantFullName }: { applicantFullName: st
 
   return (
     <form action={action} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="mb-1.5 text-sm font-medium text-neutral-800">مقدّم الطلب</p>
+          <p className={readOnlyClasses}>{applicantFullName}</p>
+        </div>
+        <div>
+          <p className="mb-1.5 text-sm font-medium text-neutral-800">الرقم التعريفي</p>
+          <p dir="ltr" className={readOnlyClasses}>
+            #{memberNumber}
+          </p>
+        </div>
+      </div>
+
       <div>
         <label htmlFor="type" className="mb-1.5 block text-sm font-medium text-neutral-800">
           نوع الطلب

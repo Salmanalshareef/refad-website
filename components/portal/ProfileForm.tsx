@@ -6,12 +6,14 @@ import { Button } from "@/components/shared/Button";
 import { formatHijriDisplay } from "@/lib/hijri";
 
 export function ProfileForm({
+  memberNumber,
   fullName,
   phone,
   nationalId,
   email,
   birthDate,
 }: {
+  memberNumber: number;
   fullName: string;
   phone: string;
   nationalId: string | null;
@@ -22,6 +24,18 @@ export function ProfileForm({
 
   return (
     <form action={action} className="max-w-lg space-y-5">
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-neutral-800">
+          الرقم التعريفي
+        </label>
+        <input
+          dir="ltr"
+          value={`#${memberNumber}`}
+          disabled
+          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
+        />
+      </div>
+
       <div>
         <label className="mb-1.5 block text-sm font-medium text-neutral-800">
           الاسم الكامل

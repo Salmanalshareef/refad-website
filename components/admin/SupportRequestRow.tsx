@@ -28,6 +28,9 @@ export function SupportRequestRow({ request }: { request: SupportRequestWithDeta
           <div>
             <p className="font-medium text-primary-900">
               {request.member_name}
+              <span dir="ltr" className="ms-2 text-xs font-normal text-neutral-400">
+                #{request.request_number}
+              </span>
               <span
                 className={`ms-2 rounded-full px-2 py-0.5 text-xs font-semibold ${supportRequestStatusStyles[request.status]}`}
               >
@@ -44,7 +47,19 @@ export function SupportRequestRow({ request }: { request: SupportRequestWithDeta
 
       {open && (
         <div className="mt-4 space-y-3 border-t border-neutral-100 pt-4">
-          <p className="text-sm text-neutral-700">{request.description}</p>
+          {request.description && (
+            <p className="text-sm text-neutral-700">{request.description}</p>
+          )}
+          {request.attachment_url && (
+            <a
+              href={request.attachment_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-xs font-medium text-primary-700 hover:underline"
+            >
+              عرض المرفق
+            </a>
+          )}
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-neutral-600">

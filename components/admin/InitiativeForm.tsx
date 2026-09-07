@@ -64,6 +64,13 @@ export function InitiativeForm({
         rows={2}
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm sm:col-span-2"
       />
+      <textarea
+        name="requirements"
+        placeholder="المتطلبات (اختياري)"
+        defaultValue={initiative?.requirements ?? ""}
+        rows={2}
+        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm sm:col-span-2"
+      />
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
