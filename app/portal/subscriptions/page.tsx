@@ -1,15 +1,20 @@
 import { requireProfile } from "@/lib/auth";
-import {
-  getMySubscriptions,
-  subscriptionStatusLabels,
-  subscriptionStatusStyles,
-} from "@/lib/data/subscriptions";
-import { Card } from "@/components/shared/Card";
+import { getLatestSubscription, getMySubscriptions } from "@/lib/data/subscriptions";
+import { getBankInfo } from "@/lib/data/bank-info";
+import { SubscriptionStatusCard } from "@/components/portal/SubscriptionStatusCard";
+import { BankInfoCard } from "@/components/portal/BankInfoCard";
+import { NewSubscriptionModal } from "@/components/portal/NewSubscriptionModal";
+import { SubscriptionHistoryTable } from "@/components/portal/SubscriptionHistoryTable";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function SubscriptionsPage() {
   const profile = await requireProfile();
-  const subscriptions = await getMySubscriptions(profile.id).catch(() => null);
+
+  const [latestSubscription, subscriptions, bankInfo] = await Promise.all([
+    getLatestSubscription(profile.id).catch(() => null),
+    getMySubscriptions(profile.id).catch(() => null),
+    getBankInfo().catch(() => null),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -20,32 +25,25 @@ export default async function SubscriptionsPage() {
         </p>
       </div>
 
-      {subscriptions === null && (
-        <EmptyState message="تعذر تحميل بيانات الاشتراك. تأكد من إعداد الاتصال بقاعدة البيانات." />
-      )}
-      {subscriptions?.length === 0 && (
-        <EmptyState message="لا يوجد لديك اشتراكات مسجلة بعد." />
-      )}
-      {subscriptions && subscriptions.length > 0 && (
-        <div className="space-y-3">
-          {subscriptions.map((sub) => (
-            <Card key={sub.id} className="flex items-center justify-between">
-              <div>
-                <p className="font-bold text-primary-900">{sub.plan_name}</p>
-                <p className="mt-1 text-sm text-neutral-600">
-                  {sub.amount} ر.س — يبدأ في {sub.start_date}
-                  {sub.end_date ? ` وينتهي في ${sub.end_date}` : ""}
-                </p>
-              </div>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${subscriptionStatusStyles[sub.status]}`}
-              >
-                {subscriptionStatusLabels[sub.status]}
-              </span>
-            </Card>
-          ))}
-        </div>
-      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <SubscriptionStatusCard profile={profile} subscription={latestSubscription} />
+        <BankInfoCard bankInfo={bankInfo} />
+      </div>
+
+      <NewSubscriptionModal profile={profile} />
+
+      <div>
+        <h2 className="mb-3 font-bold text-primary-900">سجل الاشتراكات</h2>
+        {subscriptions === null && (
+          <EmptyState message="تعذر تحميل بيانات الاشتراكات. تأكد من إعداد الاتصال بقاعدة البيانات." />
+        )}
+        {subscriptions?.length === 0 && (
+          <EmptyState message="لا يوجد لديك اشتراكات مسجلة بعد." />
+        )}
+        {subscriptions && subscriptions.length > 0 && (
+          <SubscriptionHistoryTable subscriptions={subscriptions} />
+        )}
+      </div>
     </div>
   );
 }

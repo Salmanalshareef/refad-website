@@ -18,9 +18,9 @@ export function RegistrationRequestRow({ request }: { request: RegistrationReque
   const [isPending, startTransition] = useTransition();
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | undefined>();
-  const [generatedPassword, setGeneratedPassword] = useState<string | undefined>();
+  const [approved, setApproved] = useState(false);
 
-  const pending = request.status === "pending" && !generatedPassword;
+  const pending = request.status === "pending" && !approved;
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4">
@@ -73,14 +73,12 @@ export function RegistrationRequestRow({ request }: { request: RegistrationReque
             )}
           </div>
 
-          {generatedPassword && (
+          {approved && (
             <div className="rounded-lg bg-primary-50 p-3 text-primary-800">
               <p className="font-semibold">تم إنشاء الحساب بنجاح.</p>
-              <p className="mt-1">
-                كلمة المرور المؤقتة: <span dir="ltr" className="font-mono font-bold">{generatedPassword}</span>
-              </p>
               <p className="mt-1 text-xs">
-                يرجى إرسال هذه البيانات للعضو — لن تظهر كلمة المرور مرة أخرى.
+                يمكن للعضو الآن تسجيل الدخول باستخدام كلمة المرور التي اختارها
+                عند التسجيل.
               </p>
             </div>
           )}
@@ -113,8 +111,8 @@ export function RegistrationRequestRow({ request }: { request: RegistrationReque
                       const result = await approveRegistrationRequest(request.id);
                       if (result.error) {
                         setError(result.error);
-                      } else if (result.password) {
-                        setGeneratedPassword(result.password);
+                      } else {
+                        setApproved(true);
                       }
                     })
                   }

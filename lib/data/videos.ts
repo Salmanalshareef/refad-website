@@ -6,3 +6,9 @@ export async function getVideos() {
     SELECT * FROM videos ORDER BY published_date DESC
   `) as Video[];
 }
+
+export async function getPublishedVideos() {
+  return (await sql`
+    SELECT * FROM videos WHERE is_published = true ORDER BY published_date DESC
+  `) as Video[];
+}

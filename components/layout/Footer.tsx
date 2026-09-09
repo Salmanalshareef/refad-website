@@ -1,16 +1,22 @@
 import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { SnapchatIcon, XIcon } from "@/components/shared/SocialIcons";
+import { SnapchatIcon, WhatsAppIcon, XIcon } from "@/components/shared/SocialIcons";
 
 const contactDetails = [
-  { icon: Phone, label: "رقم التواصل", value: "+966 5X XXX XXXX", href: "tel:+9665XXXXXXXX" },
-  { icon: Mail, label: "البريد الإلكتروني", value: "info@refad.sa", href: "mailto:info@refad.sa" },
-  { icon: MapPin, label: "العنوان", value: "المملكة العربية السعودية", href: undefined },
+  { icon: Phone, label: "رقم التواصل", value: "+966 55 294 2361", href: "tel:+966552942361" },
+  {
+    icon: Mail,
+    label: "البريد الإلكتروني",
+    value: "almojebfamily@gmail.com",
+    href: "mailto:almojebfamily@gmail.com",
+  },
+  { icon: MapPin, label: "العنوان", value: "الرياض، المملكة العربية السعودية", href: undefined },
 ];
 
 const socialLinks = [
   { label: "X", href: "https://x.com/almojebfamily", Icon: XIcon },
   { label: "Snapchat", href: "https://www.snapchat.com/add/almojebfamily", Icon: SnapchatIcon },
+  { label: "WhatsApp", href: "https://wa.me/966552942361", Icon: WhatsAppIcon },
 ];
 
 export function Footer() {
@@ -41,7 +47,7 @@ export function Footer() {
                 aria-label={social.label}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-primary-700 hover:text-white"
               >
-                <social.Icon className="h-4 w-4" />
+                <social.Icon className="h-[18px] w-[18px]" />
               </a>
             ))}
           </div>

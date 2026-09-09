@@ -3,11 +3,11 @@ import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { MediaCenterSubNav } from "@/components/media-center/MediaCenterSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { getMagazineIssues } from "@/lib/data/magazine";
+import { getPublishedMagazineIssues } from "@/lib/data/magazine";
 import { BookOpen, Download } from "lucide-react";
 
 export default async function MagazinePage() {
-  const issues = await getMagazineIssues().catch(() => null);
+  const issues = await getPublishedMagazineIssues().catch(() => null);
 
   return (
     <>

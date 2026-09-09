@@ -1,6 +1,6 @@
 export type ProfileRole = "member" | "admin";
 export type ReportType = "financial" | "performance" | "minutes";
-export type SubscriptionStatus = "active" | "pending" | "expired";
+export type SubscriptionStatus = "active" | "pending" | "expired" | "rejected";
 export type SupportRequestStatus = "draft" | "pending" | "rejected" | "completed";
 export type ContactMessageStatus = "new" | "read" | "archived";
 export type Gender = "male" | "female";
@@ -29,6 +29,10 @@ export type Profile = {
   role: ProfileRole;
   family_member_id: string | null;
   created_at: string;
+};
+
+export type ProfileWithEmail = Profile & {
+  email: string | null;
 };
 
 export type FamilyBranch = {
@@ -97,12 +101,31 @@ export type Report = {
 
 export type Subscription = {
   id: string;
+  subscription_number: number | null;
   profile_id: string;
-  plan_name: string;
+  fiscal_year: number;
   amount: string;
+  receipt_url: string | null;
+  notes: string | null;
   status: SubscriptionStatus;
-  start_date: string;
+  admin_comment: string | null;
+  requested_date: string;
+  approved_date: string | null;
   end_date: string | null;
+  created_at: string;
+};
+
+export type SubscriptionWithMember = Subscription & {
+  member_name: string;
+  member_number: number;
+};
+
+export type FundBankInfo = {
+  id: string;
+  account_name: string;
+  bank_name: string;
+  iban: string;
+  updated_at: string;
 };
 
 export type SupportRequest = {
@@ -138,6 +161,8 @@ export type NewsItem = {
   category: NewsCategory;
   title: string;
   body: string;
+  image_url: string | null;
+  is_published: boolean;
   published_date: string;
 };
 
@@ -146,6 +171,7 @@ export type Video = {
   title: string;
   description: string | null;
   video_url: string;
+  is_published: boolean;
   published_date: string;
 };
 
@@ -154,6 +180,7 @@ export type MagazineIssue = {
   title: string;
   issue_label: string | null;
   file_url: string;
+  is_published: boolean;
   published_date: string;
 };
 

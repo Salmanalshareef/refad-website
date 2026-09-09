@@ -3,12 +3,12 @@ import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { MediaCenterSubNav } from "@/components/media-center/MediaCenterSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { getVideos } from "@/lib/data/videos";
+import { getPublishedVideos } from "@/lib/data/videos";
 import { getEmbedUrl } from "@/lib/video";
 import { PlayCircle } from "lucide-react";
 
 export default async function VideosPage() {
-  const videos = await getVideos().catch(() => null);
+  const videos = await getPublishedVideos().catch(() => null);
 
   return (
     <>

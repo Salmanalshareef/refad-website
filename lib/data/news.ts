@@ -10,3 +10,11 @@ export async function getNewsByCategory(category: NewsCategory) {
     ORDER BY published_date DESC
   `) as NewsItem[];
 }
+
+export async function getPublishedNewsByCategory(category: NewsCategory) {
+  return (await sql`
+    SELECT * FROM news_items
+    WHERE category = ${category} AND is_published = true
+    ORDER BY published_date DESC
+  `) as NewsItem[];
+}

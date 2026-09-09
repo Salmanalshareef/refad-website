@@ -54,6 +54,7 @@ const adminGroups = [
     icon: LifeBuoy,
     items: [
       { href: "/portal/admin/tasks", label: "المهام" },
+      { href: "/portal/admin/subscriptions", label: "الاشتراكات" },
       { href: "/portal/admin/support-requests", label: "طلبات المبادرات" },
       { href: "/portal/admin/member-requests", label: "الطلبات الإدارية للأعضاء" },
       { href: "/portal/admin/registration-requests", label: "طلبات التسجيل" },

@@ -24,21 +24,21 @@ export default function ContactPage() {
                 <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary-700" />
                 <div>
                   <p className="font-medium text-neutral-900">البريد الإلكتروني</p>
-                  <p dir="ltr" className="text-left">info@refad.sa</p>
+                  <p dir="ltr" className="text-left">almojebfamily@gmail.com</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary-700" />
                 <div>
                   <p className="font-medium text-neutral-900">الجوال / واتساب</p>
-                  <p dir="ltr" className="text-left">+966 5X XXX XXXX</p>
+                  <p dir="ltr" className="text-left">+966 55 294 2361</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary-700" />
                 <div>
                   <p className="font-medium text-neutral-900">الموقع</p>
-                  <p>المملكة العربية السعودية</p>
+                  <p>الرياض، المملكة العربية السعودية</p>
                 </div>
               </li>
             </ul>

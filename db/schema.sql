@@ -6,7 +6,7 @@ create extension if not exists "pgcrypto";
 -- ── Enums ────────────────────────────────────────────────────────────────
 create type profile_role as enum ('member', 'admin');
 create type report_type as enum ('financial', 'performance', 'minutes');
-create type subscription_status as enum ('active', 'pending', 'expired');
+create type subscription_status as enum ('active', 'pending', 'expired', 'rejected');
 create type support_request_status as enum ('draft', 'pending', 'rejected', 'completed');
 create type contact_message_status as enum ('new', 'read', 'archived');
 create type gender as enum ('male', 'female');
@@ -98,15 +98,33 @@ create table reports (
   published_date date not null default current_date
 );
 
+create sequence subscription_number_seq;
+
 create table subscriptions (
   id uuid primary key default gen_random_uuid(),
+  subscription_number int unique,
   profile_id uuid not null references profiles (id) on delete cascade,
-  plan_name text not null,
+  fiscal_year int not null,
   amount numeric(10, 2) not null,
+  receipt_url text,
+  notes text,
   status subscription_status not null default 'pending',
-  start_date date not null default current_date,
-  end_date date
+  admin_comment text,
+  requested_date date not null default current_date,
+  approved_date date,
+  end_date date,
+  created_at timestamptz not null default now()
 );
+
+create table fund_bank_info (
+  id uuid primary key default gen_random_uuid(),
+  account_name text not null default '',
+  bank_name text not null default '',
+  iban text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+insert into fund_bank_info (account_name, bank_name, iban) values ('', '', '');
 
 create table support_requests (
   id uuid primary key default gen_random_uuid(),
@@ -136,6 +154,8 @@ create table news_items (
   category news_category not null,
   title text not null,
   body text not null,
+  image_url text,
+  is_published boolean not null default true,
   published_date date not null default current_date
 );
 
@@ -144,6 +164,7 @@ create table videos (
   title text not null,
   description text,
   video_url text not null,
+  is_published boolean not null default true,
   published_date date not null default current_date
 );
 
@@ -152,6 +173,7 @@ create table magazine_issues (
   title text not null,
   issue_label text,
   file_url text not null,
+  is_published boolean not null default true,
   published_date date not null default current_date
 );
 
@@ -189,6 +211,7 @@ create table registration_requests (
   email text,
   gender gender,
   birth_date date,
+  password_hash text not null,
   status registration_request_status not null default 'pending',
   admin_comment text,
   created_at timestamptz not null default now()

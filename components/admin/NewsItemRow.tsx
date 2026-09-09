@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Newspaper, Pencil } from "lucide-react";
 import { NewsItemForm } from "@/components/admin/NewsItemForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteNewsItem } from "@/app/actions/admin/news";
+import { deleteNewsItem, toggleNewsItemPublished } from "@/app/actions/admin/news";
+import { cn } from "@/lib/utils";
 import type { NewsCategory, NewsItem } from "@/types/db";
 
 export function NewsItemRow({
@@ -15,6 +16,7 @@ export function NewsItemRow({
   category: NewsCategory;
 }) {
   const [editing, setEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   if (editing) {
     return (
@@ -34,6 +36,21 @@ export function NewsItemRow({
         </div>
       </div>
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() =>
+            startTransition(() => toggleNewsItemPublished(item.id, !item.is_published))
+          }
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
+            item.is_published
+              ? "bg-primary-50 text-primary-700 hover:bg-primary-100"
+              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+          )}
+        >
+          {item.is_published ? "منشور على الموقع" : "غير منشور"}
+        </button>
         <button
           type="button"
           onClick={() => setEditing(true)}

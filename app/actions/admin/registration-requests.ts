@@ -1,10 +1,8 @@
 "use server";
 
-import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { hashPassword } from "@/lib/password";
 
 export async function approveRegistrationRequest(id: string) {
   await requireAdmin();
@@ -19,6 +17,7 @@ export async function approveRegistrationRequest(id: string) {
     phone: string;
     email: string | null;
     birth_date: string | null;
+    password_hash: string;
   }[];
 
   const request = rows[0];
@@ -26,14 +25,11 @@ export async function approveRegistrationRequest(id: string) {
     return { error: "تعذر العثور على الطلب أو أنه تمت معالجته مسبقًا." };
   }
 
-  const password = randomBytes(9).toString("base64url");
-  const passwordHash = await hashPassword(password);
-
   let userId: string;
   try {
     const created = (await sql`
       INSERT INTO users (email, password_hash)
-      VALUES (${request.email}, ${passwordHash})
+      VALUES (${request.email}, ${request.password_hash})
       RETURNING id
     `) as { id: string }[];
     userId = created[0].id;
@@ -65,7 +61,7 @@ export async function approveRegistrationRequest(id: string) {
   revalidatePath("/portal/admin/members");
   revalidatePath("/portal/admin/family-members");
   revalidatePath("/portal/family-tree");
-  return { password };
+  return {};
 }
 
 export async function rejectRegistrationRequest(id: string, comment: string) {

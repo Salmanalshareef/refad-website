@@ -4,9 +4,9 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { MemberRow } from "@/components/admin/MemberRow";
 import { EmptyState } from "@/components/shared/EmptyState";
-import type { Profile } from "@/types/db";
+import type { ProfileWithEmail } from "@/types/db";
 
-export function MemberList({ profiles }: { profiles: Profile[] }) {
+export function MemberList({ profiles }: { profiles: ProfileWithEmail[] }) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {

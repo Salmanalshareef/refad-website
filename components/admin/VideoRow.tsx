@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Pencil, Video as VideoIcon } from "lucide-react";
 import { VideoForm } from "@/components/admin/VideoForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteVideo } from "@/app/actions/admin/videos";
+import { deleteVideo, toggleVideoPublished } from "@/app/actions/admin/videos";
+import { cn } from "@/lib/utils";
 import type { Video } from "@/types/db";
 
 export function VideoRow({ video }: { video: Video }) {
   const [editing, setEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   if (editing) {
     return (
@@ -28,6 +30,21 @@ export function VideoRow({ video }: { video: Video }) {
         </div>
       </div>
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() =>
+            startTransition(() => toggleVideoPublished(video.id, !video.is_published))
+          }
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
+            video.is_published
+              ? "bg-primary-50 text-primary-700 hover:bg-primary-100"
+              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+          )}
+        >
+          {video.is_published ? "منشور على الموقع" : "غير منشور"}
+        </button>
         <button
           type="button"
           onClick={() => setEditing(true)}

@@ -48,6 +48,14 @@ export async function saveVideo(
   return undefined;
 }
 
+export async function toggleVideoPublished(id: string, isPublished: boolean) {
+  await requireAdmin();
+  await sql`UPDATE videos SET is_published = ${isPublished} WHERE id = ${id}`;
+
+  revalidatePath("/portal/admin/media/videos");
+  revalidatePath("/media-center");
+}
+
 export async function deleteVideo(id: string) {
   await requireAdmin();
   await sql`DELETE FROM videos WHERE id = ${id}`;

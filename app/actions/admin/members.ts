@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
-import { CreateMemberFormSchema, type MemberFormState } from "@/lib/validation/member";
-import { NationalIdSchema } from "@/lib/validation/profile";
+import {
+  CreateMemberFormSchema,
+  EditMemberFormSchema,
+  type MemberFormState,
+} from "@/lib/validation/member";
 
 export async function createMember(
   _prevState: MemberFormState,
@@ -66,32 +69,58 @@ export async function createMember(
   return undefined;
 }
 
+export async function updateMemberProfile(
+  _prevState: MemberFormState,
+  formData: FormData
+): Promise<MemberFormState> {
+  await requireAdmin();
+
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) {
+    return { error: "تعذر تحديد العضو." };
+  }
+
+  const validatedFields = EditMemberFormSchema.safeParse({
+    full_name: formData.get("full_name"),
+    national_id: formData.get("national_id"),
+    gender: formData.get("gender"),
+    birth_date: formData.get("birth_date"),
+    phone: formData.get("phone"),
+    email: formData.get("email"),
+  });
+
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.issues[0]?.message };
+  }
+
+  const { full_name, national_id, gender, birth_date, phone, email } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE profiles
+      SET full_name = ${full_name}, national_id = ${national_id ?? null},
+          gender = ${gender ?? null}, birth_date = ${birth_date ?? null}, phone = ${phone}
+      WHERE id = ${id}
+    `;
+    await sql`
+      UPDATE users
+      SET email = ${email ?? null}
+      WHERE id = ${id}
+    `;
+  } catch {
+    return { error: "تعذر حفظ التغييرات، تأكد من أن رقم الجوال أو البريد الإلكتروني غير مستخدم." };
+  }
+
+  revalidatePath("/portal/admin/members");
+  return undefined;
+}
+
 export async function updateMemberRole(id: string, role: "member" | "admin") {
   await requireAdmin();
   await sql`UPDATE profiles SET role = ${role} WHERE id = ${id}`;
 
   revalidatePath("/portal/admin/members");
   revalidatePath("/portal/admin/administrators");
-}
-
-export async function updateMemberNationalId(id: string, nationalId: string) {
-  await requireAdmin();
-
-  const trimmed = nationalId.trim();
-  if (!trimmed) {
-    await sql`UPDATE profiles SET national_id = NULL WHERE id = ${id}`;
-    revalidatePath("/portal/admin/members");
-    return {};
-  }
-
-  const validated = NationalIdSchema.safeParse(trimmed);
-  if (!validated.success) {
-    return { error: validated.error.issues[0]?.message };
-  }
-
-  await sql`UPDATE profiles SET national_id = ${validated.data} WHERE id = ${id}`;
-  revalidatePath("/portal/admin/members");
-  return {};
 }
 
 export async function deleteMember(id: string) {

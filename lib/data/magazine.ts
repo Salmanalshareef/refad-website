@@ -6,3 +6,9 @@ export async function getMagazineIssues() {
     SELECT * FROM magazine_issues ORDER BY published_date DESC
   `) as MagazineIssue[];
 }
+
+export async function getPublishedMagazineIssues() {
+  return (await sql`
+    SELECT * FROM magazine_issues WHERE is_published = true ORDER BY published_date DESC
+  `) as MagazineIssue[];
+}

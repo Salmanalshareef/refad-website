@@ -53,6 +53,14 @@ export async function createMagazineIssue(
   return undefined;
 }
 
+export async function toggleMagazineIssuePublished(id: string, isPublished: boolean) {
+  await requireAdmin();
+  await sql`UPDATE magazine_issues SET is_published = ${isPublished} WHERE id = ${id}`;
+
+  revalidatePath("/portal/admin/media/magazine");
+  revalidatePath("/media-center");
+}
+
 export async function deleteMagazineIssue(id: string, fileUrl: string) {
   await requireAdmin();
 

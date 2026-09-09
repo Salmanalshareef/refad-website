@@ -134,6 +134,35 @@ export function RegistrationRequestForm() {
         />
       </div>
 
+      <div>
+        <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-neutral-800">
+          كلمة المرور
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="confirm_password"
+          className="mb-1.5 block text-sm font-medium text-neutral-800"
+        >
+          تأكيد كلمة المرور
+        </label>
+        <input
+          id="confirm_password"
+          name="confirm_password"
+          type="password"
+          required
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      </div>
+
       {state?.error && <p className="text-sm font-medium text-red-600">{state.error}</p>}
 
       <Button type="submit" disabled={pending} className="w-full">
