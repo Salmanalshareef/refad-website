@@ -12,12 +12,18 @@ const statusLabels: Record<ContactMessageStatus, string> = {
   archived: "مؤرشفة",
 };
 
+const statusCardStyles: Record<ContactMessageStatus, string> = {
+  new: "border-neutral-200 bg-white",
+  read: "border-primary-100 bg-primary-50",
+  archived: "border-neutral-200 bg-neutral-100",
+};
+
 export function ContactMessageRow({ message }: { message: ContactMessage }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+    <div className={cn("rounded-xl border p-4", statusCardStyles[message.status])}>
       <button
         type="button"
         onClick={() => {
@@ -40,11 +46,16 @@ export function ContactMessageRow({ message }: { message: ContactMessage }) {
               )}
             </p>
             <p className="text-xs text-neutral-500">
-              {message.full_name} — {message.mobile}
+              {message.full_name} — <span dir="ltr">{message.mobile}</span>
             </p>
           </div>
         </div>
-        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        <div className="flex items-center gap-3">
+          <span dir="ltr" className="shrink-0 text-xs text-neutral-400">
+            {message.created_at.slice(0, 10)}
+          </span>
+          {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </div>
       </button>
 
       {open && (

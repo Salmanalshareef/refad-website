@@ -17,6 +17,7 @@ export async function saveInitiative(
     title: formData.get("title"),
     description: formData.get("description"),
     requirements: formData.get("requirements"),
+    end_date: formData.get("end_date"),
     order_index: formData.get("order_index") || 0,
   });
 
@@ -24,7 +25,7 @@ export async function saveInitiative(
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { id, initiative_type_id, title, description, requirements, order_index } =
+  const { id, initiative_type_id, title, description, requirements, end_date, order_index } =
     validatedFields.data;
 
   try {
@@ -33,13 +34,13 @@ export async function saveInitiative(
         UPDATE initiatives
         SET initiative_type_id = ${initiative_type_id}, title = ${title},
             description = ${description}, requirements = ${requirements ?? null},
-            order_index = ${order_index}
+            end_date = ${end_date ?? null}, order_index = ${order_index}
         WHERE id = ${id}
       `;
     } else {
       await sql`
-        INSERT INTO initiatives (initiative_type_id, title, description, requirements, order_index)
-        VALUES (${initiative_type_id}, ${title}, ${description}, ${requirements ?? null}, ${order_index})
+        INSERT INTO initiatives (initiative_type_id, title, description, requirements, end_date, order_index)
+        VALUES (${initiative_type_id}, ${title}, ${description}, ${requirements ?? null}, ${end_date ?? null}, ${order_index})
       `;
     }
   } catch {
@@ -51,6 +52,14 @@ export async function saveInitiative(
   revalidatePath("/refad-fund/initiatives");
   revalidatePath("/portal/services");
   return undefined;
+}
+
+export async function toggleInitiativePublished(id: string, isPublished: boolean) {
+  await requireAdmin();
+  await sql`UPDATE initiatives SET is_published = ${isPublished} WHERE id = ${id}`;
+
+  revalidatePath("/portal/admin/initiatives");
+  revalidatePath("/portal/services");
 }
 
 export async function toggleInitiativeRequestable(id: string, isRequestable: boolean) {

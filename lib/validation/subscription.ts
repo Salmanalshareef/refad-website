@@ -35,6 +35,7 @@ export type AdminCreateSubscriptionFormState =
 export const BankInfoFormSchema = z.object({
   account_name: z.string().trim().min(1, "الرجاء إدخال اسم الحساب."),
   bank_name: z.string().trim().min(1, "الرجاء إدخال اسم البنك."),
+  account_number: z.string().trim().min(1, "الرجاء إدخال رقم الحساب."),
   iban: z.string().trim().min(1, "الرجاء إدخال رقم الآيبان."),
 });
 

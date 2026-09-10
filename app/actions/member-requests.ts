@@ -27,6 +27,7 @@ export async function submitMemberRequest(
           third_name: formData.get("third_name"),
           fourth_name: formData.get("fourth_name"),
           national_id: formData.get("national_id"),
+          mother_name: formData.get("mother_name"),
         }
       : { type, details: formData.get("details") };
 
@@ -65,10 +66,10 @@ export async function submitMemberRequest(
     } else if (data.type === "family_member") {
       await sql`
         INSERT INTO member_requests
-          (profile_id, type, first_name, second_name, third_name, fourth_name, national_id)
+          (profile_id, type, first_name, second_name, third_name, fourth_name, national_id, mother_name)
         VALUES
           (${session.sub}, 'family_member', ${data.first_name}, ${data.second_name ?? null},
-           ${data.third_name ?? null}, ${data.fourth_name ?? null}, ${data.national_id})
+           ${data.third_name ?? null}, ${data.fourth_name ?? null}, ${data.national_id}, ${data.mother_name})
       `;
     } else {
       await sql`

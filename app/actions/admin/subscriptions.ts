@@ -193,6 +193,7 @@ export async function saveBankInfo(
   const validatedFields = BankInfoFormSchema.safeParse({
     account_name: formData.get("account_name"),
     bank_name: formData.get("bank_name"),
+    account_number: formData.get("account_number"),
     iban: formData.get("iban"),
   });
 
@@ -200,7 +201,7 @@ export async function saveBankInfo(
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { account_name, bank_name, iban } = validatedFields.data;
+  const { account_name, bank_name, account_number, iban } = validatedFields.data;
   const id = formData.get("id");
   if (typeof id !== "string" || !id) {
     return { error: "تعذر تحديد سجل البيانات البنكية." };
@@ -209,7 +210,8 @@ export async function saveBankInfo(
   try {
     await sql`
       UPDATE fund_bank_info
-      SET account_name = ${account_name}, bank_name = ${bank_name}, iban = ${iban}, updated_at = now()
+      SET account_name = ${account_name}, bank_name = ${bank_name},
+          account_number = ${account_number}, iban = ${iban}, updated_at = now()
       WHERE id = ${id}
     `;
   } catch {

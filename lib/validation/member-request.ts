@@ -15,6 +15,7 @@ export const MemberRequestFormSchema = z.discriminatedUnion("type", [
     third_name: z.preprocess(emptyToUndefined, z.string().trim().optional()),
     fourth_name: z.preprocess(emptyToUndefined, z.string().trim().optional()),
     national_id: NationalIdSchema,
+    mother_name: z.string().trim().min(1, "الرجاء إدخال اسم الأم كاملاً."),
   }),
   z.object({
     type: z.literal("other"),

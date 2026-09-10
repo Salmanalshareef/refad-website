@@ -22,22 +22,22 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="mt-auto bg-primary-900 text-primary-100">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl gap-6 px-6 py-8 sm:grid-cols-2">
         <div>
           <div className="flex items-center">
             <Image
               src="/logo-website.png"
               alt="عائلة آل معجب"
-              width={140}
-              height={140}
-              className="h-[140px] w-[140px] object-contain"
+              width={90}
+              height={90}
+              className="h-[90px] w-[90px] object-contain"
             />
           </div>
 
-          <h3 className="mb-3 mt-6 text-sm font-semibold text-white">
+          <h3 className="mb-2 mt-4 text-sm font-semibold text-white">
             تابعنا على منصات التواصل
           </h3>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {socialLinks.map((social) => (
               <a
                 key={social.label}
@@ -45,17 +45,17 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={social.label}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-primary-700 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-primary-700 hover:text-white"
               >
-                <social.Icon className="h-[18px] w-[18px]" />
+                <social.Icon className="h-4 w-4" />
               </a>
             ))}
           </div>
         </div>
 
         <div>
-          <h3 className="mb-3 text-lg font-bold text-white">تواصل معنا</h3>
-          <ul className="space-y-3 text-sm">
+          <h3 className="mb-2 text-base font-bold text-white">تواصل معنا</h3>
+          <ul className="space-y-2 text-sm">
             {contactDetails.map((detail) => (
               <li key={detail.label} className="flex items-start gap-2">
                 <detail.icon className="mt-0.5 h-4 w-4 shrink-0" />
@@ -75,8 +75,8 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-primary-800 py-6 text-center text-xs text-primary-300">
-        © {new Date().getFullYear()} صندوق رفاد العائلي. جميع الحقوق محفوظة.
+      <div className="border-t border-primary-800 py-3 text-center text-xs text-primary-300">
+        © {new Date().getFullYear()} أسرة آل معجب – صندوق رفاد. جميع الحقوق محفوظة.
       </div>
     </footer>
   );

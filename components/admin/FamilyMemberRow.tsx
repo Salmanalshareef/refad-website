@@ -5,14 +5,16 @@ import { Link2, Pencil, User } from "lucide-react";
 import { FamilyMemberForm } from "@/components/admin/FamilyMemberForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { deleteFamilyMember } from "@/app/actions/admin/family-members";
-import type { FamilyMemberWithProfile } from "@/types/db";
+import type { FamilyMemberWithProfile, Profile } from "@/types/db";
 
 export function FamilyMemberRow({
   member,
   allMembers,
+  profiles,
 }: {
   member: FamilyMemberWithProfile;
   allMembers: FamilyMemberWithProfile[];
+  profiles: Profile[];
 }) {
   const [editing, setEditing] = useState(false);
   const father = allMembers.find((m) => m.id === member.father_id);
@@ -23,6 +25,7 @@ export function FamilyMemberRow({
         <FamilyMemberForm
           member={member}
           allMembers={allMembers}
+          profiles={profiles}
           onDone={() => setEditing(false)}
         />
       </div>

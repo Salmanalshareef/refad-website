@@ -18,6 +18,29 @@ export const EditMemberFormSchema = z.object({
   birth_date: z.preprocess(emptyToUndefined, z.string().optional()),
   phone: z.string().trim().min(9, "الرجاء إدخال رقم جوال صحيح."),
   email: z.preprocess(emptyToUndefined, z.email("الرجاء إدخال بريد إلكتروني صحيح.").optional()),
+  marital_status: z.preprocess(
+    emptyToUndefined,
+    z.enum(["single", "married", "divorced", "widowed"]).optional()
+  ),
+  education_level: z.preprocess(
+    emptyToUndefined,
+    z.enum(["secondary", "bachelor", "master", "doctorate"]).optional()
+  ),
+  employment_status: z.preprocess(
+    emptyToUndefined,
+    z
+      .enum([
+        "public_sector",
+        "private_sector",
+        "nonprofit_sector",
+        "business_owner",
+        "job_seeker",
+        "student",
+        "retired",
+        "homemaker",
+      ])
+      .optional()
+  ),
 });
 
 export type MemberFormState = { error?: string } | undefined;

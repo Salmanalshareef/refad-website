@@ -2,6 +2,6 @@ import type { ReportType } from "@/types/db";
 
 export const reportTypeLabels: Record<ReportType, string> = {
   financial: "التقارير المالية",
-  performance: "تقارير الأداء",
+  performance: "التقارير السنوية",
   minutes: "محاضر الاجتماعات",
 };

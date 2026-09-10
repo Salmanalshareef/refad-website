@@ -6,6 +6,7 @@ import { InitiativeForm } from "@/components/admin/InitiativeForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import {
   deleteInitiative,
+  toggleInitiativePublished,
   toggleInitiativeRequestable,
 } from "@/app/actions/admin/initiatives";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,21 @@ export function InitiativeRow({
         <p className="font-medium text-primary-900">{initiative.title}</p>
       </div>
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() =>
+            startTransition(() => toggleInitiativePublished(initiative.id, !initiative.is_published))
+          }
+          className={cn(
+            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
+            initiative.is_published
+              ? "bg-primary-50 text-primary-700 hover:bg-primary-100"
+              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+          )}
+        >
+          {initiative.is_published ? "منشور للأعضاء" : "غير منشور"}
+        </button>
         <button
           type="button"
           disabled={isPending || !typeIsRequestable}

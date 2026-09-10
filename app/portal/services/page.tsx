@@ -12,7 +12,7 @@ export default async function ServicesPage() {
     getInitiatives().catch(() => []),
   ]);
 
-  const requestableTypes = types.filter((t) => t.is_requestable);
+  const publishedTypes = types.filter((t) => t.is_published);
 
   return (
     <div className="space-y-8">
@@ -41,7 +41,7 @@ export default async function ServicesPage() {
         </div>
       </div>
 
-      <InitiativesBrowser types={requestableTypes} initiatives={initiatives} />
+      <InitiativesBrowser types={publishedTypes} initiatives={initiatives} />
     </div>
   );
 }

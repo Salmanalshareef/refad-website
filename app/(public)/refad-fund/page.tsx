@@ -27,7 +27,7 @@ const sections = [
     href: "/refad-fund/reports",
     icon: FileText,
     title: "التقارير",
-    description: "التقارير المالية وتقارير الأداء ومحاضر الاجتماعات.",
+    description: "التقارير المالية والتقارير السنوية ومحاضر الاجتماعات.",
   },
 ];
 

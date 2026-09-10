@@ -45,6 +45,7 @@ export async function submitSupportRequest(
   const validatedFields = SupportRequestFormSchema.safeParse({
     draft_id: formData.get("draft_id"),
     initiative_id: formData.get("initiative_id"),
+    description: formData.get("description"),
     terms_accepted: formData.get("terms_accepted"),
   });
 
@@ -52,7 +53,7 @@ export async function submitSupportRequest(
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { draft_id, initiative_id } = validatedFields.data;
+  const { draft_id, initiative_id, description } = validatedFields.data;
 
   let attachmentUrl: string | null = null;
   const attachmentFile = formData.get("attachment_file");
@@ -76,7 +77,7 @@ export async function submitSupportRequest(
     const rows = (await sql`
       UPDATE support_requests
       SET initiative_id = ${initiative_id}, attachment_url = ${attachmentUrl},
-          terms_accepted = true, status = 'pending'
+          description = ${description ?? null}, terms_accepted = true, status = 'pending'
       WHERE id = ${draft_id} AND profile_id = ${session.sub} AND status = 'draft'
       RETURNING request_number
     `) as { request_number: number }[];

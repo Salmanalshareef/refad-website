@@ -71,6 +71,17 @@ export function InitiativeForm({
         rows={2}
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm sm:col-span-2"
       />
+      <div className="sm:col-span-2">
+        <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+          تاريخ انتهاء التقديم (اختياري)
+        </label>
+        <input
+          name="end_date"
+          type="date"
+          defaultValue={initiative?.end_date ?? ""}
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+        />
+      </div>
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>

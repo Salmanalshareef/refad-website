@@ -20,6 +20,9 @@ export default async function ProfilePage() {
         nationalId={profile.national_id}
         email={user?.email}
         birthDate={profile.birth_date}
+        maritalStatus={profile.marital_status}
+        educationLevel={profile.education_level}
+        employmentStatus={profile.employment_status}
       />
     </div>
   );

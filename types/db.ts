@@ -9,6 +9,17 @@ export type TaskStatus = "todo" | "in_progress" | "done";
 export type MemberRequestType = "news" | "family_member" | "other";
 export type MemberRequestStatus = "pending" | "rejected" | "completed";
 export type RegistrationRequestStatus = "pending" | "approved" | "rejected";
+export type MaritalStatus = "single" | "married" | "divorced" | "widowed";
+export type EducationLevel = "secondary" | "bachelor" | "master" | "doctorate";
+export type EmploymentStatus =
+  | "public_sector"
+  | "private_sector"
+  | "nonprofit_sector"
+  | "business_owner"
+  | "job_seeker"
+  | "student"
+  | "retired"
+  | "homemaker";
 
 export type User = {
   id: string;
@@ -26,6 +37,9 @@ export type Profile = {
   gender: Gender | null;
   birth_date: string | null;
   avatar_url: string | null;
+  marital_status: MaritalStatus | null;
+  education_level: EducationLevel | null;
+  employment_status: EmploymentStatus | null;
   role: ProfileRole;
   family_member_id: string | null;
   created_at: string;
@@ -85,8 +99,10 @@ export type Initiative = {
   title: string;
   description: string;
   requirements: string | null;
+  end_date: string | null;
   icon: string | null;
   order_index: number;
+  is_published: boolean;
   is_requestable: boolean;
 };
 
@@ -124,6 +140,7 @@ export type FundBankInfo = {
   id: string;
   account_name: string;
   bank_name: string;
+  account_number: string;
   iban: string;
   updated_at: string;
 };
@@ -143,7 +160,11 @@ export type SupportRequest = {
 
 export type SupportRequestWithDetails = SupportRequest & {
   member_name: string;
+  member_number: number;
+  national_id: string | null;
   initiative_title: string | null;
+  initiative_type_title: string | null;
+  requirements: string | null;
 };
 
 export type ContactMessage = {
@@ -209,6 +230,7 @@ export type MemberRequest = {
   third_name: string | null;
   fourth_name: string | null;
   national_id: string | null;
+  mother_name: string | null;
   status: MemberRequestStatus;
   admin_comment: string | null;
   created_at: string;

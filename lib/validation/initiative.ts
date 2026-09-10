@@ -8,6 +8,7 @@ export const InitiativeFormSchema = z.object({
   title: z.string().trim().min(2, "الرجاء إدخال عنوان الخدمة."),
   description: z.string().trim().min(5, "الرجاء إدخال وصف الخدمة."),
   requirements: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  end_date: z.preprocess(emptyToUndefined, z.string().trim().optional()),
   order_index: z.coerce.number().int().default(0),
 });
 

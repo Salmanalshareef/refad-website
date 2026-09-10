@@ -14,18 +14,24 @@ export async function updateProfile(
   const validatedFields = ProfileFormSchema.safeParse({
     phone: formData.get("phone"),
     email: formData.get("email"),
+    marital_status: formData.get("marital_status"),
+    education_level: formData.get("education_level"),
+    employment_status: formData.get("employment_status"),
   });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { phone, email } = validatedFields.data;
+  const { phone, email, marital_status, education_level, employment_status } =
+    validatedFields.data;
 
   try {
     await sql`
       UPDATE profiles
-      SET phone = ${phone}
+      SET phone = ${phone}, marital_status = ${marital_status ?? null},
+          education_level = ${education_level ?? null},
+          employment_status = ${employment_status ?? null}
       WHERE id = ${session.sub}
     `;
     await sql`

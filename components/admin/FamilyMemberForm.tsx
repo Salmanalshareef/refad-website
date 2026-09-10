@@ -4,22 +4,34 @@ import { useActionState, useState } from "react";
 import { saveFamilyMember } from "@/app/actions/admin/family-members";
 import { Button } from "@/components/shared/Button";
 import { HijriYearInput } from "@/components/shared/HijriYearInput";
-import type { FamilyMemberWithProfile } from "@/types/db";
+import type { FamilyMemberWithProfile, Profile } from "@/types/db";
 
 export function FamilyMemberForm({
   member,
   allMembers,
+  profiles,
   onDone,
 }: {
   member?: FamilyMemberWithProfile;
   allMembers: FamilyMemberWithProfile[];
+  profiles: Profile[];
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveFamilyMember, undefined);
   const [isLiving, setIsLiving] = useState(member?.is_living ?? true);
   const [fatherId, setFatherId] = useState(member?.father_id ?? "");
+  const [nationalId, setNationalId] = useState(member?.national_id ?? "");
   const candidateParents = allMembers.filter((m) => m.id !== member?.id);
-  const isMember = Boolean(member?.profile_id);
+
+  // Prefer the direct account link when one already exists; otherwise fall
+  // back to matching the typed national ID against registered profiles.
+  const matchedProfile = profiles.find(
+    (p) => p.national_id && p.national_id === nationalId
+  );
+  const isMember = Boolean(member?.profile_id) || Boolean(matchedProfile);
+  const linkedBirthDate = member?.profile_id
+    ? member?.profile_birth_date
+    : (matchedProfile?.birth_date ?? null);
 
   const nameParts = member?.full_name.trim().split(/\s+/) ?? [];
   const [firstName, secondName, thirdName] = nameParts;
@@ -64,7 +76,8 @@ export function FamilyMemberForm({
         dir="ltr"
         inputMode="numeric"
         maxLength={10}
-        defaultValue={member?.national_id ?? ""}
+        value={nationalId}
+        onChange={(e) => setNationalId(e.target.value)}
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
       />
       <select
@@ -90,7 +103,7 @@ export function FamilyMemberForm({
             id="birth_date"
             name="birth_date"
             label="تاريخ الميلاد"
-            defaultValue={member?.profile_birth_date}
+            defaultValue={linkedBirthDate}
             readOnly
           />
         ) : (

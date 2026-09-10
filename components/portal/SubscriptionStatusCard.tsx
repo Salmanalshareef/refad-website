@@ -34,19 +34,19 @@ export function SubscriptionStatusCard({
         </div>
         <div>
           <dt className="text-xs text-neutral-500">الرقم التعريفي</dt>
-          <dd dir="ltr" className="mt-0.5 font-medium text-primary-900">
+          <dd dir="ltr" className="mt-0.5 text-right font-medium text-primary-900">
             #{profile.member_number}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-500">رقم الاشتراك</dt>
-          <dd dir="ltr" className="mt-0.5 font-medium text-primary-900">
+          <dd dir="ltr" className="mt-0.5 text-right font-medium text-primary-900">
             {subscription?.subscription_number ? `#${subscription.subscription_number}` : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-neutral-500">تاريخ الانتهاء</dt>
-          <dd dir="ltr" className="mt-0.5 font-medium text-primary-900">
+          <dd dir="ltr" className="mt-0.5 text-right font-medium text-primary-900">
             {subscription?.end_date ?? "—"}
           </dd>
         </div>

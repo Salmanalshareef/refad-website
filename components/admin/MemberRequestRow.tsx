@@ -59,6 +59,10 @@ export function MemberRequestRow({ request }: { request: MemberRequestWithDetail
                 <span dir="ltr">{request.national_id}</span>
               </p>
               <p>
+                <span className="text-xs text-neutral-500">اسم الأم: </span>
+                {request.mother_name}
+              </p>
+              <p>
                 <span className="text-xs text-neutral-500">رقم هوية مقدّم الطلب: </span>
                 <span dir="ltr">{request.applicant_national_id ?? "غير مسجل"}</span>
               </p>

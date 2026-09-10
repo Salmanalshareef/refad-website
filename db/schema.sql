@@ -15,6 +15,12 @@ create type task_status as enum ('todo', 'in_progress', 'done');
 create type member_request_type as enum ('news', 'family_member', 'other');
 create type member_request_status as enum ('pending', 'rejected', 'completed');
 create type registration_request_status as enum ('pending', 'approved', 'rejected');
+create type marital_status as enum ('single', 'married', 'divorced', 'widowed');
+create type education_level as enum ('secondary', 'bachelor', 'master', 'doctorate');
+create type employment_status as enum (
+  'public_sector', 'private_sector', 'nonprofit_sector', 'business_owner',
+  'job_seeker', 'student', 'retired', 'homemaker'
+);
 
 -- ── Tables ───────────────────────────────────────────────────────────────
 create table users (
@@ -54,6 +60,9 @@ create table profiles (
   gender gender,
   birth_date date,
   avatar_url text,
+  marital_status marital_status,
+  education_level education_level,
+  employment_status employment_status,
   role profile_role not null default 'member',
   family_member_id uuid references family_members (id) on delete set null,
   created_at timestamptz not null default now()
@@ -84,8 +93,10 @@ create table initiatives (
   title text not null,
   description text not null,
   requirements text,
+  end_date date,
   icon text,
   order_index int not null default 0,
+  is_published boolean not null default true,
   is_requestable boolean not null default true
 );
 
@@ -120,11 +131,12 @@ create table fund_bank_info (
   id uuid primary key default gen_random_uuid(),
   account_name text not null default '',
   bank_name text not null default '',
+  account_number text not null default '',
   iban text not null default '',
   updated_at timestamptz not null default now()
 );
 
-insert into fund_bank_info (account_name, bank_name, iban) values ('', '', '');
+insert into fund_bank_info (account_name, bank_name, account_number, iban) values ('', '', '', '');
 
 create table support_requests (
   id uuid primary key default gen_random_uuid(),
@@ -198,6 +210,7 @@ create table member_requests (
   third_name text,
   fourth_name text,
   national_id text,
+  mother_name text,
   status member_request_status not null default 'pending',
   admin_comment text,
   created_at timestamptz not null default now()

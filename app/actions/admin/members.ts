@@ -87,19 +87,34 @@ export async function updateMemberProfile(
     birth_date: formData.get("birth_date"),
     phone: formData.get("phone"),
     email: formData.get("email"),
+    marital_status: formData.get("marital_status"),
+    education_level: formData.get("education_level"),
+    employment_status: formData.get("employment_status"),
   });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { full_name, national_id, gender, birth_date, phone, email } = validatedFields.data;
+  const {
+    full_name,
+    national_id,
+    gender,
+    birth_date,
+    phone,
+    email,
+    marital_status,
+    education_level,
+    employment_status,
+  } = validatedFields.data;
 
   try {
     await sql`
       UPDATE profiles
       SET full_name = ${full_name}, national_id = ${national_id ?? null},
-          gender = ${gender ?? null}, birth_date = ${birth_date ?? null}, phone = ${phone}
+          gender = ${gender ?? null}, birth_date = ${birth_date ?? null}, phone = ${phone},
+          marital_status = ${marital_status ?? null}, education_level = ${education_level ?? null},
+          employment_status = ${employment_status ?? null}
       WHERE id = ${id}
     `;
     await sql`

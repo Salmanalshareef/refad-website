@@ -4,6 +4,12 @@ import { useActionState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { Button } from "@/components/shared/Button";
 import { formatHijriDisplay } from "@/lib/hijri";
+import {
+  educationLevelLabels,
+  employmentStatusLabels,
+  maritalStatusLabels,
+} from "@/lib/labels/profile";
+import type { EducationLevel, EmploymentStatus, MaritalStatus } from "@/types/db";
 
 export function ProfileForm({
   memberNumber,
@@ -12,6 +18,9 @@ export function ProfileForm({
   nationalId,
   email,
   birthDate,
+  maritalStatus,
+  educationLevel,
+  employmentStatus,
 }: {
   memberNumber: number;
   fullName: string;
@@ -19,6 +28,9 @@ export function ProfileForm({
   nationalId: string | null;
   email: string | null | undefined;
   birthDate: string | null;
+  maritalStatus: MaritalStatus | null;
+  educationLevel: EducationLevel | null;
+  employmentStatus: EmploymentStatus | null;
 }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
 
@@ -32,7 +44,7 @@ export function ProfileForm({
           dir="ltr"
           value={`#${memberNumber}`}
           disabled
-          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
+          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-500"
         />
       </div>
 
@@ -58,7 +70,7 @@ export function ProfileForm({
           value={nationalId ?? ""}
           disabled
           placeholder="لم يتم تسجيله بعد — يتم تعديله من قِبل الإدارة فقط"
-          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
+          className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-500"
         />
       </div>
 
@@ -84,7 +96,7 @@ export function ProfileForm({
           dir="ltr"
           required
           defaultValue={phone}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-right text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
       </div>
 
@@ -98,8 +110,74 @@ export function ProfileForm({
           type="email"
           dir="ltr"
           defaultValue={email ?? ""}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-right text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
+      </div>
+
+      <div>
+        <label
+          htmlFor="marital_status"
+          className="mb-1.5 block text-sm font-medium text-neutral-800"
+        >
+          الحالة الاجتماعية (اختياري)
+        </label>
+        <select
+          id="marital_status"
+          name="marital_status"
+          defaultValue={maritalStatus ?? ""}
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        >
+          <option value="">غير محدد</option>
+          {Object.entries(maritalStatusLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label
+          htmlFor="education_level"
+          className="mb-1.5 block text-sm font-medium text-neutral-800"
+        >
+          المؤهل الدراسي (اختياري)
+        </label>
+        <select
+          id="education_level"
+          name="education_level"
+          defaultValue={educationLevel ?? ""}
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        >
+          <option value="">غير محدد</option>
+          {Object.entries(educationLevelLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label
+          htmlFor="employment_status"
+          className="mb-1.5 block text-sm font-medium text-neutral-800"
+        >
+          الحالة المهنية (اختياري)
+        </label>
+        <select
+          id="employment_status"
+          name="employment_status"
+          defaultValue={employmentStatus ?? ""}
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        >
+          <option value="">غير محدد</option>
+          {Object.entries(employmentStatusLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {state?.error && <p className="text-sm font-medium text-red-600">{state.error}</p>}

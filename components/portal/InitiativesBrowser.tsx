@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
+import { Reveal } from "@/components/shared/Reveal";
 import { cn } from "@/lib/utils";
 import type { Initiative, InitiativeType } from "@/types/db";
 
@@ -25,7 +25,7 @@ export function InitiativesBrowser({
   }
 
   const subServices = selectedTypeId
-    ? initiatives.filter((i) => i.initiative_type_id === selectedTypeId && i.is_requestable)
+    ? initiatives.filter((i) => i.initiative_type_id === selectedTypeId && i.is_published)
     : [];
 
   const viewingInitiative = initiatives.find((i) => i.id === viewingInitiativeId) ?? null;
@@ -66,8 +66,8 @@ export function InitiativesBrowser({
       </div>
 
       {selectedTypeId && (
-        <div>
-          <h2 className="mb-4 text-lg font-bold text-primary-900">اختر خدمة فرعية</h2>
+        <Reveal>
+          <h2 className="mb-4 text-lg font-bold text-primary-900">مشاريع المبادرة</h2>
           {subServices.length === 0 ? (
             <EmptyState message="لا توجد خدمات فرعية متاحة لهذه المبادرة حاليًا." />
           ) : (
@@ -92,26 +92,14 @@ export function InitiativesBrowser({
               })}
             </div>
           )}
-        </div>
+        </Reveal>
       )}
 
       {viewingInitiative && (
-        <div className="mx-auto max-w-2xl rounded-2xl border border-neutral-200 bg-white p-6">
+        <Reveal className="mx-auto max-w-2xl rounded-2xl border border-neutral-200 bg-white p-6">
           <h3 className="text-lg font-bold text-primary-900">{viewingInitiative.title}</h3>
           <p className="mt-2 text-sm text-neutral-700">{viewingInitiative.description}</p>
-          {viewingInitiative.requirements && (
-            <div className="mt-4">
-              <p className="text-sm font-semibold text-neutral-800">المتطلبات</p>
-              <p className="mt-1 text-sm text-neutral-600">{viewingInitiative.requirements}</p>
-            </div>
-          )}
-          <Link
-            href="/portal/services/new-request"
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
-          >
-            تقديم طلب جديد
-          </Link>
-        </div>
+        </Reveal>
       )}
     </div>
   );

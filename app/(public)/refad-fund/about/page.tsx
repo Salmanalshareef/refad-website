@@ -2,27 +2,40 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { FundSubNav } from "@/components/refad-fund/FundSubNav";
-import { Eye, Landmark, Target } from "lucide-react";
+import { Building2, Eye, HeartHandshake, Landmark, Target, Users } from "lucide-react";
 
-const cards = [
-  {
-    icon: Landmark,
-    title: "نبذة عن الصندوق",
-    description:
-      "الإطار المالي والإداري الذي يحكم شؤون الأسرة، ويهدف إلى تنظيم الموارد وتنمية الأصول وتقديم الدعم المستدام لأفراد الأسرة.",
-  },
+const pillars = [
   {
     icon: Eye,
     title: "الرؤية",
-    description: "أن نكون نموذجًا رائدًا ومستدامًا في حوكمة الصناديق العائلية وتمكين أفرادها.",
+    description: "تعزيز صلة الرحم وتحقيق التكافل والتنمية لأفراد الأسرة.",
+    tone: "primary" as const,
   },
   {
     icon: Target,
     title: "الرسالة",
     description:
-      "حشد الموارد والجهود المجتمعية لتقديم مبادرات عالية الجودة تعزز التكافل بأعلى درجات الشفافية.",
+      "الارتقاء بكيان الأسرة من خلال تقديم برامج ومبادرات تدعم الاحتياجات الأساسية والتنموية، مع تعزيز أواصر التكاتف والتكافل الاجتماعي بين أفرادها، عبر منظومة عمل مؤسسي محكم يضمن استدامة الأثر.",
+    tone: "gold" as const,
   },
 ];
+
+const values = [
+  { icon: Users, title: "صلة الرحم", color: "#DFBC95" },
+  { icon: HeartHandshake, title: "التكافل الاجتماعي", color: "#007B76" },
+  { icon: Building2, title: "العمل المؤسسي", color: "#163F47" },
+];
+
+const pillarStyles = {
+  primary: {
+    card: "border-primary-200 bg-primary-800 text-white",
+    icon: "bg-white/10 text-white",
+  },
+  gold: {
+    card: "border-gold-300 bg-gold-400 text-primary-900",
+    icon: "bg-white/40 text-primary-900",
+  },
+};
 
 export default function AboutRefadPage() {
   return (
@@ -31,13 +44,58 @@ export default function AboutRefadPage() {
       <FundSubNav />
 
       <Section>
-        <div className="grid gap-8 sm:grid-cols-3">
-          {cards.map((card, index) => (
-            <Reveal key={card.title} delay={index * 100}>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <card.icon className="mb-4 h-8 w-8 text-primary-700" />
-                <h2 className="mb-2 text-lg font-bold text-primary-900">{card.title}</h2>
-                <p className="text-sm leading-relaxed text-neutral-700">{card.description}</p>
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-50 text-primary-700">
+            <Landmark className="h-7 w-7" />
+          </div>
+          <h2 className="text-2xl font-bold text-primary-900">نبذة عن الصندوق</h2>
+          <p className="mt-4 leading-relaxed text-neutral-700">
+            صندوق رفاد مؤسسة أهلية رسمية مسجلة بالسجل الخاص بالمؤسسات الأهلية
+            الصادر من المركز الوطني لتنمية القطاع غير الربحي برقم 1200777300 وتاريخ {" "}
+            <span className="whitespace-nowrap">1447/08/20 هـ</span>، يقع مقر الصندوق
+            بمدينة الرياض ومحافظة الأفلاج، ويعنى الصندوق بأسرة آل معجب آل يحيى
+            الأشراف.
+          </p>
+        </Reveal>
+      </Section>
+
+      <Section tone="muted">
+        <div className="grid gap-6 sm:grid-cols-2">
+          {pillars.map((pillar, index) => (
+            <Reveal key={pillar.title} delay={index * 150}>
+              <div
+                className={`h-full rounded-2xl border p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${pillarStyles[pillar.tone].card}`}
+              >
+                <div
+                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-full ${pillarStyles[pillar.tone].icon}`}
+                >
+                  <pillar.icon className="h-7 w-7" />
+                </div>
+                <h2 className="text-2xl font-extrabold">{pillar.title}</h2>
+                <p className="mt-4 leading-relaxed opacity-90">{pillar.description}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      <Section>
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold text-primary-900">قيمنا</h2>
+          </div>
+        </Reveal>
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {values.map((value, index) => (
+            <Reveal key={value.title} delay={index * 120}>
+              <div
+                style={{ backgroundColor: value.color }}
+                className="h-full rounded-2xl p-8 text-center text-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-white/15 text-white">
+                  <value.icon className="h-7 w-7" />
+                </div>
+                <h3 className="text-xl font-extrabold">{value.title}</h3>
               </div>
             </Reveal>
           ))}

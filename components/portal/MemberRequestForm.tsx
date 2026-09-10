@@ -62,6 +62,12 @@ export function MemberRequestForm({
 
       {type === "family_member" ? (
         <>
+          <div className="rounded-lg border border-gold-200 bg-gold-50 p-4">
+            <p className="text-sm text-gold-800">
+              لضمان قبول طلب إضافة فرد العائلة، يجب أن تتم إضافته من قِبل والده.
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="first_name" className="mb-1.5 block text-sm font-medium text-neutral-800">
@@ -111,6 +117,13 @@ export function MemberRequestForm({
               required
               className={inputClasses}
             />
+          </div>
+
+          <div>
+            <label htmlFor="mother_name" className="mb-1.5 block text-sm font-medium text-neutral-800">
+              اسم الأم كاملاً
+            </label>
+            <input id="mother_name" name="mother_name" required className={inputClasses} />
           </div>
         </>
       ) : (

@@ -8,6 +8,7 @@ import {
   submitSupportRequest,
 } from "@/app/actions/support-requests";
 import { Button } from "@/components/shared/Button";
+import { InitiativeTermsModal } from "@/components/portal/InitiativeTermsModal";
 import type { Initiative, InitiativeType, Profile } from "@/types/db";
 
 export function NewRequestForm({
@@ -209,6 +210,28 @@ export function NewRequestForm({
         </div>
       )}
 
+      {selectedInitiative?.end_date && (
+        <div className="flex items-center gap-2 rounded-lg border border-gold-200 bg-gold-50 p-4">
+          <p className="text-sm font-semibold text-gold-800">تاريخ انتهاء التقديم:</p>
+          <p dir="ltr" className="text-sm text-gold-700">
+            {selectedInitiative.end_date}
+          </p>
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-neutral-800">
+          الوصف (اختياري)
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={3}
+          placeholder="اكتب وصفًا مختصرًا لطلبك..."
+          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      </div>
+
       <div>
         <label htmlFor="attachment_file" className="mb-1.5 block text-sm font-medium text-neutral-800">
           إرفاق مستند (اختياري)
@@ -224,7 +247,9 @@ export function NewRequestForm({
 
       <label className="flex items-start gap-2 text-sm text-neutral-700">
         <input type="checkbox" name="terms_accepted" required className="mt-1" />
-        أقر بالاطلاع على الشروط والأحكام وأوافق عليها.
+        <span>
+          أقر بالاطلاع على <InitiativeTermsModal /> وأوافق عليها.
+        </span>
       </label>
 
       {state?.error && <p className="text-sm font-medium text-red-600">{state.error}</p>}

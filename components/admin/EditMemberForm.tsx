@@ -4,6 +4,11 @@ import { useActionState } from "react";
 import { updateMemberProfile } from "@/app/actions/admin/members";
 import { Button } from "@/components/shared/Button";
 import { HijriDateInput } from "@/components/shared/HijriDateInput";
+import {
+  educationLevelLabels,
+  employmentStatusLabels,
+  maritalStatusLabels,
+} from "@/lib/labels/profile";
 import type { ProfileWithEmail } from "@/types/db";
 
 export function EditMemberForm({
@@ -66,6 +71,42 @@ export function EditMemberForm({
         label="تاريخ الميلاد"
         defaultValue={profile.birth_date}
       />
+      <select
+        name="marital_status"
+        defaultValue={profile.marital_status ?? ""}
+        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+      >
+        <option value="">الحالة الاجتماعية (غير محدد)</option>
+        {Object.entries(maritalStatusLabels).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+      <select
+        name="education_level"
+        defaultValue={profile.education_level ?? ""}
+        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+      >
+        <option value="">المؤهل الدراسي (غير محدد)</option>
+        {Object.entries(educationLevelLabels).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+      <select
+        name="employment_status"
+        defaultValue={profile.employment_status ?? ""}
+        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm sm:col-span-2"
+      >
+        <option value="">الحالة المهنية (غير محدد)</option>
+        {Object.entries(employmentStatusLabels).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
