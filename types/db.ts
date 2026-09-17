@@ -93,13 +93,19 @@ export type InitiativeType = {
   is_requestable: boolean;
 };
 
+export type InitiativeDateMode = "single" | "period";
+
 export type Initiative = {
   id: string;
   initiative_type_id: string;
   title: string;
   description: string;
   requirements: string | null;
+  date_mode: InitiativeDateMode;
+  start_date: string | null;
   end_date: string | null;
+  age_group: string | null;
+  target_audience: string | null;
   icon: string | null;
   order_index: number;
   is_published: boolean;

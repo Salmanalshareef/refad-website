@@ -1,10 +1,12 @@
 import { sql } from "@/lib/db";
 import { gregorianToHijriYear } from "@/lib/hijri";
-import type { FamilyMemberWithProfile } from "@/types/db";
+import type { FamilyMemberWithProfile, Profile } from "@/types/db";
 
 export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue";
 
 export type FamilyTreeNode = {
+  /** family_members.id — lets the view locate a specific person in the tree. */
+  id: string;
   name: string;
   attributes?: Record<string, string>;
   children?: FamilyTreeNode[];
@@ -75,6 +77,7 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
     }
 
     return {
+      id: member.id,
       name: member.full_name,
       firstName: member.full_name.trim().split(/\s+/)[0] ?? member.full_name,
       yearRange: String(yearRange),
@@ -98,4 +101,27 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
     .sort(byAgeYoungestFirst);
 
   return roots.map(toNode);
+}
+
+/**
+ * Resolves which family tree node represents the signed-in member.
+ *
+ * `profiles.family_member_id` is the authoritative link. Falling back to the
+ * national ID covers profiles that predate that link, and only an unambiguous
+ * single match is accepted — the tree repeats given names across branches, so
+ * guessing by name could focus the wrong person.
+ */
+export async function findSelfFamilyMemberId(
+  profile: Pick<Profile, "family_member_id" | "national_id">
+): Promise<string | null> {
+  if (profile.family_member_id) return profile.family_member_id;
+
+  const nationalId = profile.national_id?.trim();
+  if (!nationalId) return null;
+
+  const rows = (await sql`
+    SELECT id FROM family_members WHERE national_id = ${nationalId} LIMIT 2
+  `) as { id: string }[];
+
+  return rows.length === 1 ? rows[0].id : null;
 }

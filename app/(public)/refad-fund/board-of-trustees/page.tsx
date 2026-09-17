@@ -30,7 +30,7 @@ export default async function BoardOfTrusteesPage() {
                 className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
               >
                 <div className="h-full rounded-2xl border border-neutral-200 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                  <MemberPhoto src={member.photo_url} size={80} className="mx-auto mb-4" />
+                  <MemberPhoto src={member.photo_url} size={160} className="mx-auto mb-4" />
                   <h3 className="text-lg font-bold text-primary-900">
                     {member.full_name}
                   </h3>

@@ -4,7 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { saveInitiative } from "@/app/actions/admin/initiatives";
 import { Button } from "@/components/shared/Button";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
-import type { Initiative, InitiativeType } from "@/types/db";
+import type { Initiative, InitiativeDateMode, InitiativeType } from "@/types/db";
 
 export function InitiativeForm({
   initiative,
@@ -18,6 +18,9 @@ export function InitiativeForm({
   const [state, action, pending] = useActionState(saveInitiative, undefined);
   const [previewUrl, setPreviewUrl] = useState(initiative?.icon ?? null);
   const [removeIcon, setRemoveIcon] = useState(false);
+  const [dateMode, setDateMode] = useState<InitiativeDateMode>(
+    initiative?.date_mode ?? "period"
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -118,15 +121,80 @@ export function InitiativeForm({
           )}
         </div>
       </div>
-      <div className="sm:col-span-2">
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 sm:col-span-2">
+        <p className="mb-2 text-xs font-medium text-neutral-600">التاريخ</p>
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-1.5 text-sm text-neutral-800">
+            <input
+              type="radio"
+              name="date_mode"
+              value="single"
+              checked={dateMode === "single"}
+              onChange={() => setDateMode("single")}
+            />
+            تاريخ محدد للمبادرة
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-neutral-800">
+            <input
+              type="radio"
+              name="date_mode"
+              value="period"
+              checked={dateMode === "period"}
+              onChange={() => setDateMode("period")}
+            />
+            فترة تقديم (من - إلى)
+          </label>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-3">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+              {dateMode === "single" ? "تاريخ المبادرة" : "بداية فترة التقديم"}
+            </label>
+            <input
+              name="start_date"
+              type="date"
+              defaultValue={initiative?.start_date ?? ""}
+              className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </div>
+          {dateMode === "period" && (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+                نهاية فترة التقديم
+              </label>
+              <input
+                name="end_date"
+                type="date"
+                defaultValue={initiative?.end_date ?? ""}
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
         <label className="mb-1.5 block text-xs font-medium text-neutral-600">
-          تاريخ انتهاء التقديم (اختياري)
+          الفئة العمرية (اختياري)
         </label>
         <input
-          name="end_date"
-          type="date"
-          defaultValue={initiative?.end_date ?? ""}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+          name="age_group"
+          defaultValue={initiative?.age_group ?? ""}
+          placeholder="مثال: من 18 إلى 25 سنة"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+          الفئة المستهدفة (اختياري)
+        </label>
+        <input
+          name="target_audience"
+          defaultValue={initiative?.target_audience ?? ""}
+          placeholder="مثال: طلاب الجامعات"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
         />
       </div>
 

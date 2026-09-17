@@ -28,8 +28,8 @@ export default async function InitiativesPage() {
                 className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
               >
                 <div className="group h-full rounded-2xl border border-neutral-200 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 transition-transform duration-300 group-hover:scale-110">
-                    <InitiativeIcon src={type.icon} size={24} />
+                  <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary-50 text-primary-700 transition-transform duration-300 group-hover:scale-110">
+                    <InitiativeIcon src={type.icon} size={72} />
                   </div>
                   <h3 className="text-lg font-bold text-primary-900">{type.title}</h3>
                   {type.description && (

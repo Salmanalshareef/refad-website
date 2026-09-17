@@ -1,9 +1,16 @@
-import { buildFamilyTree, getFamilyMembers } from "@/lib/data/family-tree";
+import { requireProfile } from "@/lib/auth";
+import {
+  buildFamilyTree,
+  findSelfFamilyMemberId,
+  getFamilyMembers,
+} from "@/lib/data/family-tree";
 import { FamilyTreeView } from "@/components/family-tree/FamilyTreeView";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function FamilyTreePage() {
+  const profile = await requireProfile();
   const members = await getFamilyMembers().catch(() => null);
+  const selfNodeId = await findSelfFamilyMemberId(profile).catch(() => null);
   const livingCount = members?.filter((m) => m.is_living).length ?? 0;
 
   return (
@@ -26,7 +33,7 @@ export default async function FamilyTreePage() {
       {members === null ? (
         <EmptyState message="تعذر تحميل شجرة الأسرة. تأكد من إعداد الاتصال بقاعدة البيانات." />
       ) : (
-        <FamilyTreeView data={buildFamilyTree(members)} />
+        <FamilyTreeView data={buildFamilyTree(members)} selfNodeId={selfNodeId} />
       )}
     </div>
   );

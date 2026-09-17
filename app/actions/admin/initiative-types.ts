@@ -82,6 +82,7 @@ export async function saveInitiativeType(
   revalidatePath("/portal/admin/initiatives");
   revalidatePath("/refad-fund/initiatives");
   revalidatePath("/portal/services");
+  revalidatePath("/portal/services/[typeId]", "page");
   return undefined;
 }
 
@@ -106,6 +107,7 @@ export async function toggleInitiativeTypeRequestable(id: string, isRequestable:
   revalidatePath("/portal/admin/initiative-types");
   revalidatePath("/portal/admin/initiatives");
   revalidatePath("/portal/services");
+  revalidatePath("/portal/services/[typeId]", "page");
 }
 
 export async function deleteInitiativeType(id: string) {
@@ -124,4 +126,5 @@ export async function deleteInitiativeType(id: string) {
   revalidatePath("/portal/admin/initiatives");
   revalidatePath("/refad-fund/initiatives");
   revalidatePath("/portal/services");
+  revalidatePath("/portal/services/[typeId]", "page");
 }

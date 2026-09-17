@@ -29,18 +29,36 @@ const LEGEND_ITEMS: { color: NodeStatusColor; label: string }[] = [
   { color: "yellow", label: "متوفى، بدون أبناء" },
 ];
 
-function FamilyTreeNodeElement({ nodeDatum, toggleNode, onNodeClick }: CustomNodeElementProps) {
+function FamilyTreeNodeElement({
+  nodeDatum,
+  toggleNode,
+  onNodeClick,
+  isSelf,
+}: CustomNodeElementProps & { isSelf: boolean }) {
   const data = nodeDatum as unknown as FamilyTreeNode;
   const { fill, stroke } = STATUS_STYLES[data.statusColor] ?? STATUS_STYLES.white;
 
   return (
     <g
+      data-self-node={isSelf ? "true" : undefined}
       onClick={(evt) => {
         toggleNode();
         onNodeClick(evt);
       }}
       style={{ cursor: "pointer" }}
     >
+      {isSelf && (
+        <rect
+          x={-NODE_WIDTH / 2 - 5}
+          y={-NODE_HEIGHT / 2 - 5}
+          width={NODE_WIDTH + 10}
+          height={NODE_HEIGHT + 10}
+          rx={14}
+          fill="none"
+          stroke="#286e62"
+          strokeWidth={2.5}
+        />
+      )}
       <rect
         x={-NODE_WIDTH / 2}
         y={-NODE_HEIGHT / 2}
@@ -61,28 +79,128 @@ function FamilyTreeNodeElement({ nodeDatum, toggleNode, onNodeClick }: CustomNod
   );
 }
 
-export function FamilyTreeView({ data }: { data: FamilyTreeNode[] }) {
+export function FamilyTreeView({
+  data,
+  selfNodeId,
+}: {
+  data: FamilyTreeNode[];
+  selfNodeId?: string | null;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<RawNodeDatum | null>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 80 });
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
 
-  const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
-  const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)));
-  const zoomReset = () => setZoom(ZOOM_DEFAULT);
+  // react-d3-tree keeps its own pan/zoom internally and only reads these props
+  // when they change, so the live transform is mirrored into a ref rather than
+  // state: writing it to state on every pan would re-render mid-gesture.
+  const liveTransformRef = useRef({ x: 0, y: 80, k: ZOOM_DEFAULT });
+  const hasFocusedRef = useRef(false);
+
+  /** Rescales around the viewport centre so zooming keeps the current pan. */
+  const applyZoom = (next: number) => {
+    const container = containerRef.current;
+    const live = liveTransformRef.current;
+    if (container && live.k > 0) {
+      const cx = container.clientWidth / 2;
+      const cy = container.clientHeight / 2;
+      const ratio = next / live.k;
+      setTranslate({
+        x: cx - (cx - live.x) * ratio,
+        y: cy - (cy - live.y) * ratio,
+      });
+    }
+    setZoom(next);
+  };
+
+  const zoomIn = () => applyZoom(Math.min(ZOOM_MAX, +(zoom + ZOOM_STEP).toFixed(2)));
+  const zoomOut = () => applyZoom(Math.max(ZOOM_MIN, +(zoom - ZOOM_STEP).toFixed(2)));
+  const zoomReset = () => applyZoom(ZOOM_DEFAULT);
 
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
 
-    const updateTranslate = () =>
+    const updateTranslate = () => {
+      // Once the view has been focused on the viewer, a resize must not yank
+      // it back to the root — that would undo wherever they have panned to.
+      if (hasFocusedRef.current) return;
       setTranslate({ x: node.clientWidth / 2, y: 80 });
+    };
 
     updateTranslate();
     const observer = new ResizeObserver(updateTranslate);
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  // Positions the view once, after react-d3-tree has laid the nodes out. The
+  // layout is computed inside the library and never exposed, so positions are
+  // read back from the rendered SVG.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || hasFocusedRef.current) return;
+
+    let frame = 0;
+    const deadline = Date.now() + 5000;
+
+    const centerOn = (x: number, y: number) => {
+      const k = ZOOM_DEFAULT;
+      hasFocusedRef.current = true;
+      setTranslate({
+        x: -x * k + container.clientWidth / 2,
+        y: -y * k + container.clientHeight / 2,
+      });
+      setZoom(k);
+    };
+
+    /** Where the signed-in member sits, if their node is on screen. */
+    const selfPosition = () => {
+      const marker = container.querySelector<SVGGElement>('[data-self-node="true"]');
+      const group = marker?.closest<SVGGElement>("g.rd3t-node, g.rd3t-leaf-node");
+      const match = group
+        ?.getAttribute("transform")
+        ?.match(/translate(s*(-?[d.]+)s*,s*(-?[d.]+)s*)/);
+      return match ? { x: Number(match[1]), y: Number(match[2]) } : null;
+    };
+
+    /** The midpoint of every drawn node, used when there is no node to focus. */
+    const treeCenter = () => {
+      const g = container.querySelector<SVGGElement>("g.rd3t-g");
+      if (!g || g.childNodes.length === 0) return null;
+      try {
+        const box = g.getBBox();
+        if (box.width === 0 && box.height === 0) return null;
+        return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      } catch {
+        return null;
+      }
+    };
+
+    const tick = () => {
+      const self = selfNodeId ? selfPosition() : null;
+      if (self) {
+        centerOn(self.x, self.y);
+        return;
+      }
+
+      // Either this member has no national ID linked to a node, or their node
+      // never appeared. Settle on the middle of the tree rather than leaving
+      // the view pinned to the root.
+      if (!selfNodeId || Date.now() >= deadline) {
+        const center = treeCenter();
+        if (center) {
+          centerOn(center.x, center.y);
+          return;
+        }
+      }
+
+      if (Date.now() < deadline) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [selfNodeId, data]);
 
   if (data.length === 0) {
     return (
@@ -137,8 +255,23 @@ export function FamilyTreeView({ data }: { data: FamilyTreeNode[] }) {
           zoomable
           separation={{ siblings: 1.2, nonSiblings: 1.6 }}
           nodeSize={{ x: 160, y: 120 }}
-          renderCustomNodeElement={(rd3tProps) => <FamilyTreeNodeElement {...rd3tProps} />}
+          renderCustomNodeElement={(rd3tProps) => (
+            <FamilyTreeNodeElement
+              {...rd3tProps}
+              isSelf={
+                Boolean(selfNodeId) &&
+                (rd3tProps.nodeDatum as unknown as FamilyTreeNode).id === selfNodeId
+              }
+            />
+          )}
           onNodeClick={(nodeDatum) => setSelected(nodeDatum.data)}
+          onUpdate={({ zoom: liveZoom, translate: liveTranslate }) => {
+            liveTransformRef.current = {
+              x: liveTranslate.x,
+              y: liveTranslate.y,
+              k: liveZoom,
+            };
+          }}
         />
       </div>
 

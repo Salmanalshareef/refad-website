@@ -9,21 +9,21 @@ import {
 } from "@/app/actions/support-requests";
 import { Button } from "@/components/shared/Button";
 import { InitiativeTermsModal } from "@/components/portal/InitiativeTermsModal";
+import { InitiativeDateValue } from "@/components/shared/InitiativeDateValue";
+import { formatInitiativeDate } from "@/lib/initiative-date";
 import type { Initiative, InitiativeType, Profile } from "@/types/db";
 
 export function NewRequestForm({
   profile,
-  types,
-  initiatives,
+  type,
+  initiative,
 }: {
   profile: Profile;
-  types: InitiativeType[];
-  initiatives: Initiative[];
+  type: InitiativeType;
+  initiative: Initiative;
 }) {
   const [draft, setDraft] = useState<{ id: string; requestNumber: number } | null>(null);
   const [draftError, setDraftError] = useState(false);
-  const [selectedTypeId, setSelectedTypeId] = useState("");
-  const [selectedInitiativeId, setSelectedInitiativeId] = useState("");
   const draftIdRef = useRef<string | null>(null);
   const submittedRef = useRef(false);
 
@@ -68,10 +68,7 @@ export function NewRequestForm({
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const subServices = selectedTypeId
-    ? initiatives.filter((i) => i.initiative_type_id === selectedTypeId && i.is_requestable)
-    : [];
-  const selectedInitiative = initiatives.find((i) => i.id === selectedInitiativeId) ?? null;
+  const initiativeDate = formatInitiativeDate(initiative);
 
   if (state?.success) {
     return (
@@ -120,7 +117,7 @@ export function NewRequestForm({
           <p className="mb-1.5 text-sm font-medium text-neutral-800">الرقم التعريفي</p>
           <p
             dir="ltr"
-            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-600"
+            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-600"
           >
             #{profile.member_number}
           </p>
@@ -129,7 +126,7 @@ export function NewRequestForm({
           <p className="mb-1.5 text-sm font-medium text-neutral-800">رقم الهوية الوطنية</p>
           <p
             dir="ltr"
-            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-600"
+            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-600"
           >
             {profile.national_id ?? "غير مسجل"}
           </p>
@@ -138,7 +135,7 @@ export function NewRequestForm({
           <p className="mb-1.5 text-sm font-medium text-neutral-800">تاريخ الطلب</p>
           <p
             dir="ltr"
-            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-600"
+            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-600"
           >
             {today}
           </p>
@@ -147,75 +144,34 @@ export function NewRequestForm({
           <p className="mb-1.5 text-sm font-medium text-neutral-800">رقم الطلب (مسودة)</p>
           <p
             dir="ltr"
-            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-600"
+            className="rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-right text-sm text-neutral-600"
           >
             #{draft.requestNumber}
           </p>
         </div>
       </div>
 
-      <div>
-        <label htmlFor="type_id" className="mb-1.5 block text-sm font-medium text-neutral-800">
-          اختر المبادرة
-        </label>
-        <select
-          id="type_id"
-          value={selectedTypeId}
-          onChange={(e) => {
-            setSelectedTypeId(e.target.value);
-            setSelectedInitiativeId("");
-          }}
-          required
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        >
-          <option value="" disabled>
-            اختر مبادرة
-          </option>
-          {types.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.title}
-            </option>
-          ))}
-        </select>
+      <input type="hidden" name="initiative_id" value={initiative.id} />
+
+      <div className="rounded-lg border border-primary-200 bg-primary-50 p-4">
+        <p className="text-xs font-semibold text-primary-700">{type.title}</p>
+        <p className="mt-0.5 text-base font-bold text-primary-900">{initiative.title}</p>
+        <p className="mt-1 text-sm text-primary-800">{initiative.description}</p>
       </div>
 
-      <div>
-        <label htmlFor="initiative_id" className="mb-1.5 block text-sm font-medium text-neutral-800">
-          اختر الخدمة الفرعية
-        </label>
-        <select
-          id="initiative_id"
-          name="initiative_id"
-          value={selectedInitiativeId}
-          onChange={(e) => setSelectedInitiativeId(e.target.value)}
-          required
-          disabled={!selectedTypeId}
-          className="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-neutral-100 disabled:text-neutral-400"
-        >
-          <option value="" disabled>
-            {selectedTypeId ? "اختر خدمة فرعية" : "اختر مبادرة أولًا"}
-          </option>
-          {subServices.map((initiative) => (
-            <option key={initiative.id} value={initiative.id}>
-              {initiative.title}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {selectedInitiative?.requirements && (
+      {initiative.requirements && (
         <div className="rounded-lg border border-gold-200 bg-gold-50 p-4">
           <p className="text-sm font-semibold text-gold-800">المتطلبات</p>
-          <p className="mt-1 text-sm text-gold-700">{selectedInitiative.requirements}</p>
+          <p className="mt-1 whitespace-pre-line text-sm text-gold-700">
+            {initiative.requirements}
+          </p>
         </div>
       )}
 
-      {selectedInitiative?.end_date && (
-        <div className="flex items-center gap-2 rounded-lg border border-gold-200 bg-gold-50 p-4">
-          <p className="text-sm font-semibold text-gold-800">تاريخ انتهاء التقديم:</p>
-          <p dir="ltr" className="text-sm text-gold-700">
-            {selectedInitiative.end_date}
-          </p>
+      {initiativeDate && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-gold-200 bg-gold-50 p-4">
+          <p className="text-sm font-semibold text-gold-800">{initiativeDate.label}:</p>
+          <InitiativeDateValue date={initiativeDate} className="text-sm text-gold-700" />
         </div>
       )}
 

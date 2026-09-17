@@ -17,7 +17,7 @@ export function MemberPhoto({
 }) {
   return (
     <div
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-50 text-primary-700 ${className ?? ""}`}
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full ${src ? "bg-white" : "bg-primary-50"} text-primary-700 ${className ?? ""}`}
       style={{ width: size, height: size }}
     >
       {src ? (

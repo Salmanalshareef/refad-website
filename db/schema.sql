@@ -15,6 +15,7 @@ create type task_status as enum ('todo', 'in_progress', 'done');
 create type member_request_type as enum ('news', 'family_member', 'other');
 create type member_request_status as enum ('pending', 'rejected', 'completed');
 create type registration_request_status as enum ('pending', 'approved', 'rejected');
+create type initiative_date_mode as enum ('single', 'period');
 create type marital_status as enum ('single', 'married', 'divorced', 'widowed');
 create type education_level as enum ('secondary', 'bachelor', 'master', 'doctorate');
 create type employment_status as enum (
@@ -93,7 +94,11 @@ create table initiatives (
   title text not null,
   description text not null,
   requirements text,
+  date_mode initiative_date_mode not null default 'period',
+  start_date date,
   end_date date,
+  age_group text,
+  target_audience text,
   icon text,
   order_index int not null default 0,
   is_published boolean not null default true,
