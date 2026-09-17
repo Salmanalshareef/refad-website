@@ -85,6 +85,9 @@ export function InitiativesBrowser({
                       isSelected ? "border-primary-500 ring-1 ring-primary-500" : "border-neutral-200"
                     )}
                   >
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-700">
+                      <InitiativeIcon src={initiative.icon} size={20} />
+                    </div>
                     <h3 className="font-bold text-primary-900">{initiative.title}</h3>
                     <p className="mt-1 text-sm text-neutral-600">{initiative.description}</p>
                   </button>
@@ -97,6 +100,9 @@ export function InitiativesBrowser({
 
       {viewingInitiative && (
         <Reveal className="mx-auto max-w-2xl rounded-2xl border border-neutral-200 bg-white p-6">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700">
+            <InitiativeIcon src={viewingInitiative.icon} size={24} />
+          </div>
           <h3 className="text-lg font-bold text-primary-900">{viewingInitiative.title}</h3>
           <p className="mt-2 text-sm text-neutral-700">{viewingInitiative.description}</p>
         </Reveal>

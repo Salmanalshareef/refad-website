@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
 import { InitiativeForm } from "@/components/admin/InitiativeForm";
+import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import {
   deleteInitiative,
@@ -36,9 +37,14 @@ export function InitiativeRow({
 
   return (
     <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4">
-      <div>
-        <p className="mb-0.5 text-xs font-semibold text-gold-600">{typeName}</p>
-        <p className="font-medium text-primary-900">{initiative.title}</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
+          <InitiativeIcon src={initiative.icon} size={20} />
+        </div>
+        <div>
+          <p className="mb-0.5 text-xs font-semibold text-gold-600">{typeName}</p>
+          <p className="font-medium text-primary-900">{initiative.title}</p>
+        </div>
       </div>
       <div className="flex items-center gap-1">
         <button

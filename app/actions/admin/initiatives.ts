@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { put, del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { InitiativeFormSchema, type InitiativeFormState } from "@/lib/validation/initiative";
+
+const ALLOWED_ICON_TYPES = ["image/svg+xml", "image/png", "image/webp"];
 
 export async function saveInitiative(
   _prevState: InitiativeFormState,
@@ -28,19 +31,49 @@ export async function saveInitiative(
   const { id, initiative_type_id, title, description, requirements, end_date, order_index } =
     validatedFields.data;
 
+  const currentIconUrl = (formData.get("current_icon_url") as string) || null;
+  const removeIcon = formData.get("remove_icon") === "true";
+  const iconFile = formData.get("icon_file");
+
+  let iconUrl: string | null = currentIconUrl;
+
+  if (iconFile instanceof File && iconFile.size > 0) {
+    if (!ALLOWED_ICON_TYPES.includes(iconFile.type)) {
+      return { error: "صيغة الملف غير مدعومة. الرجاء رفع SVG أو PNG أو WebP." };
+    }
+    try {
+      const blob = await put(
+        `initiative-icons/${crypto.randomUUID()}-${iconFile.name}`,
+        iconFile,
+        { access: "public" }
+      );
+      iconUrl = blob.url;
+    } catch {
+      return { error: "تعذر رفع الأيقونة." };
+    }
+    if (currentIconUrl) {
+      await del(currentIconUrl).catch(() => {});
+    }
+  } else if (removeIcon) {
+    if (currentIconUrl) {
+      await del(currentIconUrl).catch(() => {});
+    }
+    iconUrl = null;
+  }
+
   try {
     if (id) {
       await sql`
         UPDATE initiatives
         SET initiative_type_id = ${initiative_type_id}, title = ${title},
             description = ${description}, requirements = ${requirements ?? null},
-            end_date = ${end_date ?? null}, order_index = ${order_index}
+            end_date = ${end_date ?? null}, icon = ${iconUrl}, order_index = ${order_index}
         WHERE id = ${id}
       `;
     } else {
       await sql`
-        INSERT INTO initiatives (initiative_type_id, title, description, requirements, end_date, order_index)
-        VALUES (${initiative_type_id}, ${title}, ${description}, ${requirements ?? null}, ${end_date ?? null}, ${order_index})
+        INSERT INTO initiatives (initiative_type_id, title, description, requirements, end_date, icon, order_index)
+        VALUES (${initiative_type_id}, ${title}, ${description}, ${requirements ?? null}, ${end_date ?? null}, ${iconUrl}, ${order_index})
       `;
     }
   } catch {
@@ -85,6 +118,14 @@ export async function toggleInitiativeRequestable(id: string, isRequestable: boo
 
 export async function deleteInitiative(id: string) {
   await requireAdmin();
+
+  const rows = (await sql`
+    SELECT icon FROM initiatives WHERE id = ${id}
+  `) as { icon: string | null }[];
+  if (rows[0]?.icon) {
+    await del(rows[0].icon).catch(() => {});
+  }
+
   await sql`DELETE FROM initiatives WHERE id = ${id}`;
 
   revalidatePath("/portal/admin/initiatives");

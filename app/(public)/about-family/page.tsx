@@ -28,17 +28,21 @@ export default function AboutFamilyPage() {
     <>
       <PageHeader
         eyebrow="عن الأسرة"
-        title="عائلة آل معجب"
+        title="أسرة آل معجب"
         description="تاريخ عريق ومبادئ راسخة تجمعنا على مر الأجيال."
       />
 
       <Section>
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-bold text-primary-900">نبذة عن الأسرة</h2>
-          <p className="mt-4 leading-relaxed text-neutral-700">
-            تتحد عائلة آل معجب بتاريخ عريق ومبادئ راسخة، وتحرص على تعزيز أواصر
-            القربى وترسيخ التكافل بين أبنائها عبر الأجيال المتعاقبة، سعيًا نحو
-            بناء منظومة أسرية متماسكة تحفظ الهوية وتدعم التطور المستمر.
+          <p className="mt-4 text-lg leading-relaxed text-neutral-700 text-justify">
+            تستند أسرة آل معجب آل يحيى الشريف إلى تاريخٍ ممتدٍّ وجذورٍ ضاربةٍ في أصالة النسب والرفعة، متصلة السند بآل البيت الكرام؛ إذ يعود نسبهم إلى الأشراف الرسيين الحسنيين من آل شيبان.
+          </p>
+          <p className="mt-4 text-lg leading-relaxed text-neutral-700 text-justify">
+            شهد مطلع القرن الحادي عشر الهجري محطة استقرار جدهم الأول، الشريف يحيى بن إدريس، في محافظة الأفلاج بمنطقة الرياض. ومن تلك المحافظة العريقة، امتدت فروع الأسرة وتوسعت مجالسها، لتنتشر في العاصمة الرياض ومختلف محافظاتها، حاملةً معها القيم الأصيلة وتاريخاً مجيداً من التآلف والترابط.
+          </p>
+          <p className="mt-4 text-lg leading-relaxed text-neutral-700 text-justify">
+            وعبر العقود، عُرِفت الأسرة بمكانتها الاجتماعية المرموقة ووجاهتها، وبرز من أبنائها عبر الأجيال رجالات قضاء وشخصيات وطنية ومسؤولون ساهموا بفاعلية في خدمة الدين والوطن والمجتمع، ومواصلة مسيرة العطاء في شتى المجالات العلمية والمهنية.
           </p>
         </Reveal>
       </Section>
@@ -46,7 +50,7 @@ export default function AboutFamilyPage() {
       <Section tone="muted">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-primary-900">قيمنا العائلية</h2>
+            <h2 className="text-2xl font-bold text-primary-900">قيمنا الأسرية</h2>
           </div>
         </Reveal>
         <div className="mt-10 grid gap-6 sm:grid-cols-3">

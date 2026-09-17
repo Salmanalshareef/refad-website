@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth";
-import { getProfilesByRole } from "@/lib/data/members";
+import { getAllProfilesWithEmail } from "@/lib/data/members";
 import {
   educationLevelLabels,
   employmentStatusLabels,
@@ -17,11 +17,12 @@ function csvField(value: string | number) {
 export async function GET() {
   await requireAdmin();
 
-  const profiles = await getProfilesByRole("member");
+  const profiles = await getAllProfilesWithEmail();
 
   const header = [
     "الرقم التعريفي",
     "الاسم الكامل",
+    "الدور",
     "رقم الهوية الوطنية",
     "رقم الجوال",
     "البريد الإلكتروني",
@@ -34,6 +35,7 @@ export async function GET() {
   const rows = profiles.map((profile) => [
     profile.member_number,
     profile.full_name,
+    profile.role === "admin" ? "مسؤول" : "عضو",
     profile.national_id ?? "",
     profile.phone,
     profile.email ?? "",

@@ -6,7 +6,13 @@ import { MemberRow } from "@/components/admin/MemberRow";
 import { EmptyState } from "@/components/shared/EmptyState";
 import type { ProfileWithEmail } from "@/types/db";
 
-export function MemberList({ profiles }: { profiles: ProfileWithEmail[] }) {
+export function MemberList({
+  profiles,
+  currentProfileId,
+}: {
+  profiles: ProfileWithEmail[];
+  currentProfileId: string;
+}) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -44,7 +50,11 @@ export function MemberList({ profiles }: { profiles: ProfileWithEmail[] }) {
         />
       )}
       {filtered.map((profile) => (
-        <MemberRow key={profile.id} profile={profile} />
+        <MemberRow
+          key={profile.id}
+          profile={profile}
+          isSelf={profile.id === currentProfileId}
+        />
       ))}
     </div>
   );

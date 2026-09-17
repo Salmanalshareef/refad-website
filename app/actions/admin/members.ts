@@ -139,7 +139,9 @@ export async function updateMemberRole(id: string, role: "member" | "admin") {
 }
 
 export async function deleteMember(id: string) {
-  await requireAdmin();
+  const currentAdmin = await requireAdmin();
+  if (id === currentAdmin.id) return;
+
   // profiles.id references users(id) on delete cascade
   await sql`DELETE FROM users WHERE id = ${id}`;
 

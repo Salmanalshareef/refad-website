@@ -1,13 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, User } from "lucide-react";
+import { Pencil, ShieldCheck, User } from "lucide-react";
 import { EditMemberForm } from "@/components/admin/EditMemberForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { deleteMember } from "@/app/actions/admin/members";
 import type { ProfileWithEmail } from "@/types/db";
 
-export function MemberRow({ profile }: { profile: ProfileWithEmail }) {
+export function MemberRow({
+  profile,
+  isSelf,
+}: {
+  profile: ProfileWithEmail;
+  isSelf: boolean;
+}) {
   const [editing, setEditing] = useState(false);
 
   if (editing) {
@@ -25,7 +31,16 @@ export function MemberRow({ profile }: { profile: ProfileWithEmail }) {
           <User className="h-5 w-5" />
         </div>
         <div>
-          <p className="font-medium text-primary-900">{profile.full_name}</p>
+          <p className="font-medium text-primary-900">
+            {profile.full_name}
+            {profile.role === "admin" && (
+              <span className="ms-2 inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-xs font-semibold text-primary-700">
+                <ShieldCheck className="h-3 w-3" />
+                مسؤول
+              </span>
+            )}
+            {isSelf && <span className="ms-2 text-xs font-normal text-neutral-500">(أنت)</span>}
+          </p>
           {profile.phone && <p className="text-xs text-neutral-500">{profile.phone}</p>}
         </div>
       </div>
@@ -41,6 +56,8 @@ export function MemberRow({ profile }: { profile: ProfileWithEmail }) {
         <DeleteButton
           action={() => deleteMember(profile.id)}
           confirmMessage="هل أنت متأكد من حذف هذا الحساب؟"
+          disabled={isSelf}
+          title={isSelf ? "لا يمكنك حذف حسابك الخاص من هنا" : undefined}
         />
       </div>
     </div>

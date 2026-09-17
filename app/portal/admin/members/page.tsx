@@ -1,10 +1,12 @@
-import { getProfilesByRole } from "@/lib/data/members";
+import { requireAdmin } from "@/lib/auth";
+import { getAllProfilesWithEmail } from "@/lib/data/members";
 import { MemberForm } from "@/components/admin/MemberForm";
 import { MemberList } from "@/components/admin/MemberList";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function AdminMembersPage() {
-  const profiles = await getProfilesByRole("member").catch(() => null);
+  const currentAdmin = await requireAdmin();
+  const profiles = await getAllProfilesWithEmail().catch(() => null);
 
   return (
     <div className="space-y-8">
@@ -16,7 +18,7 @@ export default async function AdminMembersPage() {
       {profiles === null ? (
         <EmptyState message="تعذر تحميل البيانات. تأكد من إعداد الاتصال بقاعدة البيانات." />
       ) : (
-        <MemberList profiles={profiles} />
+        <MemberList profiles={profiles} currentProfileId={currentAdmin.id} />
       )}
     </div>
   );

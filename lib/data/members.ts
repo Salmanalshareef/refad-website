@@ -16,3 +16,12 @@ export async function getProfilesByRole(role: "member" | "admin") {
     ORDER BY p.created_at DESC
   `) as ProfileWithEmail[];
 }
+
+export async function getAllProfilesWithEmail() {
+  return (await sql`
+    SELECT p.*, u.email
+    FROM profiles p
+    JOIN users u ON u.id = p.id
+    ORDER BY p.created_at DESC
+  `) as ProfileWithEmail[];
+}
