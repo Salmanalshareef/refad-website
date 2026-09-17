@@ -21,6 +21,9 @@ const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.2;
 const ZOOM_DEFAULT = 1;
+// Landing zoom for the signed-in member: the closest the view allows, so the
+// card is as large as it can get. Follows ZOOM_MAX if that limit ever changes.
+const ZOOM_FOCUS = ZOOM_MAX;
 
 const LEGEND_ITEMS: { color: NodeStatusColor; label: string }[] = [
   { color: "green", label: "على قيد الحياة، وله أبناء" },
@@ -97,20 +100,28 @@ export function FamilyTreeView({
   const liveTransformRef = useRef({ x: 0, y: 80, k: ZOOM_DEFAULT });
   const hasFocusedRef = useRef(false);
 
+  /** Mirrors the transform actually applied, so later moves start from truth. */
+  const setView = (next: { x: number; y: number }, nextZoom: number) => {
+    liveTransformRef.current = { x: next.x, y: next.y, k: nextZoom };
+    setTranslate(next);
+    setZoom(nextZoom);
+  };
+
   /** Rescales around the viewport centre so zooming keeps the current pan. */
   const applyZoom = (next: number) => {
     const container = containerRef.current;
     const live = liveTransformRef.current;
-    if (container && live.k > 0) {
-      const cx = container.clientWidth / 2;
-      const cy = container.clientHeight / 2;
-      const ratio = next / live.k;
-      setTranslate({
-        x: cx - (cx - live.x) * ratio,
-        y: cy - (cy - live.y) * ratio,
-      });
+    if (!container || live.k <= 0) {
+      setZoom(next);
+      return;
     }
-    setZoom(next);
+    const cx = container.clientWidth / 2;
+    const cy = container.clientHeight / 2;
+    const ratio = next / live.k;
+    setView(
+      { x: cx - (cx - live.x) * ratio, y: cy - (cy - live.y) * ratio },
+      next
+    );
   };
 
   const zoomIn = () => applyZoom(Math.min(ZOOM_MAX, +(zoom + ZOOM_STEP).toFixed(2)));
@@ -122,8 +133,8 @@ export function FamilyTreeView({
     if (!node) return;
 
     const updateTranslate = () => {
-      // Once the view has been focused on the viewer, a resize must not yank
-      // it back to the root — that would undo wherever they have panned to.
+      // Once the view has been focused, a resize must not yank it back to the
+      // root — that would undo wherever the member has panned to.
       if (hasFocusedRef.current) return;
       setTranslate({ x: node.clientWidth / 2, y: 80 });
     };
@@ -134,37 +145,45 @@ export function FamilyTreeView({
     return () => observer.disconnect();
   }, []);
 
-  // Positions the view once, after react-d3-tree has laid the nodes out. The
-  // layout is computed inside the library and never exposed, so positions are
-  // read back from the rendered SVG.
+  // Positions the view once, after react-d3-tree has laid the nodes out.
   useEffect(() => {
     const container = containerRef.current;
     if (!container || hasFocusedRef.current) return;
 
     let frame = 0;
+    let lastSample: { x: number; y: number } | null = null;
     const deadline = Date.now() + 5000;
 
-    const centerOn = (x: number, y: number) => {
-      const k = ZOOM_DEFAULT;
-      hasFocusedRef.current = true;
-      setTranslate({
-        x: -x * k + container.clientWidth / 2,
-        y: -y * k + container.clientHeight / 2,
-      });
-      setZoom(k);
+    /** The transform react-d3-tree currently has applied to the whole tree. */
+    const appliedTransform = () => {
+      const g = container.querySelector<SVGGElement>("g.rd3t-g");
+      const match = g
+        ?.getAttribute("transform")
+        ?.match(/translate(s*(-?[d.]+)s*,s*(-?[d.]+)s*)s*scale(s*([d.]+)s*)/);
+      return match
+        ? { x: Number(match[1]), y: Number(match[2]), k: Number(match[3]) }
+        : null;
     };
 
-    /** Where the signed-in member sits, if their node is on screen. */
-    const selfPosition = () => {
+    /**
+     * Centre of the member's node in container pixels, measured from what is
+     * actually painted so the real node box — border, padding and all — lands
+     * on the viewport centre rather than its layout anchor.
+     */
+    const measureSelf = () => {
       const marker = container.querySelector<SVGGElement>('[data-self-node="true"]');
       const group = marker?.closest<SVGGElement>("g.rd3t-node, g.rd3t-leaf-node");
-      const match = group
-        ?.getAttribute("transform")
-        ?.match(/translate(s*(-?[d.]+)s*,s*(-?[d.]+)s*)/);
-      return match ? { x: Number(match[1]), y: Number(match[2]) } : null;
+      if (!group) return null;
+      const nodeBox = group.getBoundingClientRect();
+      if (nodeBox.width === 0 && nodeBox.height === 0) return null;
+      const containerBox = container.getBoundingClientRect();
+      return {
+        x: nodeBox.left + nodeBox.width / 2 - containerBox.left,
+        y: nodeBox.top + nodeBox.height / 2 - containerBox.top,
+      };
     };
 
-    /** The midpoint of every drawn node, used when there is no node to focus. */
+    /** Midpoint of every drawn node, in layout units. */
     const treeCenter = () => {
       const g = container.querySelector<SVGGElement>("g.rd3t-g");
       if (!g || g.childNodes.length === 0) return null;
@@ -177,20 +196,50 @@ export function FamilyTreeView({
       }
     };
 
+    /** Puts a point given in layout units at the centre of the viewport. */
+    const centerOnLayoutPoint = (point: { x: number; y: number }, k: number) => {
+      hasFocusedRef.current = true;
+      setView(
+        {
+          x: container.clientWidth / 2 - point.x * k,
+          y: container.clientHeight / 2 - point.y * k,
+        },
+        k
+      );
+    };
+
     const tick = () => {
-      const self = selfNodeId ? selfPosition() : null;
-      if (self) {
-        centerOn(self.x, self.y);
-        return;
+      const applied = appliedTransform();
+      const sample = selfNodeId && applied ? measureSelf() : null;
+
+      if (sample && applied) {
+        // A node first renders at its parent's coordinates and only moves to
+        // its own in componentDidMount, so a single reading can be a whole row
+        // too high. Accept a position only once it has stopped changing.
+        const settled =
+          lastSample !== null &&
+          Math.abs(lastSample.x - sample.x) < 0.5 &&
+          Math.abs(lastSample.y - sample.y) < 0.5;
+        lastSample = sample;
+
+        if (settled) {
+          centerOnLayoutPoint(
+            {
+              x: (sample.x - applied.x) / applied.k,
+              y: (sample.y - applied.y) / applied.k,
+            },
+            ZOOM_FOCUS
+          );
+          return;
+        }
       }
 
-      // Either this member has no national ID linked to a node, or their node
-      // never appeared. Settle on the middle of the tree rather than leaving
-      // the view pinned to the root.
+      // Either this member has no node linked, or theirs never appeared.
+      // Settle on the middle of the tree instead of pinning the view to the root.
       if (!selfNodeId || Date.now() >= deadline) {
         const center = treeCenter();
         if (center) {
-          centerOn(center.x, center.y);
+          centerOnLayoutPoint(center, ZOOM_DEFAULT);
           return;
         }
       }
