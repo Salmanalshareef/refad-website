@@ -7,6 +7,12 @@ import { sql } from "@/lib/db";
 import { InitiativeFormSchema, type InitiativeFormState } from "@/lib/validation/initiative";
 
 const ALLOWED_ICON_TYPES = ["image/svg+xml", "image/png", "image/webp"];
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
 
 // The member-facing initiative pages are nested dynamic routes, so the literal
 // "/portal/services" path alone would leave them serving stale content.
@@ -33,6 +39,8 @@ export async function saveInitiative(
     end_date: formData.get("end_date"),
     age_group: formData.get("age_group"),
     target_audience: formData.get("target_audience"),
+    file_label: formData.get("file_label"),
+    file_link: formData.get("file_link"),
     order_index: formData.get("order_index") || 0,
   });
 
@@ -51,6 +59,8 @@ export async function saveInitiative(
     end_date,
     age_group,
     target_audience,
+    file_label,
+    file_link,
     order_index,
   } = validatedFields.data;
 
@@ -84,6 +94,48 @@ export async function saveInitiative(
     iconUrl = null;
   }
 
+  const currentFileUrl = (formData.get("current_file_url") as string) || null;
+  const currentFileIsUpload = formData.get("current_file_is_upload") === "true";
+  const removeFile = formData.get("remove_file") === "true";
+  const attachedFile = formData.get("file_upload");
+
+  let fileUrl: string | null = currentFileUrl;
+  let fileIsUpload = currentFileIsUpload;
+
+  // Only an upload we made is ours to delete; a pasted link points somewhere
+  // we do not own and must be left alone.
+  const dropCurrentFile = async () => {
+    if (currentFileUrl && currentFileIsUpload) {
+      await del(currentFileUrl).catch(() => {});
+    }
+  };
+
+  if (attachedFile instanceof File && attachedFile.size > 0) {
+    if (!ALLOWED_FILE_TYPES.includes(attachedFile.type)) {
+      return { error: "صيغة ملف المبادرة غير مدعومة. الرجاء رفع PDF أو صورة." };
+    }
+    try {
+      const blob = await put(
+        `initiative-files/${crypto.randomUUID()}-${attachedFile.name}`,
+        attachedFile,
+        { access: "public" }
+      );
+      await dropCurrentFile();
+      fileUrl = blob.url;
+      fileIsUpload = true;
+    } catch {
+      return { error: "تعذر رفع ملف المبادرة." };
+    }
+  } else if (file_link) {
+    await dropCurrentFile();
+    fileUrl = file_link;
+    fileIsUpload = false;
+  } else if (removeFile) {
+    await dropCurrentFile();
+    fileUrl = null;
+    fileIsUpload = false;
+  }
+
   try {
     if (id) {
       await sql`
@@ -93,6 +145,8 @@ export async function saveInitiative(
             date_mode = ${date_mode}, start_date = ${start_date ?? null},
             end_date = ${end_date ?? null}, age_group = ${age_group ?? null},
             target_audience = ${target_audience ?? null},
+            file_url = ${fileUrl}, file_label = ${file_label ?? null},
+            file_is_upload = ${fileIsUpload},
             icon = ${iconUrl}, order_index = ${order_index}
         WHERE id = ${id}
       `;
@@ -101,11 +155,13 @@ export async function saveInitiative(
         INSERT INTO initiatives (
           initiative_type_id, title, description, requirements,
           date_mode, start_date, end_date, age_group, target_audience,
+          file_url, file_label, file_is_upload,
           icon, order_index
         )
         VALUES (
           ${initiative_type_id}, ${title}, ${description}, ${requirements ?? null},
           ${date_mode}, ${start_date ?? null}, ${end_date ?? null}, ${age_group ?? null}, ${target_audience ?? null},
+          ${fileUrl}, ${file_label ?? null}, ${fileIsUpload},
           ${iconUrl}, ${order_index}
         )
       `;
@@ -154,10 +210,14 @@ export async function deleteInitiative(id: string) {
   await requireAdmin();
 
   const rows = (await sql`
-    SELECT icon FROM initiatives WHERE id = ${id}
-  `) as { icon: string | null }[];
+    SELECT icon, file_url, file_is_upload FROM initiatives WHERE id = ${id}
+  `) as { icon: string | null; file_url: string | null; file_is_upload: boolean }[];
   if (rows[0]?.icon) {
     await del(rows[0].icon).catch(() => {});
+  }
+  // A pasted link is not ours to delete; only an upload is.
+  if (rows[0]?.file_url && rows[0].file_is_upload) {
+    await del(rows[0].file_url).catch(() => {});
   }
 
   await sql`DELETE FROM initiatives WHERE id = ${id}`;

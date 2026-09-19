@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
+import { getPublishedMemberRequestTypes } from "@/lib/data/member-request-types";
 import { MemberRequestForm } from "@/components/portal/MemberRequestForm";
 
 export default async function NewMemberRequestPage() {
   const profile = await requireProfile();
+  const types = await getPublishedMemberRequestTypes().catch(() => []);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -22,6 +24,7 @@ export default async function NewMemberRequestPage() {
       <MemberRequestForm
         applicantFullName={profile.full_name}
         memberNumber={profile.member_number}
+        types={types}
       />
     </div>
   );

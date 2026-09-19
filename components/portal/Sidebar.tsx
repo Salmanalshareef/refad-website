@@ -77,6 +77,7 @@ const adminGroups = [
     items: [
       { href: "/portal/admin/initiative-types", label: "أنواع المبادرات" },
       { href: "/portal/admin/initiatives", label: "المبادرات" },
+      { href: "/portal/admin/member-request-types", label: "إدارة الطلبات الإدارية" },
       { href: "/portal/admin/administrators", label: "إدارة المسؤولين" },
     ],
   },

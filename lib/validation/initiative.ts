@@ -17,6 +17,16 @@ export const InitiativeFormSchema = z
     end_date: optionalText,
     age_group: optionalText,
     target_audience: optionalText,
+    file_label: optionalText,
+    // A pasted link. An uploaded file bypasses this and is validated by type.
+    file_link: z.preprocess(
+      (val) => (val === "" || val == null ? undefined : val),
+      z
+        .string()
+        .trim()
+        .url("الرجاء إدخال رابط صحيح يبدأ بـ http أو https.")
+        .optional()
+    ),
     order_index: z.coerce.number().int().default(0),
   })
   // A "single" initiative has one date and no period; a "period" one has both

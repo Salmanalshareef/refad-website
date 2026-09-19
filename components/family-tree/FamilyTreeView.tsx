@@ -145,41 +145,62 @@ export function FamilyTreeView({
     return () => observer.disconnect();
   }, []);
 
-  // Positions the view once, after react-d3-tree has laid the nodes out.
+  // Drives the view onto the signed-in member once the tree is laid out.
+  //
+  // react-d3-tree computes its layout internally and never exposes node
+  // coordinates, and a node is first painted at its parent position before
+  // componentDidMount moves it to its own. Rather than trust a single reading,
+  // this measures where the node actually is, corrects, then measures again,
+  // until the node sits on the centre for several consecutive frames.
   useEffect(() => {
     const container = containerRef.current;
     if (!container || hasFocusedRef.current) return;
 
     let frame = 0;
-    let lastSample: { x: number; y: number } | null = null;
-    const deadline = Date.now() + 5000;
+    let corrections = 0;
+    let onTargetFrames = 0;
+    let finished = false;
+    const deadline = Date.now() + 20000;
+
+    const stop = () => {
+      finished = true;
+      cancelAnimationFrame(frame);
+      container.removeEventListener("pointerdown", stop);
+      container.removeEventListener("wheel", stop);
+    };
+
+    // Any deliberate interaction wins; never fight the member for the view.
+    container.addEventListener("pointerdown", stop);
+    container.addEventListener("wheel", stop);
+
+    /** The SVG is the coordinate space the tree transform is expressed in. */
+    const svgEl = () => container.querySelector<SVGSVGElement>("svg.rd3t-svg");
 
     /** The transform react-d3-tree currently has applied to the whole tree. */
     const appliedTransform = () => {
       const g = container.querySelector<SVGGElement>("g.rd3t-g");
       const match = g
         ?.getAttribute("transform")
-        ?.match(/translate(s*(-?[d.]+)s*,s*(-?[d.]+)s*)s*scale(s*([d.]+)s*)/);
+        ?.match(/translate\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)\s*scale\(\s*([\d.]+)\s*\)/);
       return match
         ? { x: Number(match[1]), y: Number(match[2]), k: Number(match[3]) }
         : null;
     };
 
     /**
-     * Centre of the member's node in container pixels, measured from what is
-     * actually painted so the real node box — border, padding and all — lands
-     * on the viewport centre rather than its layout anchor.
+     * Centre of the member node in SVG pixels, taken from the painted box so
+     * the real card - stroke, ring and all - is what gets centred.
      */
-    const measureSelf = () => {
-      const marker = container.querySelector<SVGGElement>('[data-self-node="true"]');
+    const measureSelf = (svg: SVGSVGElement) => {
+      const marker = container.querySelector<SVGGElement>(`[data-self-node="true"]`);
       const group = marker?.closest<SVGGElement>("g.rd3t-node, g.rd3t-leaf-node");
       if (!group) return null;
       const nodeBox = group.getBoundingClientRect();
       if (nodeBox.width === 0 && nodeBox.height === 0) return null;
-      const containerBox = container.getBoundingClientRect();
+      const svgBox = svg.getBoundingClientRect();
       return {
-        x: nodeBox.left + nodeBox.width / 2 - containerBox.left,
-        y: nodeBox.top + nodeBox.height / 2 - containerBox.top,
+        x: nodeBox.left + nodeBox.width / 2 - svgBox.left,
+        y: nodeBox.top + nodeBox.height / 2 - svgBox.top,
       };
     };
 
@@ -196,59 +217,78 @@ export function FamilyTreeView({
       }
     };
 
-    /** Puts a point given in layout units at the centre of the viewport. */
-    const centerOnLayoutPoint = (point: { x: number; y: number }, k: number) => {
-      hasFocusedRef.current = true;
-      setView(
-        {
-          x: container.clientWidth / 2 - point.x * k,
-          y: container.clientHeight / 2 - point.y * k,
-        },
-        k
-      );
-    };
+    const step = () => {
+      if (finished) return;
 
-    const tick = () => {
+      const svg = svgEl();
       const applied = appliedTransform();
-      const sample = selfNodeId && applied ? measureSelf() : null;
+      const sample = svg && selfNodeId ? measureSelf(svg) : null;
 
-      if (sample && applied) {
-        // A node first renders at its parent's coordinates and only moves to
-        // its own in componentDidMount, so a single reading can be a whole row
-        // too high. Accept a position only once it has stopped changing.
-        const settled =
-          lastSample !== null &&
-          Math.abs(lastSample.x - sample.x) < 0.5 &&
-          Math.abs(lastSample.y - sample.y) < 0.5;
-        lastSample = sample;
+      if (svg && applied && sample) {
+        const svgBox = svg.getBoundingClientRect();
+        const targetX = svgBox.width / 2;
+        const targetY = svgBox.height / 2;
+        const offBy = Math.max(Math.abs(targetX - sample.x), Math.abs(targetY - sample.y));
+        const atZoom = Math.abs(applied.k - ZOOM_FOCUS) < 0.001;
 
-        if (settled) {
-          centerOnLayoutPoint(
-            {
-              x: (sample.x - applied.x) / applied.k,
-              y: (sample.y - applied.y) / applied.k,
-            },
+        // Stop only once it has held the centre for a few frames, so a node
+        // that is still settling into place cannot end the loop early.
+        if (offBy < 1 && atZoom) {
+          onTargetFrames += 1;
+          if (onTargetFrames >= 3) {
+            hasFocusedRef.current = true;
+            stop();
+            return;
+          }
+          frame = requestAnimationFrame(step);
+          return;
+        }
+
+        onTargetFrames = 0;
+
+        if (corrections < 40) {
+          corrections += 1;
+          // Freeze the resize handler now: from here the view is ours.
+          hasFocusedRef.current = true;
+          const layoutX = (sample.x - applied.x) / applied.k;
+          const layoutY = (sample.y - applied.y) / applied.k;
+          setView(
+            { x: targetX - layoutX * ZOOM_FOCUS, y: targetY - layoutY * ZOOM_FOCUS },
             ZOOM_FOCUS
           );
+          frame = requestAnimationFrame(step);
           return;
         }
       }
 
-      // Either this member has no node linked, or theirs never appeared.
-      // Settle on the middle of the tree instead of pinning the view to the root.
-      if (!selfNodeId || Date.now() >= deadline) {
+      // No node to focus, or it never appeared: settle on the middle of the
+      // tree rather than leaving the view pinned to the root.
+      if (!hasFocusedRef.current && (!selfNodeId || Date.now() >= deadline)) {
         const center = treeCenter();
-        if (center) {
-          centerOnLayoutPoint(center, ZOOM_DEFAULT);
+        if (center && svg) {
+          const svgBox = svg.getBoundingClientRect();
+          hasFocusedRef.current = true;
+          setView(
+            {
+              x: svgBox.width / 2 - center.x * ZOOM_DEFAULT,
+              y: svgBox.height / 2 - center.y * ZOOM_DEFAULT,
+            },
+            ZOOM_DEFAULT
+          );
+          stop();
           return;
         }
       }
 
-      if (Date.now() < deadline) frame = requestAnimationFrame(tick);
+      if (Date.now() < deadline) {
+        frame = requestAnimationFrame(step);
+      } else {
+        stop();
+      }
     };
 
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(step);
+    return stop;
   }, [selfNodeId, data]);
 
   if (data.length === 0) {

@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, CalendarDays, ClipboardList, Plus, Target, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  ClipboardList,
+  ExternalLink,
+  FileText,
+  Plus,
+  Target,
+  Users,
+} from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { getPublishedInitiativeTypeById } from "@/lib/data/initiative-types";
 import { getPublishedInitiativeById } from "@/lib/data/initiatives";
@@ -90,6 +99,20 @@ export default async function InitiativeDetailPage({
           {initiative.target_audience && (
             <DetailRow icon={<Target className="h-4 w-4" />} label="الفئة المستهدفة">
               {initiative.target_audience}
+            </DetailRow>
+          )}
+
+          {initiative.file_url && (
+            <DetailRow icon={<FileText className="h-4 w-4" />} label="ملف المبادرة">
+              <a
+                href={initiative.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-medium text-primary-700 hover:underline"
+              >
+                {initiative.file_label || "عرض الملف"}
+                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+              </a>
             </DetailRow>
           )}
 

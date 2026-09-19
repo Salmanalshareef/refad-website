@@ -11,11 +11,10 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import type { MemberRequest } from "@/types/db";
 
 function requestSummary(request: MemberRequest) {
-  if (request.type === "family_member") {
-    const name = [request.first_name, request.second_name, request.third_name, request.fourth_name]
-      .filter(Boolean)
-      .join(" ");
-    return `${name} — ${request.national_id ?? ""}`;
+  // Requests carry a snapshot of their answers; `details` only holds anything
+  // for rows created before request types became configurable.
+  if (request.answers.length > 0) {
+    return request.answers.map((answer) => answer.value).join(" — ");
   }
   return request.details ?? "—";
 }
@@ -62,7 +61,7 @@ export default async function MemberRequestsPage() {
                 {myRequests.map((request) => (
                   <tr key={request.id}>
                     <td className="px-4 py-3 font-medium text-primary-900">
-                      {memberRequestTypeLabels[request.type]}
+                      {request.type_title ?? memberRequestTypeLabels[request.type]}
                     </td>
                     <td className="px-4 py-3 text-neutral-700">{requestSummary(request)}</td>
                     <td dir="ltr" className="px-4 py-3 text-start text-neutral-600">

@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { saveInitiative } from "@/app/actions/admin/initiatives";
 import { Button } from "@/components/shared/Button";
+import { FileText } from "lucide-react";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
 import type { Initiative, InitiativeDateMode, InitiativeType } from "@/types/db";
 
@@ -21,6 +22,11 @@ export function InitiativeForm({
   const [dateMode, setDateMode] = useState<InitiativeDateMode>(
     initiative?.date_mode ?? "period"
   );
+  // "ملف المبادرة" is one attachment: either an upload or a link. Tracking the
+  // existing value lets the admin clear it without replacing it.
+  const [fileUrl, setFileUrl] = useState(initiative?.file_url ?? null);
+  const [removeFile, setRemoveFile] = useState(false);
+  const fileUploadRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -196,6 +202,89 @@ export function InitiativeForm({
           placeholder="مثال: طلاب الجامعات"
           className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
         />
+      </div>
+
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 sm:col-span-2">
+        <p className="mb-1 text-xs font-medium text-neutral-600">ملف المبادرة (اختياري)</p>
+        <p className="mb-2 text-xs text-neutral-500">
+          أرفق ملف PDF أو صورة، أو ألصق رابطًا. الرابط يلغي الملف المرفوع والعكس.
+        </p>
+
+        <input type="hidden" name="current_file_url" value={initiative?.file_url ?? ""} />
+        <input
+          type="hidden"
+          name="current_file_is_upload"
+          value={initiative?.file_is_upload ? "true" : "false"}
+        />
+        <input type="hidden" name="remove_file" value={removeFile ? "true" : "false"} />
+
+        {fileUrl && !removeFile && (
+          <div className="mb-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2">
+            <FileText className="h-4 w-4 shrink-0 text-primary-700" />
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="min-w-0 flex-1 truncate text-xs text-primary-700 hover:underline"
+              dir="ltr"
+            >
+              {fileUrl}
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                setFileUrl(null);
+                setRemoveFile(true);
+                if (fileUploadRef.current) fileUploadRef.current.value = "";
+              }}
+              className="rounded-lg px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              إزالة
+            </button>
+          </div>
+        )}
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+              رفع ملف
+            </label>
+            <input
+              ref={fileUploadRef}
+              name="file_upload"
+              type="file"
+              accept="application/pdf,image/jpeg,image/png,image/webp"
+              onChange={() => setRemoveFile(false)}
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+              أو رابط
+            </label>
+            <input
+              name="file_link"
+              type="url"
+              dir="ltr"
+              defaultValue={initiative?.file_is_upload ? "" : initiative?.file_url ?? ""}
+              placeholder="https://..."
+              onChange={() => setRemoveFile(false)}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="mt-2">
+          <label className="mb-1.5 block text-xs font-medium text-neutral-600">
+            نص الرابط الظاهر للعضو (اختياري)
+          </label>
+          <input
+            name="file_label"
+            defaultValue={initiative?.file_label ?? ""}
+            placeholder="مثال: دليل التقديم"
+            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+          />
+        </div>
       </div>
 
       {state?.error && (

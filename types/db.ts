@@ -106,6 +106,9 @@ export type Initiative = {
   end_date: string | null;
   age_group: string | null;
   target_audience: string | null;
+  file_url: string | null;
+  file_label: string | null;
+  file_is_upload: boolean;
   icon: string | null;
   order_index: number;
   is_published: boolean;
@@ -225,10 +228,53 @@ export type TaskWithAssignee = Task & {
   assignee_name: string | null;
 };
 
+export type MemberRequestFieldKind = "text" | "number" | "long_text" | "applicant_name";
+
+/** One editable field on a request type, as configured by an admin. */
+export type MemberRequestField = {
+  id: string;
+  type_id: string;
+  label: string;
+  kind: MemberRequestFieldKind;
+  /** For kind "applicant_name": which word of the applicant own name fills it. */
+  applicant_name_index: number | null;
+  is_required: boolean;
+  order_index: number;
+};
+
+/**
+ * An administrative request type as managed from the admin panel. `key` is set
+ * only on the three built-ins; a type an admin adds has none. What the type
+ * collects lives in its fields, except the attachment, which is a file rather
+ * than member-entered text and so stays a toggle here.
+ */
+export type MemberRequestTypeDef = {
+  id: string;
+  key: MemberRequestType | null;
+  title: string;
+  notice: string | null;
+  collects_attachment: boolean;
+  order_index: number;
+  is_published: boolean;
+};
+
+export type MemberRequestTypeWithFields = MemberRequestTypeDef & {
+  fields: MemberRequestField[];
+};
+
+/** A submitted answer, keeping the label as it read at submission time. */
+export type MemberRequestAnswer = {
+  field_id: string;
+  label: string;
+  value: string;
+};
+
 export type MemberRequest = {
   id: string;
   profile_id: string;
   type: MemberRequestType;
+  type_id: string | null;
+  answers: MemberRequestAnswer[];
   details: string | null;
   image_url: string | null;
   first_name: string | null;
@@ -242,9 +288,14 @@ export type MemberRequest = {
   created_at: string;
 };
 
+export type MemberRequestWithType = MemberRequest & {
+  type_title: string | null;
+};
+
 export type MemberRequestWithDetails = MemberRequest & {
   member_name: string;
   applicant_national_id: string | null;
+  type_title: string | null;
 };
 
 export type RegistrationRequest = {

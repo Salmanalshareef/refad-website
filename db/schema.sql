@@ -15,6 +15,7 @@ create type task_status as enum ('todo', 'in_progress', 'done');
 create type member_request_type as enum ('news', 'family_member', 'other');
 create type member_request_status as enum ('pending', 'rejected', 'completed');
 create type registration_request_status as enum ('pending', 'approved', 'rejected');
+create type member_request_field_kind as enum ('text', 'number', 'long_text', 'applicant_name');
 create type initiative_date_mode as enum ('single', 'period');
 create type marital_status as enum ('single', 'married', 'divorced', 'widowed');
 create type education_level as enum ('secondary', 'bachelor', 'master', 'doctorate');
@@ -99,6 +100,11 @@ create table initiatives (
   end_date date,
   age_group text,
   target_audience text,
+  -- "ملف المبادرة": an uploaded PDF/image or a pasted link. Uploads are served
+  -- from a URL as well, so file_is_upload marks the ones we own and must clean up.
+  file_url text,
+  file_label text,
+  file_is_upload boolean not null default false,
   icon text,
   order_index int not null default 0,
   is_published boolean not null default true,
@@ -204,10 +210,44 @@ create table tasks (
   created_at timestamptz not null default now()
 );
 
+create table member_request_types (
+  id uuid primary key default gen_random_uuid(),
+  -- Set for the three built-in types, whose identity is keyed off it.
+  -- Admin-created types leave it null.
+  key member_request_type unique,
+  title text not null,
+  notice text,
+  -- An attachment is a file rather than member-entered text, so it stays a
+  -- per-type toggle instead of being one of the editable fields below.
+  collects_attachment boolean not null default false,
+  order_index int not null default 0,
+  is_published boolean not null default true
+);
+
+create table member_request_type_fields (
+  id uuid primary key default gen_random_uuid(),
+  type_id uuid not null references member_request_types (id) on delete cascade,
+  label text not null,
+  kind member_request_field_kind not null default 'text',
+  -- For kind = 'applicant_name': which word of the applicant own name fills
+  -- this read-only field (1 = first word, 2 = second, ...).
+  applicant_name_index int,
+  is_required boolean not null default true,
+  order_index int not null default 0
+);
+
+create index member_request_type_fields_type_idx
+  on member_request_type_fields (type_id, order_index);
+
 create table member_requests (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles (id) on delete cascade,
+  -- `type` stays as the behaviour key; `type_id` is the type actually chosen.
   type member_request_type not null,
+  type_id uuid references member_request_types (id) on delete set null,
+  -- Snapshot of the answers: [{ field_id, label, value }]. The label is kept
+  -- as it read at submission so later renames cannot rewrite history.
+  answers jsonb not null default '[]'::jsonb,
   details text,
   image_url text,
   first_name text,

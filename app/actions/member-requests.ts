@@ -2,85 +2,108 @@
 
 import { revalidatePath } from "next/cache";
 import { put } from "@vercel/blob";
-import { requireUser } from "@/lib/auth";
+import { requireProfile } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { isUuid } from "@/lib/utils";
 import {
-  MemberRequestFormSchema,
+  applicantNameParts,
+  fieldInputName,
+  validateAnswer,
   type MemberRequestFormState,
 } from "@/lib/validation/member-request";
+import type {
+  MemberRequestAnswer,
+  MemberRequestField,
+  MemberRequestTypeDef,
+} from "@/types/db";
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_ATTACHMENT_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+];
 
 export async function submitMemberRequest(
   _prevState: MemberRequestFormState,
   formData: FormData
 ): Promise<MemberRequestFormState> {
-  const session = await requireUser();
+  const profile = await requireProfile();
 
-  const type = formData.get("type");
-  const parseInput =
-    type === "family_member"
-      ? {
-          type,
-          first_name: formData.get("first_name"),
-          second_name: formData.get("second_name"),
-          third_name: formData.get("third_name"),
-          fourth_name: formData.get("fourth_name"),
-          national_id: formData.get("national_id"),
-          mother_name: formData.get("mother_name"),
-        }
-      : { type, details: formData.get("details") };
+  // The type and its fields are re-read from the database rather than trusted
+  // from the form, so neither the required rules nor the availability of a
+  // hidden type can be changed by the client.
+  const typeId = String(formData.get("type_id") ?? "");
+  if (!isUuid(typeId)) return { error: "الرجاء اختيار نوع الطلب." };
 
-  const validatedFields = MemberRequestFormSchema.safeParse(parseInput);
+  const typeRows = (await sql`
+    SELECT * FROM member_request_types WHERE id = ${typeId} AND is_published = true
+  `) as MemberRequestTypeDef[];
 
-  if (!validatedFields.success) {
-    return { error: validatedFields.error.issues[0]?.message };
+  const type = typeRows[0];
+  if (!type) return { error: "نوع الطلب غير متاح حاليًا." };
+
+  const fields = (await sql`
+    SELECT * FROM member_request_type_fields
+    WHERE type_id = ${typeId}
+    ORDER BY order_index ASC
+  `) as MemberRequestField[];
+
+  const nameParts = applicantNameParts(profile.full_name);
+  const answers: MemberRequestAnswer[] = [];
+
+  for (const field of fields) {
+    const value =
+      field.kind === "applicant_name"
+        ? nameParts[(field.applicant_name_index ?? 1) - 1] ?? ""
+        : String(formData.get(fieldInputName(field)) ?? "");
+
+    const error = validateAnswer(field, value);
+    if (error) return { error };
+
+    const trimmed = value.trim();
+    if (trimmed) {
+      answers.push({ field_id: field.id, label: field.label, value: trimmed });
+    }
   }
 
-  const data = validatedFields.data;
+  let attachmentUrl: string | null = null;
+  if (type.collects_attachment) {
+    const file = formData.get("attachment_file");
+    if (file instanceof File && file.size > 0) {
+      if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+        return { error: "صيغة المرفق غير مدعومة. الرجاء رفع JPEG أو PNG أو WebP أو PDF." };
+      }
+      try {
+        const blob = await put(
+          `member-request-images/${crypto.randomUUID()}-${file.name}`,
+          file,
+          { access: "public" }
+        );
+        attachmentUrl = blob.url;
+      } catch {
+        return { error: "تعذر رفع المرفق." };
+      }
+    }
+  }
+
+  if (answers.length === 0 && !attachmentUrl) {
+    return { error: "الرجاء تعبئة الطلب قبل الإرسال." };
+  }
 
   try {
-    if (data.type === "news") {
-      let imageUrl: string | null = null;
-      const imageFile = formData.get("image_file");
-      if (imageFile instanceof File && imageFile.size > 0) {
-        if (!ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
-          return { error: "صيغة الصورة غير مدعومة. الرجاء رفع JPEG أو PNG أو WebP." };
-        }
-        try {
-          const blob = await put(
-            `member-request-images/${crypto.randomUUID()}-${imageFile.name}`,
-            imageFile,
-            { access: "public" }
-          );
-          imageUrl = blob.url;
-        } catch {
-          return { error: "تعذر رفع الصورة." };
-        }
-      }
-
-      await sql`
-        INSERT INTO member_requests (profile_id, type, details, image_url)
-        VALUES (${session.sub}, 'news', ${data.details}, ${imageUrl})
-      `;
-    } else if (data.type === "family_member") {
-      await sql`
-        INSERT INTO member_requests
-          (profile_id, type, first_name, second_name, third_name, fourth_name, national_id, mother_name)
-        VALUES
-          (${session.sub}, 'family_member', ${data.first_name}, ${data.second_name ?? null},
-           ${data.third_name ?? null}, ${data.fourth_name ?? null}, ${data.national_id}, ${data.mother_name})
-      `;
-    } else {
-      await sql`
-        INSERT INTO member_requests (profile_id, type, details)
-        VALUES (${session.sub}, 'other', ${data.details})
-      `;
-    }
+    await sql`
+      INSERT INTO member_requests (profile_id, type, type_id, answers, image_url)
+      VALUES (
+        ${profile.id}, ${type.key ?? "other"}::member_request_type, ${type.id},
+        ${JSON.stringify(answers)}::jsonb, ${attachmentUrl}
+      )
+    `;
   } catch {
     return { error: "تعذر إرسال الطلب، حاول مرة أخرى." };
   }
 
   revalidatePath("/portal/requests");
+  revalidatePath("/portal/admin/member-requests");
   return { success: true };
 }
