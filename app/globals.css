@@ -167,3 +167,50 @@ html[data-theme="dark"] .portal-shell .theme-light-only {
 html[data-theme="dark"] .portal-shell .theme-dark-only {
   display: block;
 }
+
+/* News ticker. The track holds two copies of the headlines and slides exactly
+   one copy's width, so the reset lands on an identical frame and reads as
+   continuous. RTL scrolls the other way, hence the direction-aware keyframes. */
+.news-ticker-track {
+  animation: news-ticker-scroll 40s linear infinite;
+}
+
+.news-ticker:hover .news-ticker-track,
+.news-ticker:focus-within .news-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes news-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+[dir="ltr"] .news-ticker-track {
+  animation-name: news-ticker-scroll-ltr;
+}
+
+@keyframes news-ticker-scroll-ltr {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Motion that loops forever and cannot be dismissed is exactly what this
+   preference is for: hold the headlines still and let them wrap instead. */
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .news-ticker-track > div:nth-child(2) {
+    display: none;
+  }
+}

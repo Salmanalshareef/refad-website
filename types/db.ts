@@ -118,6 +118,12 @@ export type Initiative = {
   is_requestable: boolean;
 };
 
+/** An initiative with its type name and the date the dashboard sorts it by. */
+export type UpcomingInitiative = Initiative & {
+  type_title: string;
+  relevant_date: string;
+};
+
 export type Report = {
   id: string;
   type: ReportType;

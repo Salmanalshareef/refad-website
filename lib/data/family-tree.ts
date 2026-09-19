@@ -155,3 +155,11 @@ export async function findSelfFamilyMemberId(
 
   return rows.length === 1 ? rows[0].id : null;
 }
+
+/** Counted in the database rather than by loading every row for the dashboard. */
+export async function getLivingFamilyMemberCount() {
+  const rows = (await sql`
+    SELECT count(*)::int AS n FROM family_members WHERE is_living = true
+  `) as { n: number }[];
+  return rows[0]?.n ?? 0;
+}

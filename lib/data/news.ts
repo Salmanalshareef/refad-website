@@ -27,3 +27,13 @@ export async function getRecentPublishedNewsByCategory(category: NewsCategory, l
     LIMIT ${limit}
   `) as NewsItem[];
 }
+
+/** Latest news from either category, for the dashboard ticker. */
+export async function getRecentPublishedNews(limit: number) {
+  return (await sql`
+    SELECT * FROM news_items
+    WHERE is_published = true
+    ORDER BY published_date DESC
+    LIMIT ${limit}
+  `) as NewsItem[];
+}
