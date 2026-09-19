@@ -1,12 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { NewsAudience } from "@/types/db";
 import { put, del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { NewsItemFormSchema, type NewsItemFormState } from "@/lib/validation/news";
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const NEWS_AUDIENCES: NewsAudience[] = ["none", "site_and_members", "members_only"];
+
+function revalidateNewsViews() {
+  revalidatePath("/portal/admin/media/family-news");
+  revalidatePath("/portal/admin/media/fund-news");
+  revalidatePath("/media-center");
+  // News now also reaches members inside the portal.
+  revalidatePath("/portal/news");
+  revalidatePath("/portal");
+}
 
 export async function saveNewsItem(
   _prevState: NewsItemFormState,
@@ -20,13 +32,14 @@ export async function saveNewsItem(
     title: formData.get("title"),
     body: formData.get("body"),
     published_date: formData.get("published_date"),
+    audience: formData.get("audience"),
   });
 
   if (!validatedFields.success) {
     return { error: validatedFields.error.issues[0]?.message };
   }
 
-  const { id, category, title, body, published_date } = validatedFields.data;
+  const { id, category, title, body, published_date, audience } = validatedFields.data;
 
   const currentImageUrl = (formData.get("current_image_url") as string) || null;
   const removeImage = formData.get("remove_image") === "true";
@@ -61,32 +74,37 @@ export async function saveNewsItem(
       await sql`
         UPDATE news_items
         SET category = ${category}, title = ${title}, body = ${body},
+            audience = ${audience}::news_audience,
             image_url = ${imageUrl}, published_date = ${published_date}
         WHERE id = ${id}
       `;
     } else {
       await sql`
-        INSERT INTO news_items (category, title, body, image_url, published_date)
-        VALUES (${category}, ${title}, ${body}, ${imageUrl}, ${published_date})
+        INSERT INTO news_items (category, title, body, image_url, published_date, audience)
+        VALUES (
+          ${category}, ${title}, ${body}, ${imageUrl}, ${published_date},
+          ${audience}::news_audience
+        )
       `;
     }
   } catch {
     return { error: "تعذر حفظ الخبر." };
   }
 
-  revalidatePath("/portal/admin/media/family-news");
-  revalidatePath("/portal/admin/media/fund-news");
-  revalidatePath("/media-center");
+  revalidateNewsViews();
   return undefined;
 }
 
-export async function toggleNewsItemPublished(id: string, isPublished: boolean) {
+export async function setNewsItemAudience(id: string, audience: NewsAudience) {
   await requireAdmin();
-  await sql`UPDATE news_items SET is_published = ${isPublished} WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/family-news");
-  revalidatePath("/portal/admin/media/fund-news");
-  revalidatePath("/media-center");
+  // Validated here rather than trusted: this arrives from a client component.
+  if (!NEWS_AUDIENCES.includes(audience)) return;
+
+  await sql`
+    UPDATE news_items SET audience = ${audience}::news_audience WHERE id = ${id}
+  `;
+  revalidateNewsViews();
 }
 
 export async function deleteNewsItem(id: string) {
@@ -101,7 +119,5 @@ export async function deleteNewsItem(id: string) {
 
   await sql`DELETE FROM news_items WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/family-news");
-  revalidatePath("/portal/admin/media/fund-news");
-  revalidatePath("/media-center");
+  revalidateNewsViews();
 }

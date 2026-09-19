@@ -180,7 +180,9 @@ create table news_items (
   title text not null,
   body text not null,
   image_url text,
+  -- Two independent audiences: the public website and the member portal.
   is_published boolean not null default true,
+  is_published_to_members boolean not null default false,
   published_date date not null default current_date
 );
 

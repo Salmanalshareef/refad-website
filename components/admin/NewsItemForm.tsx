@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import { newsAudienceLabels, newsAudienceOptions } from "@/lib/labels/news";
 import Image from "next/image";
 import { Newspaper } from "lucide-react";
 import { saveNewsItem } from "@/app/actions/admin/news";
@@ -55,7 +56,20 @@ export function NewsItemForm({
         required
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
       />
-      <div className="hidden sm:block" />
+      <label className="flex items-center gap-2 text-sm text-neutral-700">
+        <span className="shrink-0 text-xs font-medium text-neutral-600">النشر</span>
+        <select
+          name="audience"
+          defaultValue={item?.audience ?? "site_and_members"}
+          className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+        >
+          {newsAudienceOptions.map((audience) => (
+            <option key={audience} value={audience}>
+              {newsAudienceLabels[audience]}
+            </option>
+          ))}
+        </select>
+      </label>
       <textarea
         name="body"
         placeholder="نص الخبر"

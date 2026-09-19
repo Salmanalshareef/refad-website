@@ -4,9 +4,16 @@ import { useState, useTransition } from "react";
 import { Newspaper, Pencil } from "lucide-react";
 import { NewsItemForm } from "@/components/admin/NewsItemForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteNewsItem, toggleNewsItemPublished } from "@/app/actions/admin/news";
+import { deleteNewsItem, setNewsItemAudience } from "@/app/actions/admin/news";
+import { newsAudienceLabels, newsAudienceOptions } from "@/lib/labels/news";
 import { cn } from "@/lib/utils";
-import type { NewsCategory, NewsItem } from "@/types/db";
+import type { NewsAudience, NewsCategory, NewsItem } from "@/types/db";
+
+const AUDIENCE_STYLES: Record<NewsAudience, string> = {
+  none: "bg-neutral-200 text-neutral-600",
+  members_only: "bg-gold-100 text-gold-600",
+  site_and_members: "bg-primary-50 text-primary-700",
+};
 
 export function NewsItemRow({
   item,
@@ -27,30 +34,42 @@ export function NewsItemRow({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <Newspaper className="h-5 w-5 shrink-0 text-primary-700" />
-        <div>
+        <div className="min-w-0">
           <p className="font-medium text-primary-900">{item.title}</p>
           <p className="text-xs text-neutral-500">{item.published_date}</p>
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() =>
-            startTransition(() => toggleNewsItemPublished(item.id, !item.is_published))
-          }
-          className={cn(
-            "rounded-full px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
-            item.is_published
-              ? "bg-primary-50 text-primary-700 hover:bg-primary-100"
-              : "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
-          )}
-        >
-          {item.is_published ? "منشور على الموقع" : "غير منشور"}
-        </button>
+
+      <div className="flex items-center gap-2">
+        {/* One control for the whole decision: two booleans could disagree,
+            and a row saying "not published to members" while members were
+            reading it is what this replaces. */}
+        <label className="flex items-center gap-2">
+          <span className="text-xs font-medium text-neutral-600">النشر</span>
+          <select
+            value={item.audience}
+            disabled={isPending}
+            onChange={(e) =>
+              startTransition(() =>
+                setNewsItemAudience(item.id, e.target.value as NewsAudience)
+              )
+            }
+            className={cn(
+              "rounded-full border-0 px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
+              AUDIENCE_STYLES[item.audience]
+            )}
+          >
+            {newsAudienceOptions.map((audience) => (
+              <option key={audience} value={audience}>
+                {newsAudienceLabels[audience]}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <button
           type="button"
           onClick={() => setEditing(true)}

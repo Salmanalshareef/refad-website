@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, GitBranch, Settings, User, Wallet } from "lucide-react";
+import { GitBranch, Settings, User, Wallet } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { getRecentPublishedNews } from "@/lib/data/news";
 import { getOpenInitiativeCount, getUpcomingInitiatives } from "@/lib/data/initiatives";
@@ -46,7 +46,7 @@ export default async function PortalDashboardPage() {
           ? "جدّد اشتراكك الآن"
           : status === "rejected"
             ? "لم يُقبل طلبك — حاول مجددًا"
-            : "اشترك للاستفادة من خدمات الصندوق";
+            : "لا يوجد اشتراك حالي.";
 
   const openRequests = myRequests.filter((r) => r.status === "pending").length;
 
@@ -57,7 +57,7 @@ export default async function PortalDashboardPage() {
           أهلاً بك، {profile.full_name}
         </h1>
         <p className="mt-1 text-sm text-neutral-600">
-          هذه لوحة التحكم الخاصة بك في منصة صندوق رفاد العائلي.
+          هذه لوحة التحكم الخاصة بك في منصة صندوق رفاد
         </p>
       </div>
 
@@ -77,33 +77,19 @@ export default async function PortalDashboardPage() {
           <UpcomingInitiatives initiatives={upcoming} />
         </div>
 
-        <div className="space-y-6">
-          {/* Reserves the column the calendar will occupy. It stays honest
-              about being empty rather than rendering a grid with no events:
-              nothing in the database carries a future date except initiatives,
-              which the panel beside it already lists. */}
-          <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-center">
-            <CalendarDays className="mx-auto mb-2 h-8 w-8 text-neutral-300" />
-            <h2 className="font-bold text-primary-900">تقويم الفعاليات</h2>
-            <p className="mt-1 text-xs text-neutral-500">
-              سيعرض هنا مواعيد اللقاءات والفعاليات العائلية بمجرد إضافتها.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 shadow-sm">
-            <h2 className="mb-3 font-bold text-primary-900">روابط سريعة</h2>
-            <div className="space-y-1">
-              {quickLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-primary-50 hover:text-primary-800"
-                >
-                  <link.icon className="h-4 w-4 shrink-0 text-primary-700" />
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 shadow-sm">
+          <h2 className="mb-3 font-bold text-primary-900">روابط سريعة</h2>
+          <div className="space-y-1">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-primary-50 hover:text-primary-800"
+              >
+                <link.icon className="h-4 w-4 shrink-0 text-primary-700" />
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

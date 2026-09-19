@@ -28,6 +28,7 @@ const links = [
   { href: "/portal/profile", label: "الملف الشخصي", icon: User },
   { href: "/portal/family-tree", label: "شجرة الأسرة", icon: GitBranch },
   { href: "/portal/services", label: "المبادرات", icon: Settings },
+  { href: "/portal/news", label: "أخبار الأسرة والصندوق", icon: Newspaper },
   { href: "/portal/requests", label: "الطلبات الإدارية", icon: ClipboardList },
   { href: "/portal/subscriptions", label: "الاشتراكات", icon: Wallet },
 ];

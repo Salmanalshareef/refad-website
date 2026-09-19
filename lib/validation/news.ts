@@ -6,6 +6,7 @@ export const NewsItemFormSchema = z.object({
   title: z.string().trim().min(2, "الرجاء إدخال عنوان الخبر."),
   body: z.string().trim().min(5, "الرجاء إدخال نص الخبر."),
   published_date: z.string().trim().min(1, "الرجاء تحديد تاريخ النشر."),
+  audience: z.enum(["none", "site_and_members", "members_only"]),
 });
 
 export type NewsItemFormState = { error?: string } | undefined;

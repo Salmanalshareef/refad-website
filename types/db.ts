@@ -5,6 +5,8 @@ export type SupportRequestStatus = "draft" | "pending" | "rejected" | "completed
 export type ContactMessageStatus = "new" | "read" | "archived";
 export type Gender = "male" | "female";
 export type NewsCategory = "family" | "fund";
+/** Who a news item reaches. One value, so the audiences cannot contradict. */
+export type NewsAudience = "none" | "site_and_members" | "members_only";
 export type TaskStatus = "todo" | "in_progress" | "done";
 export type MemberRequestType = "news" | "family_member" | "other";
 export type MemberRequestStatus = "pending" | "rejected" | "completed";
@@ -201,7 +203,7 @@ export type NewsItem = {
   title: string;
   body: string;
   image_url: string | null;
-  is_published: boolean;
+  audience: NewsAudience;
   published_date: string;
 };
 
