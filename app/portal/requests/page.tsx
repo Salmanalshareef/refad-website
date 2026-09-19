@@ -34,7 +34,7 @@ export default async function MemberRequestsPage() {
         </div>
         <Link
           href="/portal/requests/new"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
         >
           <Plus className="h-4 w-4" />
           طلب جديد
@@ -46,7 +46,7 @@ export default async function MemberRequestsPage() {
         {myRequests === null && <EmptyState message="تعذر تحميل طلباتك السابقة." />}
         {myRequests?.length === 0 && <EmptyState message="لم تقم بإرسال أي طلبات بعد." />}
         {myRequests && myRequests.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50">
             <table className="w-full text-sm">
               <thead className="bg-neutral-50 text-xs text-neutral-500">
                 <tr>

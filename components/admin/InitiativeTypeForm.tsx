@@ -64,7 +64,7 @@ export function InitiativeTypeForm({
           أيقونة النوع (SVG أو PNG أو WebP)
         </label>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-primary-700">
+          <div className="image-plate flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-neutral-200">
             <InitiativeIcon src={previewUrl} size={28} />
           </div>
           <input

@@ -20,7 +20,7 @@ export function SupportRequestRow({ request }: { request: SupportRequestWithDeta
   const [saved, setSaved] = useState(false);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -177,7 +177,7 @@ export function SupportRequestRow({ request }: { request: SupportRequestWithDeta
                   setSaved(true);
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-hover disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" />
               {isPending ? "جارٍ الحفظ..." : "تأكيد الحالة"}

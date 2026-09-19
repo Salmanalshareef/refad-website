@@ -71,9 +71,9 @@ export default async function InitiativeDetailPage({
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm sm:p-8">
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-start">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700">
+          <div className="image-plate flex h-24 w-24 shrink-0 items-center justify-center rounded-full">
             <InitiativeIcon src={initiative.icon} size={88} />
           </div>
           <div className="min-w-0">
@@ -127,7 +127,7 @@ export default async function InitiativeDetailPage({
           <div className="mt-6 border-t border-neutral-100 pt-6">
             <Link
               href={`/portal/services/new-request?initiative=${initiative.id}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-hover"
             >
               <Plus className="h-4 w-4" />
               تقديم طلب

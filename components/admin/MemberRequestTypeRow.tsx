@@ -33,7 +33,7 @@ export function MemberRequestTypeRow({ type }: { type: MemberRequestTypeWithFiel
   const isBuiltIn = type.key !== null;
 
   return (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="flex items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <p className="font-medium text-primary-900">{type.title}</p>

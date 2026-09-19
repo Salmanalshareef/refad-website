@@ -28,7 +28,7 @@ export function SupportRequestsList({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="relative">
             <Search className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />

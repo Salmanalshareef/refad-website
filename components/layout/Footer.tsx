@@ -45,7 +45,7 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={social.label}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-primary-700 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-brand-hover hover:text-white"
               >
                 <social.Icon className="h-4 w-4" />
               </a>

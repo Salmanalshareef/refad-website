@@ -34,6 +34,13 @@
   --color-neutral-700: #4a524f;
   --color-neutral-800: #2e3634;
   --color-neutral-900: #1a2220;
+
+  /* Hover fill for solid brand buttons. Identical to primary-700 in light mode. */
+  --color-brand-hover: #1f5850;
+
+  /* Backing for artwork we do not control — see .image-plate below. */
+  --color-image-plate: #ffffff;
+  --color-image-plate-ink: #286e62;
 }
 
 @theme inline {
@@ -68,9 +75,95 @@
   --color-neutral-700: var(--color-neutral-700);
   --color-neutral-800: var(--color-neutral-800);
   --color-neutral-900: var(--color-neutral-900);
+
+  --color-brand-hover: var(--color-brand-hover);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+
+/* ── Portal dark theme ──────────────────────────────────────────────────────
+   Scoped to .portal-shell rather than :root. The switcher lives in the portal
+   menu and only the portal has been designed for dark, so the public site keeps
+   its light palette even while the document is in dark mode.
+
+   Every value below is a redefinition of a token the light theme already uses,
+   so no component needs a dark: variant — the utilities resolve through these
+   variables. Shades that back surfaces get darker; shades used as text get
+   lighter, which is why the ramps are not a straight inversion.            */
+html[data-theme="dark"] .portal-shell {
+  color-scheme: dark;
+
+  /* Surfaces and text. neutral-50 is the card/sidebar surface; 600-900 are text. */
+  --color-neutral-50: #1b2321;
+  --color-neutral-100: #232d2a;
+  --color-neutral-200: #2f3a37;
+  --color-neutral-300: #3f4c48;
+  --color-neutral-600: #93a09c;
+  --color-neutral-700: #b4c0bc;
+  --color-neutral-800: #d1dad7;
+  --color-neutral-900: #e9efed;
+
+  /* Brand. 50-300 tint surfaces, 600 fills buttons, 700-900 are text. */
+  --color-primary-50: #17302c;
+  --color-primary-100: #1d3c37;
+  --color-primary-200: #26504a;
+  --color-primary-300: #31685f;
+  --color-primary-400: #3f8676;
+  --color-primary-500: #4fa48f;
+  --color-primary-600: #2e7d6d;
+  --color-primary-700: #7cc9b5;
+  --color-primary-800: #9bd8c7;
+  --color-primary-900: #e3f1ec;
+
+  /* Kept darker than the button fill so white button text stays legible. */
+  --color-brand-hover: #246054;
+
+  /* Stays light in dark mode: the artwork on it was drawn for a light ground.
+     Slightly off-white so it does not glare against the dark surface. */
+  --color-image-plate: #eef2f1;
+
+  /* Gold. 50-200 tint the notice boxes, 600 is text. */
+  --color-gold-50: #2e2617;
+  --color-gold-100: #3a3020;
+  --color-gold-200: #4a3d28;
+  --color-gold-300: #6b5838;
+  --color-gold-400: #8d7449;
+  --color-gold-500: #b08f5c;
+  --color-gold-600: #e0b884;
+
+  /* Red is error text and destructive actions; 700-800 stay dark for white text. */
+  --color-red-50: #3a1f21;
+  --color-red-200: #57312f;
+  --color-red-500: #f4938d;
+  --color-red-600: #f79a94;
+  --color-red-700: #a83a36;
+  --color-red-800: #8d2f2c;
+}
+
+/* Surfaces that host artwork the app does not control: initiative icons and
+   member photos are uploaded by admins as arbitrary SVG/PNG/WebP, rasterised
+   by next/image, so neither CSS nor a dark variant can reach inside them.
+   Keeping the surface light in both themes lets every upload render in the
+   colours it was drawn with. The foreground is pinned too, so a fallback icon
+   drawn with currentColor stays legible on the plate. */
+.image-plate {
+  background-color: var(--color-image-plate);
+  color: var(--color-image-plate-ink);
+}
+
+/* Logo variants. Both ship in the markup and CSS picks one, so the right logo
+   is on screen at first paint with no JS and no flash. Scoped to the portal,
+   which is the only place the dark palette applies. */
+.theme-dark-only {
+  display: none;
+}
+html[data-theme="dark"] .portal-shell .theme-light-only {
+  display: none;
+}
+html[data-theme="dark"] .portal-shell .theme-dark-only {
+  display: block;
 }

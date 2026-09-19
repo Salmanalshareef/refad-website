@@ -33,7 +33,7 @@ export function FamilyMemberRow({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-700">
           <User className="h-5 w-5" />

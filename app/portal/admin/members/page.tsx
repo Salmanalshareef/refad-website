@@ -10,7 +10,7 @@ export default async function AdminMembersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <h2 className="mb-3 text-sm font-semibold text-neutral-700">إنشاء حساب عضو جديد</h2>
         <MemberForm />
       </div>

@@ -128,7 +128,7 @@ export function MemberRequestTypeForm({
           {rows.map((row, index) => (
             <div
               key={row.uid}
-              className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2"
+              className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-2"
             >
               <button
                 type="button"

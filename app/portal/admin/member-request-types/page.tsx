@@ -15,7 +15,7 @@ export default async function AdminMemberRequestTypesPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <h2 className="mb-3 text-sm font-semibold text-neutral-700">إضافة نوع طلب جديد</h2>
         <MemberRequestTypeForm />
       </div>

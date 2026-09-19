@@ -9,7 +9,7 @@ export function SubscriptionHistoryTable({
   subscriptions: (Subscription & { effective_status: Subscription["status"] })[];
 }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-neutral-50">
       <table className="w-full min-w-[720px] text-sm">
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50 text-xs text-neutral-500">

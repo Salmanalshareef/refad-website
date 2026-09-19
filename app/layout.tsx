@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +19,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable}`}>
+    <html lang="ar" dir="rtl" className={`${cairo.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Sets data-theme before first paint so the portal never flashes. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
         {children}
       </body>

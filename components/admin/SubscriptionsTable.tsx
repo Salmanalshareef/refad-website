@@ -18,7 +18,7 @@ function ApproveButton({ id }: { id: string }) {
       type="button"
       disabled={isPending}
       onClick={() => startTransition(() => approveSubscription(id))}
-      className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-hover disabled:opacity-50"
     >
       <CheckCircle2 className="h-3.5 w-3.5" />
       {isPending ? "جارٍ القبول..." : "قبول واعتماد"}
@@ -98,7 +98,7 @@ function SubscriptionTableRow({ sub }: { sub: SubscriptionRow }) {
 
 export function SubscriptionsTable({ subscriptions }: { subscriptions: SubscriptionRow[] }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-neutral-50">
       <table className="w-full min-w-[900px] text-sm">
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50 text-xs text-neutral-500">

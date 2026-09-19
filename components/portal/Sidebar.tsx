@@ -19,6 +19,7 @@ import {
   Users2,
   Wallet,
 } from "lucide-react";
+import { ThemeSwitcher } from "@/components/portal/ThemeSwitcher";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
 
@@ -111,7 +112,7 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   }
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col overflow-y-auto border-e border-neutral-200 bg-white">
+    <aside className="flex h-full w-64 shrink-0 flex-col overflow-y-auto border-e border-neutral-200 bg-neutral-50">
       <Link
         href="/"
         className="flex items-center justify-center border-b border-neutral-200 px-6 py-6"
@@ -121,7 +122,16 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
           alt="صندوق رفاد"
           width={180}
           height={120}
-          className="h-[120px] w-auto object-contain"
+          className="theme-light-only h-[120px] w-auto object-contain"
+          priority
+        />
+        <Image
+          src="/logo-portal-dark.png"
+          alt=""
+          aria-hidden
+          width={180}
+          height={120}
+          className="theme-dark-only h-[120px] w-auto object-contain"
           priority
         />
       </Link>
@@ -200,15 +210,19 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
         )}
       </nav>
 
-      <form action={logout} className="border-t border-neutral-200 p-3">
-        <button
-          type="submit"
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
-        >
-          <LogOut className="h-5 w-5" />
-          تسجيل الخروج
-        </button>
-      </form>
+      <div className="space-y-2 border-t border-neutral-200 p-3">
+        <ThemeSwitcher />
+
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+          >
+            <LogOut className="h-5 w-5" />
+            تسجيل الخروج
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }

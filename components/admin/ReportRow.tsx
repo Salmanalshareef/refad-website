@@ -8,7 +8,7 @@ import type { Report } from "@/types/db";
 
 export function ReportRow({ report }: { report: Report }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div className="flex items-center gap-3">
         <FileText className="h-5 w-5 shrink-0 text-primary-700" />
         <div>

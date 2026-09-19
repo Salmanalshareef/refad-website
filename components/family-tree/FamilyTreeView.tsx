@@ -304,9 +304,9 @@ export function FamilyTreeView({
       <div
         ref={containerRef}
         dir="ltr"
-        className="relative h-[560px] w-full rounded-2xl border border-neutral-200 bg-white"
+        className="relative h-[560px] w-full rounded-2xl border border-neutral-200 bg-neutral-50"
       >
-        <div className="absolute end-3 top-3 z-10 flex flex-col gap-1 rounded-lg border border-neutral-200 bg-white p-1 shadow-sm">
+        <div className="absolute end-3 top-3 z-10 flex flex-col gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1 shadow-sm">
           <button
             type="button"
             aria-label="تكبير"
@@ -364,7 +364,7 @@ export function FamilyTreeView({
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
         {LEGEND_ITEMS.map((item) => (
           <div key={item.color} className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span
@@ -379,7 +379,7 @@ export function FamilyTreeView({
         ))}
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
         <h2 className="mb-3 text-sm font-semibold text-neutral-500">
           تفاصيل الفرد
         </h2>

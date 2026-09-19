@@ -13,7 +13,7 @@ const statusLabels: Record<ContactMessageStatus, string> = {
 };
 
 const statusCardStyles: Record<ContactMessageStatus, string> = {
-  new: "border-neutral-200 bg-white",
+  new: "border-neutral-200 bg-neutral-50",
   read: "border-primary-100 bg-primary-50",
   archived: "border-neutral-200 bg-neutral-100",
 };

@@ -18,7 +18,7 @@ export function SubscriptionFilters({
     <form
       ref={formRef}
       method="get"
-      className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4"
+      className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4"
     >
       <div className="flex flex-wrap items-end gap-3">
         <div>

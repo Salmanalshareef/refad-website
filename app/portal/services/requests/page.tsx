@@ -34,7 +34,7 @@ export default async function MySupportRequestsPage() {
       {myRequests === null && <EmptyState message="تعذر تحميل طلباتك السابقة." />}
       {myRequests?.length === 0 && <EmptyState message="لم تقم بتقديم أي طلبات بعد." />}
       {myRequests && myRequests.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-xs text-neutral-500">
               <tr>

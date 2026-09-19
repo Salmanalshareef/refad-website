@@ -105,7 +105,7 @@ export function InitiativeForm({
           أيقونة الخدمة (SVG أو PNG أو WebP)
         </label>
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-primary-700">
+          <div className="image-plate flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-neutral-200">
             <InitiativeIcon src={previewUrl} size={28} />
           </div>
           <input
@@ -219,7 +219,7 @@ export function InitiativeForm({
         <input type="hidden" name="remove_file" value={removeFile ? "true" : "false"} />
 
         {fileUrl && !removeFile && (
-          <div className="mb-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2">
+          <div className="mb-2 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2">
             <FileText className="h-4 w-4 shrink-0 text-primary-700" />
             <a
               href={fileUrl}
@@ -255,7 +255,7 @@ export function InitiativeForm({
               type="file"
               accept="application/pdf,image/jpeg,image/png,image/webp"
               onChange={() => setRemoveFile(false)}
-              className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm"
             />
           </div>
           <div>

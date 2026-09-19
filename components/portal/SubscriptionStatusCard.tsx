@@ -12,7 +12,7 @@ export function SubscriptionStatusCard({
   const status = subscription?.effective_status;
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-bold text-primary-900">حالة الاشتراك</h2>
         <span

@@ -35,7 +35,7 @@ export default async function InitiativeTypePage({
         </Link>
 
         <div className="mt-4 flex items-center gap-4">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700">
+          <div className="image-plate flex h-20 w-20 shrink-0 items-center justify-center rounded-full">
             <InitiativeIcon src={type.icon} size={72} />
           </div>
           <div>
@@ -57,9 +57,9 @@ export default async function InitiativeTypePage({
               <Reveal key={initiative.id} delay={index * 75}>
                 <Link
                   href={`/portal/services/${type.id}/${initiative.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg sm:gap-5 sm:p-6"
+                  className="flex items-center gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg sm:gap-5 sm:p-6"
                 >
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700 sm:h-20 sm:w-20">
+                  <div className="image-plate flex h-16 w-16 shrink-0 items-center justify-center rounded-full sm:h-20 sm:w-20">
                     <InitiativeIcon src={initiative.icon} size={56} />
                   </div>
 
