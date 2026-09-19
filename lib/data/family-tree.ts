@@ -12,19 +12,50 @@ export type FamilyTreeNode = {
   children?: FamilyTreeNode[];
   firstName: string;
   yearRange: string;
+  /** The linked account holder's profile photo, when there is one. */
+  photoUrl: string | null;
   statusColor: NodeStatusColor;
 };
 
 export async function getFamilyMembers(): Promise<FamilyMemberWithProfile[]> {
+  // A tree member is tied to an account either by the explicit profile_id link
+  // or, failing that, by a national ID that matches exactly one profile — the
+  // same rule findSelfFamilyMemberId uses. An ambiguous ID resolves to nothing
+  // rather than guessing, which in a family tree would attach the wrong face.
   return (await sql`
-    SELECT fm.*, p.birth_date AS profile_birth_date
+    SELECT fm.*,
+           COALESCE(linked.birth_date, matched.birth_date) AS profile_birth_date,
+           COALESCE(linked.avatar_url, matched.avatar_url) AS profile_avatar_url,
+           COALESCE(linked.show_birth_date, matched.show_birth_date) AS profile_show_birth_date
     FROM family_members fm
-    LEFT JOIN profiles p ON p.id = fm.profile_id
+    LEFT JOIN profiles linked ON linked.id = fm.profile_id
+    LEFT JOIN LATERAL (
+      SELECT CASE WHEN count(*) = 1 THEN min(pr.birth_date) END AS birth_date,
+             CASE WHEN count(*) = 1 THEN min(pr.avatar_url) END AS avatar_url,
+             CASE WHEN count(*) = 1 THEN bool_and(pr.show_birth_date) END AS show_birth_date
+      FROM profiles pr
+      WHERE fm.national_id IS NOT NULL
+        AND btrim(fm.national_id) <> ''
+        AND btrim(pr.national_id) = btrim(fm.national_id)
+    ) matched ON true
   `) as FamilyMemberWithProfile[];
 }
 
 function effectiveBirthDateOf(member: FamilyMemberWithProfile) {
-  return member.profile_id ? member.profile_birth_date : member.birth_date;
+  return member.profile_birth_date ?? member.birth_date;
+}
+
+/**
+ * The birth date as the tree may show it. A member who has turned the toggle
+ * off is hidden outright rather than falling back to the date on their family
+ * record — otherwise the admin-entered copy would defeat the setting.
+ *
+ * Sorting still uses the real date: reordering siblings would move the node
+ * and leak roughly the same thing while breaking the layout people know.
+ */
+function displayBirthDateOf(member: FamilyMemberWithProfile) {
+  if (member.profile_show_birth_date === false) return null;
+  return effectiveBirthDateOf(member);
 }
 
 // The tree renders left-to-right (its container is forced dir="ltr" so the
@@ -59,9 +90,7 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
     const children = childrenByFather.get(member.id);
     const hasChildren = Boolean(children && children.length > 0);
     const isLiving = member.is_living;
-    const effectiveBirthDate = effectiveBirthDateOf(member);
-
-    const birthYear = gregorianToHijriYear(effectiveBirthDate);
+    const birthYear = gregorianToHijriYear(displayBirthDateOf(member));
     const deathYear = gregorianToHijriYear(member.death_date);
     // Rendered left-to-right, so the death year is listed first to land on
     // the left and the birth year second to land on the right.
@@ -81,6 +110,7 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
       name: member.full_name,
       firstName: member.full_name.trim().split(/\s+/)[0] ?? member.full_name,
       yearRange: String(yearRange),
+      photoUrl: member.profile_avatar_url ?? member.photo_url,
       statusColor,
       attributes: {
         الحالة: isLiving ? "على قيد الحياة" : "متوفى",

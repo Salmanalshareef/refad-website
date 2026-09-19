@@ -66,6 +66,8 @@ create table profiles (
   education_level education_level,
   employment_status employment_status,
   role profile_role not null default 'member',
+  -- When false, the family tree hides this member's birth date.
+  show_birth_date boolean not null default true,
   family_member_id uuid references family_members (id) on delete set null,
   created_at timestamptz not null default now()
 );

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { Button } from "@/components/shared/Button";
+import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import { formatHijriDisplay } from "@/lib/hijri";
 import {
   educationLevelLabels,
@@ -10,6 +11,10 @@ import {
   maritalStatusLabels,
 } from "@/lib/labels/profile";
 import type { EducationLevel, EmploymentStatus, MaritalStatus } from "@/types/db";
+
+// Comfortably under the 8mb Server Action body limit in next.config.ts, which
+// also has to carry the multipart overhead and the rest of the form.
+const MAX_AVATAR_BYTES = 6 * 1024 * 1024;
 
 export function ProfileForm({
   memberNumber,
@@ -21,6 +26,8 @@ export function ProfileForm({
   maritalStatus,
   educationLevel,
   employmentStatus,
+  avatarUrl,
+  showBirthDate,
 }: {
   memberNumber: number;
   fullName: string;
@@ -31,11 +38,74 @@ export function ProfileForm({
   maritalStatus: MaritalStatus | null;
   educationLevel: EducationLevel | null;
   employmentStatus: EmploymentStatus | null;
+  avatarUrl: string | null;
+  showBirthDate: boolean;
 }) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
+  const [preview, setPreview] = useState(avatarUrl);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <form action={action} className="max-w-lg space-y-5">
+      <input type="hidden" name="current_avatar_url" value={avatarUrl ?? ""} />
+      <input type="hidden" name="remove_avatar" value={removeAvatar ? "true" : "false"} />
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-neutral-800">
+          الصورة الشخصية (اختياري)
+        </label>
+        <p className="mb-2 text-xs text-neutral-500">
+          تظهر صورتك في بطاقتك داخل شجرة الأسرة.
+        </p>
+        <div className="flex items-center gap-4">
+          <MemberPhoto src={preview} size={72} />
+          <div className="flex-1">
+            <input
+              ref={fileInputRef}
+              name="avatar_file"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                // Caught here so an oversized photo gets a readable message
+                // rather than a Server Action that fails on the body limit.
+                if (file.size > MAX_AVATAR_BYTES) {
+                  setAvatarError(
+                    "حجم الصورة كبير جدًا. الحد الأقصى 6 ميجابايت."
+                  );
+                  setPreview(avatarUrl);
+                  e.target.value = "";
+                  return;
+                }
+                setAvatarError(null);
+                setPreview(URL.createObjectURL(file));
+                setRemoveAvatar(false);
+              }}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </div>
+          {preview && (
+            <button
+              type="button"
+              onClick={() => {
+                setPreview(null);
+                setRemoveAvatar(true);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              إزالة
+            </button>
+          )}
+        </div>
+        {avatarError && (
+          <p className="mt-2 text-sm font-medium text-red-600">{avatarError}</p>
+        )}
+      </div>
+
       <div>
         <label className="mb-1.5 block text-sm font-medium text-neutral-800">
           الرقم التعريفي
@@ -84,6 +154,25 @@ export function ProfileForm({
           placeholder="لم يتم تسجيله بعد — يتم تعديله من قِبل الإدارة فقط"
           className="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-500"
         />
+
+        <label className="mt-2 flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2.5">
+          <span className="text-sm text-neutral-800">
+            إظهار تاريخ ميلادي في شجرة الأسرة
+            <span className="block text-xs text-neutral-500">
+              عند الإيقاف لن يظهر تاريخ ميلادك لأفراد الأسرة.
+            </span>
+          </span>
+          <span className="relative inline-flex shrink-0">
+            <input
+              type="checkbox"
+              name="show_birth_date"
+              defaultChecked={showBirthDate}
+              className="peer sr-only"
+            />
+            <span className="h-6 w-11 rounded-full bg-neutral-300 transition-colors peer-checked:bg-primary-600" />
+            <span className="pointer-events-none absolute top-0.5 start-0.5 h-5 w-5 rounded-full bg-neutral-50 shadow-sm transition-transform peer-checked:-translate-x-5 rtl:peer-checked:translate-x-[-1.25rem]" />
+          </span>
+        </label>
       </div>
 
       <div>

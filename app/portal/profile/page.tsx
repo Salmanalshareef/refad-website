@@ -23,6 +23,8 @@ export default async function ProfilePage() {
         maritalStatus={profile.marital_status}
         educationLevel={profile.education_level}
         employmentStatus={profile.employment_status}
+        avatarUrl={profile.avatar_url}
+        showBirthDate={profile.show_birth_date}
       />
     </div>
   );

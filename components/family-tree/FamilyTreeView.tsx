@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { Minus, Plus, RotateCcw, User } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
 
@@ -15,8 +15,18 @@ const STATUS_STYLES: Record<NodeStatusColor, { fill: string; stroke: string }> =
   lightblue: { fill: "#dceefb", stroke: "#3b82f6" },
 };
 
-const NODE_WIDTH = 120;
-const NODE_HEIGHT = 56;
+const NODE_WIDTH = 150;
+const NODE_HEIGHT = 78;
+// Avatar geometry for cards that have a photo: seated on the top edge so it
+// straddles the card, the way an org chart places a portrait. The card keeps
+// its size and the text drops instead, so rows stay aligned either way.
+const AVATAR_RADIUS = 26;
+const AVATAR_CY = -NODE_HEIGHT / 2;
+// Matches the placeholder MemberPhoto shows for a board member with no photo:
+// the same lucide glyph at half the circle, on the same tinted ground.
+const AVATAR_FALLBACK_FILL = "#eef6f3";
+const AVATAR_FALLBACK_INK = "#1f5850";
+const AVATAR_ICON_SIZE = AVATAR_RADIUS;
 const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.2;
@@ -40,6 +50,9 @@ function FamilyTreeNodeElement({
 }: CustomNodeElementProps & { isSelf: boolean }) {
   const data = nodeDatum as unknown as FamilyTreeNode;
   const { fill, stroke } = STATUS_STYLES[data.statusColor] ?? STATUS_STYLES.white;
+  // Ids must be unique per node: a clipPath is referenced document-wide.
+  const clipId = `tree-avatar-${data.id}`;
+  const hasPhoto = Boolean(data.photoUrl);
 
   return (
     <g
@@ -72,10 +85,55 @@ function FamilyTreeNodeElement({
         stroke={stroke}
         strokeWidth={1.5}
       />
-      <text textAnchor="middle" y={-4} fontSize={13} fontWeight={400} fill="#1a2220">
+      {/* Opaque backing: the half above the card would otherwise sit on the
+          link line coming down from the parent. */}
+      <circle
+        cx={0}
+        cy={AVATAR_CY}
+        r={AVATAR_RADIUS}
+        fill={hasPhoto ? fill : AVATAR_FALLBACK_FILL}
+      />
+
+      {hasPhoto ? (
+        <>
+          <defs>
+            <clipPath id={clipId}>
+              <circle cx={0} cy={AVATAR_CY} r={AVATAR_RADIUS} />
+            </clipPath>
+          </defs>
+          <image
+            href={data.photoUrl ?? undefined}
+            x={-AVATAR_RADIUS}
+            y={AVATAR_CY - AVATAR_RADIUS}
+            width={AVATAR_RADIUS * 2}
+            height={AVATAR_RADIUS * 2}
+            clipPath={`url(#${clipId})`}
+            preserveAspectRatio="xMidYMid slice"
+          />
+        </>
+      ) : (
+        <User
+          x={-AVATAR_ICON_SIZE / 2}
+          y={AVATAR_CY - AVATAR_ICON_SIZE / 2}
+          width={AVATAR_ICON_SIZE}
+          height={AVATAR_ICON_SIZE}
+          color={AVATAR_FALLBACK_INK}
+        />
+      )}
+
+      <circle
+        cx={0}
+        cy={AVATAR_CY}
+        r={AVATAR_RADIUS}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={1.5}
+      />
+
+      <text textAnchor="middle" y={10} fontSize={15} fontWeight={500} fill="#1a2220">
         {data.firstName}
       </text>
-      <text textAnchor="middle" y={16} fontSize={11} fill="#4a524f">
+      <text textAnchor="middle" y={29} fontSize={12} fill="#4a524f">
         {data.yearRange}
       </text>
     </g>
@@ -343,7 +401,7 @@ export function FamilyTreeView({
           collapsible
           zoomable
           separation={{ siblings: 1.2, nonSiblings: 1.6 }}
-          nodeSize={{ x: 160, y: 120 }}
+          nodeSize={{ x: 200, y: 150 }}
           renderCustomNodeElement={(rd3tProps) => (
             <FamilyTreeNodeElement
               {...rd3tProps}

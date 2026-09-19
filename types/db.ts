@@ -41,6 +41,7 @@ export type Profile = {
   education_level: EducationLevel | null;
   employment_status: EmploymentStatus | null;
   role: ProfileRole;
+  show_birth_date: boolean;
   family_member_id: string | null;
   created_at: string;
 };
@@ -72,6 +73,8 @@ export type FamilyMember = {
 
 export type FamilyMemberWithProfile = FamilyMember & {
   profile_birth_date: string | null;
+  profile_avatar_url: string | null;
+  profile_show_birth_date: boolean | null;
 };
 
 export type BoardMember = {
