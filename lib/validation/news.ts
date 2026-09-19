@@ -9,4 +9,4 @@ export const NewsItemFormSchema = z.object({
   audience: z.enum(["none", "site_and_members", "members_only"]),
 });
 
-export type NewsItemFormState = { error?: string } | undefined;
+export type NewsItemFormState = { error?: string; success?: boolean } | undefined;

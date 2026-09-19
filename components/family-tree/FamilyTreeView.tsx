@@ -8,11 +8,15 @@ import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
 
 const Tree = dynamic(() => import("react-d3-tree"), { ssr: false });
 
+// Read from CSS variables so the canvas follows the theme. The tree is drawn
+// as SVG, beyond the reach of Tailwind utilities, so these are the only
+// colours in the portal that cannot be expressed as classes. See the family
+// tree block in globals.css.
 const STATUS_STYLES: Record<NodeStatusColor, { fill: string; stroke: string }> = {
-  white: { fill: "#ffffff", stroke: "#cbd3d0" },
-  green: { fill: "#b0d5c8", stroke: "#286e62" },
-  yellow: { fill: "#eedabe", stroke: "#c99a5d" },
-  lightblue: { fill: "#dceefb", stroke: "#3b82f6" },
+  white: { fill: "var(--tree-white-fill)", stroke: "var(--tree-white-stroke)" },
+  green: { fill: "var(--tree-green-fill)", stroke: "var(--tree-green-stroke)" },
+  yellow: { fill: "var(--tree-yellow-fill)", stroke: "var(--tree-yellow-stroke)" },
+  lightblue: { fill: "var(--tree-blue-fill)", stroke: "var(--tree-blue-stroke)" },
 };
 
 const NODE_WIDTH = 150;
@@ -24,8 +28,8 @@ const AVATAR_RADIUS = 26;
 const AVATAR_CY = -NODE_HEIGHT / 2;
 // Matches the placeholder MemberPhoto shows for a board member with no photo:
 // the same lucide glyph at half the circle, on the same tinted ground.
-const AVATAR_FALLBACK_FILL = "#eef6f3";
-const AVATAR_FALLBACK_INK = "#1f5850";
+const AVATAR_FALLBACK_FILL = "var(--tree-avatar-fill)";
+const AVATAR_FALLBACK_INK = "var(--tree-avatar-ink)";
 const AVATAR_ICON_SIZE = AVATAR_RADIUS;
 const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2;
@@ -71,7 +75,7 @@ function FamilyTreeNodeElement({
           height={NODE_HEIGHT + 10}
           rx={14}
           fill="none"
-          stroke="#286e62"
+          style={{ stroke: "var(--tree-self-ring)" }}
           strokeWidth={2.5}
         />
       )}
@@ -81,8 +85,7 @@ function FamilyTreeNodeElement({
         width={NODE_WIDTH}
         height={NODE_HEIGHT}
         rx={10}
-        fill={fill}
-        stroke={stroke}
+        style={{ fill, stroke }}
         strokeWidth={1.5}
       />
       {/* Opaque backing: the half above the card would otherwise sit on the
@@ -91,7 +94,7 @@ function FamilyTreeNodeElement({
         cx={0}
         cy={AVATAR_CY}
         r={AVATAR_RADIUS}
-        fill={hasPhoto ? fill : AVATAR_FALLBACK_FILL}
+        style={{ fill: hasPhoto ? fill : AVATAR_FALLBACK_FILL }}
       />
 
       {hasPhoto ? (
@@ -130,10 +133,16 @@ function FamilyTreeNodeElement({
         strokeWidth={1.5}
       />
 
-      <text textAnchor="middle" y={10} fontSize={15} fontWeight={500} fill="#1a2220">
+      <text
+        textAnchor="middle"
+        y={10}
+        fontSize={15}
+        fontWeight={500}
+        style={{ fill: "var(--tree-card-ink)" }}
+      >
         {data.firstName}
       </text>
-      <text textAnchor="middle" y={29} fontSize={12} fill="#4a524f">
+      <text textAnchor="middle" y={29} fontSize={12} style={{ fill: "var(--tree-card-muted)" }}>
         {data.yearRange}
       </text>
     </g>

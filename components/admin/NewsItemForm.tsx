@@ -1,11 +1,15 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { newsAudienceLabels, newsAudienceOptions } from "@/lib/labels/news";
 import Image from "next/image";
 import { Newspaper } from "lucide-react";
 import { saveNewsItem } from "@/app/actions/admin/news";
-import { newsCategoryLabels } from "@/lib/labels/news";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
+import {
+  newsAudienceLabels,
+  newsAudienceOptions,
+  newsCategoryLabels,
+} from "@/lib/labels/news";
 import { Button } from "@/components/shared/Button";
 import type { NewsItem } from "@/types/db";
 
@@ -19,6 +23,7 @@ export function NewsItemForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveNewsItem, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
   const [previewUrl, setPreviewUrl] = useState(item?.image_url ?? null);
   const [removeImage, setRemoveImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,6 +125,9 @@ export function NewsItemForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

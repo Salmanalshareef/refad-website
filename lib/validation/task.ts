@@ -11,4 +11,4 @@ export const TaskFormSchema = z.object({
   due_date: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
-export type TaskFormState = { error?: string } | undefined;
+export type TaskFormState = { error?: string; success?: boolean } | undefined;

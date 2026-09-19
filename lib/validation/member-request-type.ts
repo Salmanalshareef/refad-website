@@ -29,4 +29,4 @@ export const MemberRequestTypeFormSchema = z.object({
 });
 
 export type MemberRequestFieldInput = z.infer<typeof MemberRequestFieldInputSchema>;
-export type MemberRequestTypeFormState = { error?: string } | undefined;
+export type MemberRequestTypeFormState = { error?: string; success?: boolean } | undefined;

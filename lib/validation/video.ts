@@ -10,4 +10,4 @@ export const VideoFormSchema = z.object({
   published_date: z.string().trim().min(1, "الرجاء تحديد تاريخ النشر."),
 });
 
-export type VideoFormState = { error?: string } | undefined;
+export type VideoFormState = { error?: string; success?: boolean } | undefined;

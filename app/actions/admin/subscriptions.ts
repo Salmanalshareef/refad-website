@@ -98,7 +98,7 @@ export async function updateSubscription(
 
   revalidatePath("/portal/admin/subscriptions");
   revalidatePath("/portal/subscriptions");
-  return undefined;
+  return { success: true };
 }
 
 export async function createSubscriptionForMember(
@@ -220,5 +220,5 @@ export async function saveBankInfo(
 
   revalidatePath("/portal/admin/subscriptions");
   revalidatePath("/portal/subscriptions");
-  return undefined;
+  return { success: true };
 }

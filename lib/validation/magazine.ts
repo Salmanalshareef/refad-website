@@ -6,4 +6,4 @@ export const MagazineIssueFormSchema = z.object({
   published_date: z.string().trim().min(1, "الرجاء تحديد تاريخ النشر."),
 });
 
-export type MagazineIssueFormState = { error?: string } | undefined;
+export type MagazineIssueFormState = { error?: string; success?: boolean } | undefined;

@@ -18,4 +18,4 @@ export const FamilyMemberFormSchema = z.object({
   mother_name: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
-export type FamilyMemberFormState = { error?: string } | undefined;
+export type FamilyMemberFormState = { error?: string; success?: boolean } | undefined;

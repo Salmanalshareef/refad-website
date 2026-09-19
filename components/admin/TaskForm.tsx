@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { saveTask } from "@/app/actions/admin/tasks";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { taskStatusLabels } from "@/lib/labels/tasks";
 import { Button } from "@/components/shared/Button";
 import type { Profile, Task } from "@/types/db";
@@ -16,6 +17,7 @@ export function TaskForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveTask, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
 
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-2">
@@ -66,6 +68,9 @@ export function TaskForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

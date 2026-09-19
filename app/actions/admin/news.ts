@@ -92,7 +92,7 @@ export async function saveNewsItem(
   }
 
   revalidateNewsViews();
-  return undefined;
+  return { success: true };
 }
 
 export async function setNewsItemAudience(id: string, audience: NewsAudience) {

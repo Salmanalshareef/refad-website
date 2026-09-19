@@ -8,4 +8,4 @@ export const BoardMemberFormSchema = z.object({
   order_index: z.coerce.number().int().default(0),
 });
 
-export type BoardMemberFormState = { error?: string } | undefined;
+export type BoardMemberFormState = { error?: string; success?: boolean } | undefined;

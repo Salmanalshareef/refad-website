@@ -2,10 +2,12 @@
 
 import { useActionState } from "react";
 import { createMember } from "@/app/actions/admin/members";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 
 export function MemberForm() {
   const [state, action, pending] = useActionState(createMember, undefined);
+  const { showSaved } = useSaveOutcome(state);
 
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-2">
@@ -48,6 +50,9 @@ export function MemberForm() {
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="sm:col-span-2">

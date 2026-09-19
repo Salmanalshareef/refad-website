@@ -46,7 +46,7 @@ export async function saveTask(
   }
 
   revalidatePath("/portal/admin/tasks");
-  return undefined;
+  return { success: true };
 }
 
 export async function deleteTask(id: string) {

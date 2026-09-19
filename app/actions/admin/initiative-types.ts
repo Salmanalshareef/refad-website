@@ -83,7 +83,7 @@ export async function saveInitiativeType(
   revalidatePath("/refad-fund/initiatives");
   revalidatePath("/portal/services");
   revalidatePath("/portal/services/[typeId]", "page");
-  return undefined;
+  return { success: true };
 }
 
 export async function toggleInitiativeTypePublished(id: string, isPublished: boolean) {

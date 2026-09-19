@@ -17,7 +17,7 @@ export const SubscriptionEditFormSchema = z.object({
   requested_date: z.string().trim().min(1, "الرجاء تحديد تاريخ التقديم."),
 });
 
-export type SubscriptionEditFormState = { error?: string } | undefined;
+export type SubscriptionEditFormState = { error?: string; success?: boolean } | undefined;
 
 export const AdminCreateSubscriptionFormSchema = z.object({
   profile_id: z.string().trim().min(1, "الرجاء اختيار العضو."),
@@ -39,4 +39,4 @@ export const BankInfoFormSchema = z.object({
   iban: z.string().trim().min(1, "الرجاء إدخال رقم الآيبان."),
 });
 
-export type BankInfoFormState = { error?: string } | undefined;
+export type BankInfoFormState = { error?: string; success?: boolean } | undefined;

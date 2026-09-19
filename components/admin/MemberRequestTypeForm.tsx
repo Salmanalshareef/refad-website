@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { saveMemberRequestType } from "@/app/actions/admin/member-request-types";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import type { MemberRequestFieldKind, MemberRequestTypeWithFields } from "@/types/db";
 
@@ -41,6 +42,7 @@ export function MemberRequestTypeForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveMemberRequestType, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
   const [rows, setRows] = useState<FieldRow[]>(
     () =>
       type?.fields.map((field) => ({
@@ -229,6 +231,9 @@ export function MemberRequestTypeForm({
       </label>
 
       {state?.error && <p className="text-sm font-medium text-red-600">{state.error}</p>}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700">تم الحفظ بنجاح.</p>
+      )}
 
       <div className="flex gap-2">
         <Button type="submit" disabled={pending} className="px-4! py-2! text-xs">

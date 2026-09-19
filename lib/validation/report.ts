@@ -7,4 +7,4 @@ export const ReportFormSchema = z.object({
   published_date: z.string().trim().min(1, "الرجاء تحديد تاريخ النشر."),
 });
 
-export type ReportFormState = { error?: string } | undefined;
+export type ReportFormState = { error?: string; success?: boolean } | undefined;

@@ -45,7 +45,7 @@ export async function saveVideo(
 
   revalidatePath("/portal/admin/media/videos");
   revalidatePath("/media-center");
-  return undefined;
+  return { success: true };
 }
 
 export async function toggleVideoPublished(id: string, isPublished: boolean) {

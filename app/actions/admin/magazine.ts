@@ -50,7 +50,7 @@ export async function createMagazineIssue(
 
   revalidatePath("/portal/admin/media/magazine");
   revalidatePath("/media-center");
-  return undefined;
+  return { success: true };
 }
 
 export async function toggleMagazineIssuePublished(id: string, isPublished: boolean) {

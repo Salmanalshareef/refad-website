@@ -73,7 +73,7 @@ export async function saveFamilyMember(
 
   revalidatePath("/portal/admin/family-members");
   revalidatePath("/portal/family-tree");
-  return undefined;
+  return { success: true };
 }
 
 export async function deleteFamilyMember(id: string) {

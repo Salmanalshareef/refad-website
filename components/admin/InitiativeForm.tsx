@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { saveInitiative } from "@/app/actions/admin/initiatives";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import { FileText } from "lucide-react";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
@@ -17,6 +18,7 @@ export function InitiativeForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveInitiative, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
   const [previewUrl, setPreviewUrl] = useState(initiative?.icon ?? null);
   const [removeIcon, setRemoveIcon] = useState(false);
   const [dateMode, setDateMode] = useState<InitiativeDateMode>(
@@ -289,6 +291,9 @@ export function InitiativeForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

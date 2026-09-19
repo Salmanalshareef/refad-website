@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { saveInitiativeType } from "@/app/actions/admin/initiative-types";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
 import type { InitiativeType } from "@/types/db";
@@ -14,6 +15,7 @@ export function InitiativeTypeForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveInitiativeType, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
   const [previewUrl, setPreviewUrl] = useState(type?.icon ?? null);
   const [removeIcon, setRemoveIcon] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +91,9 @@ export function InitiativeTypeForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

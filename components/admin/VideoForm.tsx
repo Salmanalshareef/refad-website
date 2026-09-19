@@ -2,11 +2,13 @@
 
 import { useActionState } from "react";
 import { saveVideo } from "@/app/actions/admin/videos";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import type { Video } from "@/types/db";
 
 export function VideoForm({ video, onDone }: { video?: Video; onDone?: () => void }) {
   const [state, action, pending] = useActionState(saveVideo, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
 
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-2">
@@ -42,6 +44,9 @@ export function VideoForm({ video, onDone }: { video?: Video; onDone?: () => voi
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

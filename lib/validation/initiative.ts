@@ -67,4 +67,4 @@ export const InitiativeFormSchema = z
     }
   });
 
-export type InitiativeFormState = { error?: string } | undefined;
+export type InitiativeFormState = { error?: string; success?: boolean } | undefined;

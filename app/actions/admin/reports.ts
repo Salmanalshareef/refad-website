@@ -51,7 +51,7 @@ export async function createReport(
 
   revalidatePath("/portal/admin/reports");
   revalidatePath("/refad-fund/reports");
-  return undefined;
+  return { success: true };
 }
 
 export async function deleteReport(id: string, fileUrl: string) {

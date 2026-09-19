@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { saveFamilyMember } from "@/app/actions/admin/family-members";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import { HijriYearInput } from "@/components/shared/HijriYearInput";
 import type { FamilyMemberWithProfile, Profile } from "@/types/db";
@@ -18,6 +19,7 @@ export function FamilyMemberForm({
   onDone?: () => void;
 }) {
   const [state, action, pending] = useActionState(saveFamilyMember, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
   const [isLiving, setIsLiving] = useState(member?.is_living ?? true);
   const [fatherId, setFatherId] = useState(member?.father_id ?? "");
   const [nationalId, setNationalId] = useState(member?.national_id ?? "");
@@ -151,6 +153,9 @@ export function FamilyMemberForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

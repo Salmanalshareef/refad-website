@@ -43,4 +43,4 @@ export const EditMemberFormSchema = z.object({
   ),
 });
 
-export type MemberFormState = { error?: string } | undefined;
+export type MemberFormState = { error?: string; success?: boolean } | undefined;

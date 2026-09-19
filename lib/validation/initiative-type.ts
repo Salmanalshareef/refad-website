@@ -9,4 +9,4 @@ export const InitiativeTypeFormSchema = z.object({
   order_index: z.coerce.number().int().default(0),
 });
 
-export type InitiativeTypeFormState = { error?: string } | undefined;
+export type InitiativeTypeFormState = { error?: string; success?: boolean } | undefined;

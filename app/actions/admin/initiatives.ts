@@ -174,7 +174,7 @@ export async function saveInitiative(
   revalidatePath("/portal/admin/initiative-types");
   revalidatePath("/refad-fund/initiatives");
   revalidateMemberViews();
-  return undefined;
+  return { success: true };
 }
 
 export async function toggleInitiativePublished(id: string, isPublished: boolean) {

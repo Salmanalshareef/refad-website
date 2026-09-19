@@ -2,11 +2,13 @@
 
 import { useActionState } from "react";
 import { saveBankInfo } from "@/app/actions/admin/subscriptions";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import type { FundBankInfo } from "@/types/db";
 
 export function BankInfoForm({ bankInfo }: { bankInfo: FundBankInfo }) {
   const [state, action, pending] = useActionState(saveBankInfo, undefined);
+  const { showSaved } = useSaveOutcome(state);
 
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-4">
@@ -44,6 +46,9 @@ export function BankInfoForm({ bankInfo }: { bankInfo: FundBankInfo }) {
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-4">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-4">تم الحفظ بنجاح.</p>
       )}
 
       <div className="sm:col-span-4">

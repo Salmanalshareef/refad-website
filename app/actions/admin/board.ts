@@ -78,7 +78,7 @@ export async function saveBoardMember(
 
   revalidatePath("/portal/admin/board");
   revalidatePath("/refad-fund/board-of-trustees");
-  return undefined;
+  return { success: true };
 }
 
 export async function deleteBoardMember(id: string) {

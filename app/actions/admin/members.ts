@@ -66,7 +66,7 @@ export async function createMember(
   revalidatePath("/portal/admin/members");
   revalidatePath("/portal/admin/family-members");
   revalidatePath("/portal/family-tree");
-  return undefined;
+  return { success: true };
 }
 
 export async function updateMemberProfile(
@@ -127,7 +127,7 @@ export async function updateMemberProfile(
   }
 
   revalidatePath("/portal/admin/members");
-  return undefined;
+  return { success: true };
 }
 
 export async function updateMemberRole(id: string, role: "member" | "admin") {

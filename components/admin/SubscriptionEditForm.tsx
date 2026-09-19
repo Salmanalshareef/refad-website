@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { updateSubscription } from "@/app/actions/admin/subscriptions";
+import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import type { Subscription } from "@/types/db";
 
@@ -13,6 +14,7 @@ export function SubscriptionEditForm({
   onDone: () => void;
 }) {
   const [state, action, pending] = useActionState(updateSubscription, undefined);
+  const { showSaved } = useSaveOutcome(state, onDone);
 
   return (
     <form action={action} className="grid gap-3 sm:grid-cols-2">
@@ -58,6 +60,9 @@ export function SubscriptionEditForm({
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>
+      )}
+      {showSaved && (
+        <p className="text-sm font-medium text-primary-700 sm:col-span-2">تم الحفظ بنجاح.</p>
       )}
 
       <div className="flex gap-2 sm:col-span-2">

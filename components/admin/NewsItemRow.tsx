@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { Newspaper, Pencil } from "lucide-react";
 import { NewsItemForm } from "@/components/admin/NewsItemForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
@@ -24,6 +24,9 @@ export function NewsItemRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
+  // Without this the select renders the server value for the length of the
+  // round trip, so a change visibly reverts before reappearing.
+  const [audience, setAudience] = useOptimistic(item.audience);
 
   if (editing) {
     return (
@@ -50,21 +53,23 @@ export function NewsItemRow({
         <label className="flex items-center gap-2">
           <span className="text-xs font-medium text-neutral-600">النشر</span>
           <select
-            value={item.audience}
+            value={audience}
             disabled={isPending}
-            onChange={(e) =>
-              startTransition(() =>
-                setNewsItemAudience(item.id, e.target.value as NewsAudience)
-              )
-            }
+            onChange={(e) => {
+              const next = e.target.value as NewsAudience;
+              startTransition(() => {
+                setAudience(next);
+                return setNewsItemAudience(item.id, next);
+              });
+            }}
             className={cn(
               "rounded-full border-0 px-3 py-1 text-xs font-semibold transition-colors disabled:opacity-50",
-              AUDIENCE_STYLES[item.audience]
+              AUDIENCE_STYLES[audience]
             )}
           >
-            {newsAudienceOptions.map((audience) => (
-              <option key={audience} value={audience}>
-                {newsAudienceLabels[audience]}
+            {newsAudienceOptions.map((option) => (
+              <option key={option} value={option}>
+                {newsAudienceLabels[option]}
               </option>
             ))}
           </select>
