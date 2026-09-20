@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, ShieldCheck, User } from "lucide-react";
+import { ImageOff, Pencil, ShieldCheck } from "lucide-react";
 import { EditMemberForm } from "@/components/admin/EditMemberForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteMember } from "@/app/actions/admin/members";
+import { MemberPhoto } from "@/components/shared/MemberPhoto";
+import { deleteMember, removeMemberAvatar } from "@/app/actions/admin/members";
 import type { ProfileWithEmail } from "@/types/db";
 
 export function MemberRow({
@@ -27,9 +28,7 @@ export function MemberRow({
   return (
     <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-700">
-          <User className="h-5 w-5" />
-        </div>
+        <MemberPhoto src={profile.avatar_url} size={40} />
         <div>
           <p className="font-medium text-primary-900">
             {profile.full_name}
@@ -53,6 +52,15 @@ export function MemberRow({
           <Pencil className="h-3.5 w-3.5" />
           تعديل
         </button>
+        {profile.avatar_url && (
+          <DeleteButton
+            action={() => removeMemberAvatar(profile.id)}
+            confirmMessage="هل تريد إزالة الصورة الشخصية لهذا العضو؟ يمكنه رفع صورة جديدة من ملفه الشخصي."
+            icon={<ImageOff className="h-3.5 w-3.5" />}
+            label="إزالة الصورة"
+            title="إزالة الصورة الشخصية التي رفعها العضو"
+          />
+        )}
         <DeleteButton
           action={() => deleteMember(profile.id)}
           confirmMessage="هل أنت متأكد من حذف هذا الحساب؟"

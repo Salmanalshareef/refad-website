@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Link2, Pencil, User } from "lucide-react";
+import { Link2, Pencil } from "lucide-react";
 import { FamilyMemberForm } from "@/components/admin/FamilyMemberForm";
+import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { deleteFamilyMember } from "@/app/actions/admin/family-members";
 import type { FamilyMemberWithProfile, Profile } from "@/types/db";
@@ -35,9 +36,7 @@ export function FamilyMemberRow({
   return (
     <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-700">
-          <User className="h-5 w-5" />
-        </div>
+        <MemberPhoto src={member.profile_avatar_url ?? member.photo_url} size={40} />
         <div>
           <p className="font-medium text-primary-900">{member.full_name}</p>
           <p className="text-xs text-neutral-500">

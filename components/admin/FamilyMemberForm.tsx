@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { saveFamilyMember } from "@/app/actions/admin/family-members";
 import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
 import { HijriYearInput } from "@/components/shared/HijriYearInput";
+import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import type { FamilyMemberWithProfile, Profile } from "@/types/db";
 
 export function FamilyMemberForm({
@@ -23,6 +24,9 @@ export function FamilyMemberForm({
   const [isLiving, setIsLiving] = useState(member?.is_living ?? true);
   const [fatherId, setFatherId] = useState(member?.father_id ?? "");
   const [nationalId, setNationalId] = useState(member?.national_id ?? "");
+  const [photoPreview, setPhotoPreview] = useState(member?.photo_url ?? null);
+  const [removePhoto, setRemovePhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const candidateParents = allMembers.filter((m) => m.id !== member?.id);
 
   // Prefer the direct account link when one already exists; otherwise fall
@@ -150,6 +154,47 @@ export function FamilyMemberForm({
         defaultValue={member?.mother_name ?? ""}
         className="rounded-lg border border-neutral-300 px-3 py-2 text-sm sm:col-span-2"
       />
+
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 sm:col-span-2">
+        <p className="mb-1 text-xs font-medium text-neutral-600">صورة الفرد (اختياري)</p>
+        <p className="mb-2 text-xs text-neutral-500">
+          تظهر في بطاقته داخل شجرة الأسرة. إن كان له حساب ورفع صورة شخصية، فصورته
+          الشخصية هي التي تظهر.
+        </p>
+
+        <input type="hidden" name="current_photo_url" value={member?.photo_url ?? ""} />
+        <input type="hidden" name="remove_photo" value={removePhoto ? "true" : "false"} />
+
+        <div className="flex items-center gap-3">
+          <MemberPhoto src={photoPreview} size={56} />
+          <input
+            ref={photoInputRef}
+            name="photo_file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setPhotoPreview(URL.createObjectURL(file));
+              setRemovePhoto(false);
+            }}
+            className="flex-1 text-sm"
+          />
+          {photoPreview && (
+            <button
+              type="button"
+              onClick={() => {
+                setPhotoPreview(null);
+                setRemovePhoto(true);
+                if (photoInputRef.current) photoInputRef.current.value = "";
+              }}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+              إزالة
+            </button>
+          )}
+        </div>
+      </div>
 
       {state?.error && (
         <p className="text-sm font-medium text-red-600 sm:col-span-2">{state.error}</p>

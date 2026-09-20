@@ -8,11 +8,17 @@ export function DeleteButton({
   confirmMessage = "هل أنت متأكد من الحذف؟",
   disabled = false,
   title,
+  // Rows can carry more than one destructive action — removing a photo next
+  // to deleting the account — so the wording has to be able to differ.
+  label = "حذف",
+  icon,
 }: {
   action: () => Promise<void>;
   confirmMessage?: string;
   disabled?: boolean;
   title?: string;
+  label?: string;
+  icon?: React.ReactNode;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -28,8 +34,8 @@ export function DeleteButton({
       }}
       className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <Trash2 className="h-3.5 w-3.5" />
-      حذف
+      {icon ?? <Trash2 className="h-3.5 w-3.5" />}
+      {label}
     </button>
   );
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
@@ -128,6 +129,31 @@ export async function updateMemberProfile(
 
   revalidatePath("/portal/admin/members");
   return { success: true };
+}
+
+/**
+ * Removes a photo a member uploaded to their own profile.
+ *
+ * Moderation only — an admin can take a photo down but cannot put one up in
+ * its place. A profile picture is the member's own; the admin-managed photo
+ * lives on the family tree record instead, and the member can always upload
+ * again from their profile.
+ */
+export async function removeMemberAvatar(id: string) {
+  await requireAdmin();
+
+  const rows = (await sql`
+    SELECT avatar_url FROM profiles WHERE id = ${id}
+  `) as { avatar_url: string | null }[];
+
+  if (!rows[0]?.avatar_url) return;
+
+  await del(rows[0].avatar_url).catch(() => {});
+  await sql`UPDATE profiles SET avatar_url = NULL WHERE id = ${id}`;
+
+  revalidatePath("/portal/admin/members");
+  revalidatePath("/portal/profile");
+  revalidatePath("/portal/family-tree");
 }
 
 export async function updateMemberRole(id: string, role: "member" | "admin") {
