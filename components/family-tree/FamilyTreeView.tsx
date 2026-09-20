@@ -4,19 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Minus, Plus, RotateCcw, User } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
+import { cn } from "@/lib/utils";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
 
 const Tree = dynamic(() => import("react-d3-tree"), { ssr: false });
 
-// Read from CSS variables so the canvas follows the theme. The tree is drawn
-// as SVG, beyond the reach of Tailwind utilities, so these are the only
-// colours in the portal that cannot be expressed as classes. See the family
-// tree block in globals.css.
-const STATUS_STYLES: Record<NodeStatusColor, { fill: string; stroke: string }> = {
-  white: { fill: "var(--tree-white-fill)", stroke: "var(--tree-white-stroke)" },
-  green: { fill: "var(--tree-green-fill)", stroke: "var(--tree-green-stroke)" },
-  yellow: { fill: "var(--tree-yellow-fill)", stroke: "var(--tree-yellow-stroke)" },
-  lightblue: { fill: "var(--tree-blue-fill)", stroke: "var(--tree-blue-stroke)" },
+// Colours live in globals.css keyed by these classes. They are not inline
+// styles because an unresolved var() on an SVG node silently inherits
+// react-d3-tree own .rd3t-node { fill: #777 }, which is invisible on a dark
+// card. The same class also paints the legend swatch beside the tree.
+const STATUS_CLASS: Record<NodeStatusColor, string> = {
+  white: "tree-status-white",
+  green: "tree-status-green",
+  yellow: "tree-status-yellow",
+  lightblue: "tree-status-blue",
 };
 
 const NODE_WIDTH = 150;
@@ -28,8 +29,6 @@ const AVATAR_RADIUS = 26;
 const AVATAR_CY = -NODE_HEIGHT / 2;
 // Matches the placeholder MemberPhoto shows for a board member with no photo:
 // the same lucide glyph at half the circle, on the same tinted ground.
-const AVATAR_FALLBACK_FILL = "var(--tree-avatar-fill)";
-const AVATAR_FALLBACK_INK = "var(--tree-avatar-ink)";
 const AVATAR_ICON_SIZE = AVATAR_RADIUS;
 const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2;
@@ -53,7 +52,7 @@ function FamilyTreeNodeElement({
   isSelf,
 }: CustomNodeElementProps & { isSelf: boolean }) {
   const data = nodeDatum as unknown as FamilyTreeNode;
-  const { fill, stroke } = STATUS_STYLES[data.statusColor] ?? STATUS_STYLES.white;
+  const statusClass = STATUS_CLASS[data.statusColor] ?? STATUS_CLASS.white;
   // Ids must be unique per node: a clipPath is referenced document-wide.
   const clipId = `tree-avatar-${data.id}`;
   const hasPhoto = Boolean(data.photoUrl);
@@ -74,8 +73,8 @@ function FamilyTreeNodeElement({
           width={NODE_WIDTH + 10}
           height={NODE_HEIGHT + 10}
           rx={14}
-          fill="none"
-          style={{ stroke: "var(--tree-self-ring)" }}
+          className="tree-self-ring"
+          style={{ fill: "none" }}
           strokeWidth={2.5}
         />
       )}
@@ -85,7 +84,7 @@ function FamilyTreeNodeElement({
         width={NODE_WIDTH}
         height={NODE_HEIGHT}
         rx={10}
-        style={{ fill, stroke }}
+        className={statusClass}
         strokeWidth={1.5}
       />
       {/* Opaque backing: the half above the card would otherwise sit on the
@@ -94,7 +93,7 @@ function FamilyTreeNodeElement({
         cx={0}
         cy={AVATAR_CY}
         r={AVATAR_RADIUS}
-        style={{ fill: hasPhoto ? fill : AVATAR_FALLBACK_FILL }}
+        className={hasPhoto ? statusClass : "tree-avatar-plate"}
       />
 
       {hasPhoto ? (
@@ -116,11 +115,11 @@ function FamilyTreeNodeElement({
         </>
       ) : (
         <User
+          className="tree-avatar-ink"
           x={-AVATAR_ICON_SIZE / 2}
           y={AVATAR_CY - AVATAR_ICON_SIZE / 2}
           width={AVATAR_ICON_SIZE}
           height={AVATAR_ICON_SIZE}
-          color={AVATAR_FALLBACK_INK}
         />
       )}
 
@@ -128,21 +127,21 @@ function FamilyTreeNodeElement({
         cx={0}
         cy={AVATAR_CY}
         r={AVATAR_RADIUS}
-        fill="none"
-        stroke={stroke}
+        className={statusClass}
+        style={{ fill: "none" }}
         strokeWidth={1.5}
       />
 
       <text
+        className="tree-node-name"
         textAnchor="middle"
         y={10}
         fontSize={15}
         fontWeight={500}
-        style={{ fill: "var(--tree-card-ink)" }}
       >
         {data.firstName}
       </text>
-      <text textAnchor="middle" y={29} fontSize={12} style={{ fill: "var(--tree-card-muted)" }}>
+      <text className="tree-node-years" textAnchor="middle" y={29} fontSize={12}>
         {data.yearRange}
       </text>
     </g>
@@ -371,7 +370,7 @@ export function FamilyTreeView({
       <div
         ref={containerRef}
         dir="ltr"
-        className="relative h-[560px] w-full rounded-2xl border border-neutral-200 bg-neutral-50"
+        className="tree-canvas relative h-[560px] w-full rounded-2xl border border-neutral-200"
       >
         <div className="absolute end-3 top-3 z-10 flex flex-col gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1 shadow-sm">
           <button
@@ -435,11 +434,7 @@ export function FamilyTreeView({
         {LEGEND_ITEMS.map((item) => (
           <div key={item.color} className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span
-              className="h-3 w-3 shrink-0 rounded"
-              style={{
-                backgroundColor: STATUS_STYLES[item.color].fill,
-                border: `1.5px solid ${STATUS_STYLES[item.color].stroke}`,
-              }}
+              className={cn("h-3 w-3 shrink-0 rounded border-[1.5px]", STATUS_CLASS[item.color])}
             />
             {item.label}
           </div>

@@ -24,12 +24,16 @@
   --color-gold-400: #dfbc95;
   --color-gold-500: #d3a87a;
   --color-gold-600: #c99a5d;
+  --color-gold-700: #9a7133;
+  --color-gold-800: #7d5b2a;
 
   /* Neutral: FFFFFF is the workhorse surface, F4F7F6 the subtle tint */
   --color-neutral-50: #ffffff;
   --color-neutral-100: #f4f7f6;
   --color-neutral-200: #e4e9e7;
   --color-neutral-300: #cbd3d0;
+  --color-neutral-400: #9aa4a0;
+  --color-neutral-500: #78827e;
   --color-neutral-600: #6e7876;
   --color-neutral-700: #4a524f;
   --color-neutral-800: #2e3634;
@@ -66,11 +70,15 @@
   --color-gold-400: var(--color-gold-400);
   --color-gold-500: var(--color-gold-500);
   --color-gold-600: var(--color-gold-600);
+  --color-gold-700: var(--color-gold-700);
+  --color-gold-800: var(--color-gold-800);
 
   --color-neutral-50: var(--color-neutral-50);
   --color-neutral-100: var(--color-neutral-100);
   --color-neutral-200: var(--color-neutral-200);
   --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
   --color-neutral-600: var(--color-neutral-600);
   --color-neutral-700: var(--color-neutral-700);
   --color-neutral-800: var(--color-neutral-800);
@@ -97,11 +105,22 @@ body {
 html[data-theme="dark"] .portal-shell {
   color-scheme: dark;
 
+  /* body resolves var(--foreground) at :root and its children inherit that
+     computed value, so redefining the variable here is not enough on its own:
+     the colour has to be re-set on the shell for the subtree to pick it up.
+     Without this, every text node without an explicit text-* class inherits
+     near-black — which is what made labels and hints unreadable. */
+  --foreground: #e9efed;
+  --background: #141a19;
+  color: var(--foreground);
+
   /* Surfaces and text. neutral-50 is the card/sidebar surface; 600-900 are text. */
   --color-neutral-50: #1b2321;
   --color-neutral-100: #232d2a;
   --color-neutral-200: #2f3a37;
   --color-neutral-300: #3f4c48;
+  --color-neutral-400: #7f8a86;
+  --color-neutral-500: #8b9692;
   --color-neutral-600: #93a09c;
   --color-neutral-700: #b4c0bc;
   --color-neutral-800: #d1dad7;
@@ -134,6 +153,8 @@ html[data-theme="dark"] .portal-shell {
   --color-gold-400: #8d7449;
   --color-gold-500: #b08f5c;
   --color-gold-600: #e0b884;
+  --color-gold-700: #e9c9a0;
+  --color-gold-800: #f2dcc0;
 
   /* Red is error text and destructive actions; 700-800 stay dark for white text. */
   --color-red-50: #3a1f21;
@@ -216,51 +237,100 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
 }
 
 /* ── Family tree canvas ─────────────────────────────────────────────────────
+   The canvas stays white in both themes. Everything drawn on it — cards,
+   names, connector lines, the legend swatches — keeps its light colours, so
+   there is one set of values here rather than two, and nothing to fall out of
+   step. .tree-canvas restores the light neutrals for its subtree so the zoom
+   controls sitting on the canvas match it.
+
    The tree is drawn as SVG by react-d3-tree, so its colours cannot come from
-   Tailwind utilities the way the rest of the portal's do. They are read from
-   these variables instead, which the dark block below redefines.
+   Tailwind utilities the way the rest of the portal does.
 
-   The status colours are not a straight inversion: in light mode a card is a
-   pale tint with a saturated border, so in dark mode it becomes a deep tint
-   with a brighter border — the same relationship, re-seated on a dark ground. */
-:root {
-  --tree-link: #cbd3d0;
-  --tree-card-ink: #1a2220;
-  --tree-card-muted: #4a524f;
-  --tree-self-ring: #286e62;
-  --tree-avatar-fill: #eef6f3;
-  --tree-avatar-ink: #1f5850;
+   These are literal values in classes rather than custom properties. An
+   inline style of fill: var(--x) on an SVG node leaves fill to inherit if the
+   property does not resolve there, and what it inherits is react-d3-tree own
+   rule, .rd3t-node { fill: #777 } — a dark fill on a dark card. Classes with
+   literal colours cannot degrade that way.
 
-  --tree-white-fill: #ffffff;
-  --tree-white-stroke: #cbd3d0;
-  --tree-green-fill: #b0d5c8;
-  --tree-green-stroke: #286e62;
-  --tree-yellow-fill: #eedabe;
-  --tree-yellow-stroke: #c99a5d;
-  --tree-blue-fill: #dceefb;
-  --tree-blue-stroke: #3b82f6;
+   Each status class carries both the SVG pair (fill/stroke) and the HTML pair
+   (background-color/border-color) so the same class paints a node and its
+   legend swatch; each side ignores the properties that do not apply to it.
+
+   Dark is not a straight inversion: a light card is a pale fill with a
+   saturated border, so the dark one is a deep fill with a brighter border. */
+.tree-status-white {
+  fill: #ffffff;
+  stroke: #cbd3d0;
+  background-color: #ffffff;
+  border-color: #cbd3d0;
 }
 
-html[data-theme="dark"] .portal-shell {
-  --tree-link: #46544f;
-  --tree-card-ink: #e9efed;
-  --tree-card-muted: #9aa5a1;
-  --tree-self-ring: #7cc9b5;
-  --tree-avatar-fill: #17302c;
-  --tree-avatar-ink: #7cc9b5;
-
-  --tree-white-fill: #232d2a;
-  --tree-white-stroke: #4a5854;
-  --tree-green-fill: #1d3c37;
-  --tree-green-stroke: #4fa48f;
-  --tree-yellow-fill: #35291a;
-  --tree-yellow-stroke: #b08f5c;
-  --tree-blue-fill: #1c2c3c;
-  --tree-blue-stroke: #5b9bd5;
+.tree-status-green {
+  fill: #b0d5c8;
+  stroke: #286e62;
+  background-color: #b0d5c8;
+  border-color: #286e62;
 }
 
-/* react-d3-tree injects its own stylesheet at runtime, which would otherwise
-   win on source order — the extra class raises specificity above it. */
+.tree-status-yellow {
+  fill: #eedabe;
+  stroke: #c99a5d;
+  background-color: #eedabe;
+  border-color: #c99a5d;
+}
+
+.tree-status-blue {
+  fill: #dceefb;
+  stroke: #3b82f6;
+  background-color: #dceefb;
+  border-color: #3b82f6;
+}
+
+.tree-node-name {
+  fill: #1a2220;
+}
+
+.tree-node-years {
+  fill: #4a524f;
+}
+
+.tree-self-ring {
+  stroke: #286e62;
+}
+
+.tree-avatar-plate {
+  fill: #eef6f3;
+}
+
+/* Lucide draws with stroke: currentColor, so the glyph follows this. */
+.tree-avatar-ink {
+  color: #1f5850;
+}
+
 .portal-shell .rd3t-link {
-  stroke: var(--tree-link);
+  stroke: #cbd3d0;
+}
+
+
+/* Holds the light palette against the dark scope above it. */
+.tree-canvas {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #1a2220;
+
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #f4f7f6;
+  --color-neutral-200: #e4e9e7;
+  --color-neutral-300: #cbd3d0;
+  --color-neutral-400: #9aa4a0;
+  --color-neutral-500: #78827e;
+  --color-neutral-600: #6e7876;
+  --color-neutral-700: #4a524f;
+  --color-neutral-800: #2e3634;
+  --color-neutral-900: #1a2220;
+  --color-primary-50: #eef6f3;
+  --color-primary-100: #d7eae3;
+  --color-primary-700: #1f5850;
+  --color-primary-800: #1a4a44;
+  --color-primary-900: #163f47;
 }
