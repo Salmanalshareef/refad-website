@@ -85,7 +85,16 @@ const adminGroups = [
   },
 ];
 
-export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
+export function Sidebar({
+  isAdmin,
+  open = false,
+  onNavigate,
+}: {
+  isAdmin: boolean;
+  /** Drawer state below lg; ignored from lg up, where the column is static. */
+  open?: boolean;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Set<string>>(
     () =>
@@ -113,10 +122,22 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   }
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col overflow-y-auto border-e border-neutral-200 bg-neutral-50">
+    <aside
+      className={cn(
+        "fixed inset-y-0 start-0 z-50 flex w-72 max-w-[80vw] flex-col border-e border-neutral-200 bg-neutral-50",
+        // visibility is transitioned alongside transform so the panel stays on
+        // screen for the slide out and only then hides. Hidden matters: an
+        // off-screen drawer that is merely translated still takes keyboard
+        // focus, so tabbing would walk into an invisible menu.
+        "transition-[transform,visibility] duration-300 ease-out",
+        "lg:static lg:z-auto lg:w-64 lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:visible",
+        open ? "visible translate-x-0" : "invisible translate-x-full"
+      )}
+    >
       <Link
         href="/"
-        className="flex items-center justify-center border-b border-neutral-200 px-6 py-6"
+        onClick={onNavigate}
+        className="flex shrink-0 items-center justify-center border-b border-neutral-200 px-6 py-6"
       >
         <Image
           src="/logo-portal.png"
@@ -137,7 +158,7 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
         />
       </Link>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
         {links.map((link) => {
           const active = link.exact
             ? pathname === link.href
@@ -146,6 +167,7 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
             <Link
               key={link.href}
               href={link.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 active
@@ -191,6 +213,7 @@ export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
                           <Link
                             key={item.href}
                             href={item.href}
+                            onClick={onNavigate}
                             className={cn(
                               "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                               active
