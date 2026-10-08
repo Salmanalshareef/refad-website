@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
         إعادة تعيين كلمة المرور
       </h1>
       <p className="mb-6 text-sm text-neutral-600">
-        أدخل بريدك الإلكتروني المسجل وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.
+        أدخل رقم جوالك المسجل وسنرسل لك رمز تحقق لإعادة تعيين كلمة المرور.
       </p>
       <ForgotPasswordForm />
     </>

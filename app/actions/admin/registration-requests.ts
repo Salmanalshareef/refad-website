@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { sendSms, welcomeMessage } from "@/lib/sms";
 
 export async function approveRegistrationRequest(id: string) {
   await requireAdmin();
@@ -56,6 +57,11 @@ export async function approveRegistrationRequest(id: string) {
   `;
 
   await sql`UPDATE registration_requests SET status = 'approved' WHERE id = ${id}`;
+
+  // The account exists either way, so a gateway that is down or unconfigured
+  // must not fail the approval — the member simply does not get the greeting.
+  const firstName = request.full_name.trim().split(/\s+/)[0] ?? request.full_name;
+  await sendSms(request.phone, welcomeMessage(firstName)).catch(() => undefined);
 
   revalidatePath("/portal/admin/registration-requests");
   revalidatePath("/portal/admin/members");

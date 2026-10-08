@@ -2,15 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
+import { normalizeLocalPhone } from "@/lib/phone";
 import { verifyPassword } from "@/lib/password";
 import { createSessionToken } from "@/lib/session";
 import { setSessionCookie, clearSessionCookie } from "@/lib/session-cookie";
-import {
-  ForgotPasswordFormSchema,
-  LoginFormSchema,
-  type ForgotPasswordFormState,
-  type LoginFormState,
-} from "@/lib/validation/auth";
+import { LoginFormSchema, type LoginFormState } from "@/lib/validation/auth";
 
 export async function login(
   _prevState: LoginFormState,
@@ -27,14 +23,18 @@ export async function login(
 
   const { phone, password } = validatedFields.data;
 
+  // Matched on digits alone so 05…, 5…, 966… and +966… all reach the same
+  // account; numbers are stored as 05XXXXXXXX. Two rows stored in formats that
+  // normalise alike are ambiguous, and no password should unlock a guess.
   const rows = (await sql`
     SELECT u.id, u.password_hash, p.role
     FROM users u
     JOIN profiles p ON p.id = u.id
-    WHERE p.phone = ${phone}
+    WHERE regexp_replace(p.phone, '[^0-9]', '', 'g') = ${normalizeLocalPhone(phone)}
+    LIMIT 2
   `) as { id: string; password_hash: string; role: "member" | "admin" }[];
 
-  const user = rows[0];
+  const user = rows.length === 1 ? rows[0] : undefined;
   const valid = user ? await verifyPassword(password, user.password_hash) : false;
 
   if (!user || !valid) {
@@ -51,21 +51,4 @@ export async function login(
 export async function logout() {
   await clearSessionCookie();
   redirect("/login");
-}
-
-export async function requestPasswordReset(
-  _prevState: ForgotPasswordFormState,
-  formData: FormData
-): Promise<ForgotPasswordFormState> {
-  const validatedFields = ForgotPasswordFormSchema.safeParse({
-    phone: formData.get("phone"),
-  });
-
-  if (!validatedFields.success) {
-    return { error: validatedFields.error.issues[0]?.message };
-  }
-
-  // No SMS service is wired up yet, so this is a placeholder that always
-  // reports success (and avoids leaking which phone numbers have accounts).
-  return { success: true };
 }
