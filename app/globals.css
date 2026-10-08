@@ -334,3 +334,13 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
   --color-primary-800: #1a4a44;
   --color-primary-900: #163f47;
 }
+
+/* Women in the tree. Deliberately absent from the legend: the four status
+   colours describe the male line, and this is a gender marker rather than a
+   fifth status. */
+.tree-status-pink {
+  fill: #f8dde6;
+  stroke: #c07a93;
+  background-color: #f8dde6;
+  border-color: #c07a93;
+}

@@ -18,6 +18,7 @@ const STATUS_CLASS: Record<NodeStatusColor, string> = {
   green: "tree-status-green",
   yellow: "tree-status-yellow",
   lightblue: "tree-status-blue",
+  pink: "tree-status-pink",
 };
 
 const NODE_WIDTH = 150;

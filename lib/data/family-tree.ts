@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { gregorianToHijriYear } from "@/lib/hijri";
 import type { FamilyMemberWithProfile, Profile } from "@/types/db";
 
-export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue";
+export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue" | "pink";
 
 export type FamilyTreeNode = {
   /** family_members.id — lets the view locate a specific person in the tree. */
@@ -98,8 +98,14 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
       ? (birthYear ?? "")
       : [deathYear ?? "", birthYear ?? ""].join(" - ");
 
+    // Women are shown in pink regardless of living status or children: the
+    // four status colours describe the male line, and the legend below the
+    // tree documents only those. A woman added to the tree would otherwise
+    // default to "alive, no children", which says nothing useful about her.
     let statusColor: NodeStatusColor;
-    if (isLiving) {
+    if (member.gender === "female") {
+      statusColor = "pink";
+    } else if (isLiving) {
       statusColor = hasChildren ? "green" : "lightblue";
     } else {
       statusColor = hasChildren ? "white" : "yellow";
