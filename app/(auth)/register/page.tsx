@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { RegistrationRequestForm } from "@/components/forms/RegistrationRequestForm";
+
+export const metadata: Metadata = {
+  title: "طلب تسجيل",
+  description: "تقديم طلب انضمام إلى بوابة أعضاء صندوق رفاد.",
+};
 
 export default function RegisterPage() {
   return (

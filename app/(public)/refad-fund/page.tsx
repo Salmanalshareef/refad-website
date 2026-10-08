@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
@@ -30,6 +31,11 @@ const sections = [
     description: "التقارير المالية والتقارير السنوية ومحاضر الاجتماعات.",
   },
 ];
+
+export const metadata: Metadata = {
+  title: "صندوق رفاد",
+  description: "التعريف بصندوق رفاد ومبادراته ومجلس أمنائه وتقاريره.",
+};
 
 export default function RefadFundPage() {
   return (

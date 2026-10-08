@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -5,6 +6,11 @@ import { FundSubNav } from "@/components/refad-fund/FundSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getBoardMembers } from "@/lib/data/board";
 import { MemberPhoto } from "@/components/shared/MemberPhoto";
+
+export const metadata: Metadata = {
+  title: "مجلس الأمناء",
+  description: "أعضاء مجلس أمناء صندوق رفاد.",
+};
 
 export default async function BoardOfTrusteesPage() {
   const members = await getBoardMembers().catch(() => null);

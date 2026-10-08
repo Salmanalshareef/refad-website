@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { LoginForm } from "@/components/forms/LoginForm";
+
+export const metadata: Metadata = {
+  title: "تسجيل الدخول",
+  description: "الدخول إلى بوابة أعضاء صندوق رفاد.",
+};
 
 export default async function LoginPage({
   searchParams,

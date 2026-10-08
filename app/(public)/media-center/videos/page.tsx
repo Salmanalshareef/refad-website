@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -6,6 +7,11 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedVideos } from "@/lib/data/videos";
 import { getEmbedUrl } from "@/lib/video";
 import { PlayCircle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "مكتبة الفيديو",
+  description: "مقاطع مصوّرة من فعاليات الأسرة والصندوق.",
+};
 
 export default async function VideosPage() {
   const videos = await getPublishedVideos().catch(() => null);

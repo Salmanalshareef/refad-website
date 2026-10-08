@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -35,6 +36,11 @@ const pillarStyles = {
     card: "border-gold-300 bg-gold-400 text-primary-900",
     icon: "bg-white/40 text-primary-900",
   },
+};
+
+export const metadata: Metadata = {
+  title: "عن الصندوق",
+  description: "نبذة عن صندوق رفاد، مؤسسة أهلية مسجلة تعنى بأسرة آل معجب.",
 };
 
 export default function AboutRefadPage() {

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Mail, MapPin, Phone } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "تواصل معنا",
+  description: "قنوات التواصل مع صندوق رفاد وإرسال استفساراتكم.",
+};
 
 export default function ContactPage() {
   return (

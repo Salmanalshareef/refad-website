@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -22,6 +23,11 @@ const values = [
       "رعاية المواهب من أبناء الأسرة وتشجيعهم على التفوق العلمي والمهني.",
   },
 ];
+
+export const metadata: Metadata = {
+  title: "أسرة آل معجب",
+  description: "تاريخ أسرة آل معجب آل يحيى الشريف وقيمها وفروعها.",
+};
 
 export default function AboutFamilyPage() {
   return (

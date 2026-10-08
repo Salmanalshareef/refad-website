@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -5,6 +6,11 @@ import { FundSubNav } from "@/components/refad-fund/FundSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedInitiativeTypes } from "@/lib/data/initiative-types";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
+
+export const metadata: Metadata = {
+  title: "المبادرات",
+  description: "مبادرات صندوق رفاد وبرامجه الموجهة لأفراد الأسرة.",
+};
 
 export default async function InitiativesPage() {
   const types = await getPublishedInitiativeTypes().catch(() => null);

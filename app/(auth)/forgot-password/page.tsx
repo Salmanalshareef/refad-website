@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/components/forms/ForgotPasswordForm";
+
+export const metadata: Metadata = {
+  title: "استعادة كلمة المرور",
+  description: "إعادة تعيين كلمة مرور حسابك في بوابة الأعضاء.",
+};
 
 export default function ForgotPasswordPage() {
   return (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -5,6 +6,11 @@ import { MediaCenterSubNav } from "@/components/media-center/MediaCenterSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedMagazineIssues } from "@/lib/data/magazine";
 import { BookOpen, Download } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "مجلة الأسرة",
+  description: "أعداد مجلة الأسرة الصادرة عن صندوق رفاد.",
+};
 
 export default async function MagazinePage() {
   const issues = await getPublishedMagazineIssues().catch(() => null);

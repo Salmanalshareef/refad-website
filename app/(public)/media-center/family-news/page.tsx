@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
@@ -5,6 +6,11 @@ import { Reveal } from "@/components/shared/Reveal";
 import { MediaCenterSubNav } from "@/components/media-center/MediaCenterSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedNewsByCategory } from "@/lib/data/news";
+
+export const metadata: Metadata = {
+  title: "أخبار الأسرة",
+  description: "آخر أخبار أسرة آل معجب ومناسباتها.",
+};
 
 export default async function FamilyNewsPage() {
   const items = await getPublishedNewsByCategory("family").catch(() => null);

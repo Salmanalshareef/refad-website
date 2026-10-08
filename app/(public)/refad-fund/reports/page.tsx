@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { Reveal } from "@/components/shared/Reveal";
@@ -8,6 +9,11 @@ import type { ReportType } from "@/types/db";
 import { Download, FileText } from "lucide-react";
 
 const reportTypes: ReportType[] = ["financial", "performance", "minutes"];
+
+export const metadata: Metadata = {
+  title: "التقارير",
+  description: "التقارير المالية وتقارير الأداء ومحاضر الاجتماعات.",
+};
 
 export default async function ReportsPage() {
   const reports = await getReports().catch(() => null);

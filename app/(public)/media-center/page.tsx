@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
@@ -30,6 +31,11 @@ const sections = [
     description: "أعداد مجلة الأسرة الدورية.",
   },
 ];
+
+export const metadata: Metadata = {
+  title: "مركز الإعلام",
+  description: "أخبار الأسرة والصندوق، والمجلة، ومكتبة الفيديو.",
+};
 
 export default function MediaCenterPage() {
   return (
