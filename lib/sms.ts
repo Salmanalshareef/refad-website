@@ -88,7 +88,7 @@ export async function sendSms(phone: string, message: string): Promise<SmsResult
 
 /** The reset code message, kept here so both the wording and the code agree. */
 export function passwordResetMessage(code: string) {
-  return `رمز إعادة تعيين كلمة المرور الخاص بك هو: ${code}. صلاحية الرمز 10 دقائق. لا تشارك هذا الرمز مع أحد.`;
+  return `رمز إعادة تعيين كلمة المرور الخاص بك هو: ${code}`;
 }
 
 /** Sent once an admin approves a registration request. */
