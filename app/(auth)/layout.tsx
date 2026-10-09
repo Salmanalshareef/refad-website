@@ -4,8 +4,10 @@ import Link from "next/link";
 export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // public-shell: these pages are reached from the public header and link back
+  // to the home page, so they wear the public palette rather than the portal's.
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-neutral-100 px-4 py-8 sm:px-6 sm:py-16">
+    <main className="public-shell flex flex-1 flex-col items-center justify-center bg-neutral-100 px-4 py-8 sm:px-6 sm:py-16">
       <Link href="/" className="mb-6 flex items-center justify-center sm:mb-8">
         <Image
           src="/logo-portal.png"

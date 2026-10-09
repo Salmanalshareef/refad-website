@@ -93,6 +93,77 @@ body {
 }
 
 
+/* ── Public site palette ────────────────────────────────────────────────────
+   The emblem is gold — calligraphy and arabesque frame both — but the public
+   pages were built on a cool teal that appears nowhere in it, and used gold
+   eight times against teal's ninety-eight. These redefinitions put the mark's
+   own colours back in charge: deep ink-green grounds for gold to sit on, a
+   warm cream reading surface, and the green kept on as the functional colour
+   for buttons and links rather than as the brand.
+
+   Scoped to .public-shell, not :root, so the portal keeps the palette members
+   already know. It redefines tokens the components already use, so nothing
+   outside this block changes — the utilities resolve through these variables.
+
+   The gold steps come from the emblem itself: sampling its opaque pixels puts
+   the body of the gold between #9a7656 and #d1b16f, warmer and more olive than
+   the sandy tan that was here before.
+
+   Every step in use is defined. A step left out does not inherit the old value
+   — it falls through to Tailwind's stock palette, which is how gold-700 once
+   rendered as no rule at all.                                              */
+.public-shell {
+  /* body resolves these at :root and children inherit the computed value, so
+     the colour has to be re-set here for the subtree to pick it up. */
+  --background: #faf6ec;
+  --foreground: #1a1813;
+  background-color: var(--background);
+  color: var(--foreground);
+
+  /* Ink-green. 50-200 are tints on light; 600-700 do the interactive work;
+     800-900 are the dark grounds and the heading ink. */
+  --color-primary-50: #f1f6f3;
+  --color-primary-100: #d9e8e1;
+  --color-primary-200: #b6d2c6;
+  --color-primary-300: #8cb5a6;
+  --color-primary-400: #5e9484;
+  --color-primary-500: #3f7c6b;
+  --color-primary-600: #2f6b5c;
+  --color-primary-700: #235245;
+  --color-primary-800: #16302a;
+  --color-primary-900: #0f211d;
+
+  /* Emblem gold. 300-400 are the figure on dark grounds; 600-800 are darkened
+     enough to carry text on light, which the previous #c99a5d could not — it
+     met 2.54:1 on white, against the 4.5:1 that small text needs. */
+  --color-gold-50: #fbf7ef;
+  --color-gold-100: #f4ead5;
+  --color-gold-200: #e9d9b6;
+  --color-gold-300: #dbc695;
+  --color-gold-400: #d1b16f;
+  --color-gold-500: #bc9a5b;
+  --color-gold-600: #8a6e42;
+  --color-gold-700: #6f5735;
+  --color-gold-800: #57442a;
+
+  /* Warmed to sit under the gold. The old neutrals were green-tinted and cool,
+     which is part of why the tan read as a mismatch rather than an accent. */
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #f3eee3;
+  --color-neutral-200: #e5ddcd;
+  --color-neutral-300: #cec4b0;
+  --color-neutral-400: #9c9384;
+  --color-neutral-500: #7e7668;
+  --color-neutral-600: #6b6456;
+  --color-neutral-700: #4e483d;
+  --color-neutral-800: #322e26;
+  --color-neutral-900: #1a1813;
+
+  --color-brand-hover: #235245;
+  --color-image-plate: #ffffff;
+  --color-image-plate-ink: #2f6b5c;
+}
+
 /* ── Portal dark theme ──────────────────────────────────────────────────────
    Scoped to .portal-shell rather than :root. The switcher lives in the portal
    menu and only the portal has been designed for dark, so the public site keeps

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  */
 export default function NotFound() {
   return (
-    <>
+    <div className="public-shell flex flex-1 flex-col">
       <Header />
       <main className="flex flex-1 items-center justify-center px-4 py-16 sm:py-28">
         <div className="w-full max-w-lg text-center">
@@ -40,6 +40,6 @@ export default function NotFound() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
