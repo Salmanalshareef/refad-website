@@ -8,6 +8,11 @@ import { getPublishedVideos } from "@/lib/data/videos";
 import { getEmbedUrl } from "@/lib/video";
 import { PlayCircle } from "lucide-react";
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "مكتبة الفيديو",
   description: "مقاطع مصوّرة من فعاليات الأسرة والصندوق.",

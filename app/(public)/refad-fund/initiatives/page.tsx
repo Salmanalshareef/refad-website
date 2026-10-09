@@ -7,6 +7,11 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedInitiativeTypes } from "@/lib/data/initiative-types";
 import { InitiativeIcon } from "@/components/shared/InitiativeIcon";
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "المبادرات",
   description: "مبادرات صندوق رفاد وبرامجه الموجهة لأفراد الأسرة.",

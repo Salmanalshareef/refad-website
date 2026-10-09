@@ -5,6 +5,13 @@ import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { VideoFormSchema, type VideoFormState } from "@/lib/validation/video";
 
+// /media-center is only a grid of links; the library renders one level down,
+// and a bare path does not reach children.
+function revalidateVideoViews() {
+  revalidatePath("/portal/admin/media/videos");
+  revalidatePath("/media-center/videos");
+}
+
 export async function saveVideo(
   _prevState: VideoFormState,
   formData: FormData
@@ -43,8 +50,7 @@ export async function saveVideo(
     return { error: "تعذر حفظ الفيديو." };
   }
 
-  revalidatePath("/portal/admin/media/videos");
-  revalidatePath("/media-center");
+  revalidateVideoViews();
   return { success: true };
 }
 
@@ -52,14 +58,12 @@ export async function toggleVideoPublished(id: string, isPublished: boolean) {
   await requireAdmin();
   await sql`UPDATE videos SET is_published = ${isPublished} WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/videos");
-  revalidatePath("/media-center");
+  revalidateVideoViews();
 }
 
 export async function deleteVideo(id: string) {
   await requireAdmin();
   await sql`DELETE FROM videos WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/videos");
-  revalidatePath("/media-center");
+  revalidateVideoViews();
 }

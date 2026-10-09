@@ -5,6 +5,11 @@ import { StatsBanner } from "@/components/home/StatsBanner";
 import { NewsEventsSlider } from "@/components/home/NewsEventsSlider";
 import { getRecentPublishedNewsByCategory } from "@/lib/data/news";
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export default async function HomePage() {
   const [familyNews, fundNews] = await Promise.all([
     getRecentPublishedNewsByCategory("family", 3).catch(() => []),

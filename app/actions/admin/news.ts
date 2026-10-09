@@ -14,7 +14,13 @@ const NEWS_AUDIENCES: NewsAudience[] = ["none", "site_and_members", "members_onl
 function revalidateNewsViews() {
   revalidatePath("/portal/admin/media/family-news");
   revalidatePath("/portal/admin/media/fund-news");
-  revalidatePath("/media-center");
+  // Each public page that renders news has to be named individually: these
+  // pages are prerendered, /media-center is only a grid of links, and a bare
+  // path does not reach children. The home page carries the three latest
+  // items of each category, so a deletion shows there too.
+  revalidatePath("/");
+  revalidatePath("/media-center/family-news");
+  revalidatePath("/media-center/fund-news");
   // News now also reaches members inside the portal.
   revalidatePath("/portal/news");
   revalidatePath("/portal");

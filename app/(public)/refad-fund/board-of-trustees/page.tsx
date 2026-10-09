@@ -7,6 +7,11 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { getBoardMembers } from "@/lib/data/board";
 import { MemberPhoto } from "@/components/shared/MemberPhoto";
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "مجلس الأمناء",
   description: "أعضاء مجلس أمناء صندوق رفاد.",

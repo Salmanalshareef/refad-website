@@ -7,6 +7,11 @@ import { MediaCenterSubNav } from "@/components/media-center/MediaCenterSubNav";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getPublishedNewsByCategory } from "@/lib/data/news";
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "أخبار الصندوق",
   description: "آخر أخبار صندوق رفاد ومبادراته.",

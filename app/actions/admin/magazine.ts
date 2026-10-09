@@ -6,6 +6,13 @@ import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { MagazineIssueFormSchema, type MagazineIssueFormState } from "@/lib/validation/magazine";
 
+// /media-center is only a grid of links; the issues render one level down,
+// and a bare path does not reach children.
+function revalidateMagazineViews() {
+  revalidatePath("/portal/admin/media/magazine");
+  revalidatePath("/media-center/magazine");
+}
+
 export async function createMagazineIssue(
   _prevState: MagazineIssueFormState,
   formData: FormData
@@ -48,8 +55,7 @@ export async function createMagazineIssue(
     return { error: "تعذر حفظ بيانات المجلة." };
   }
 
-  revalidatePath("/portal/admin/media/magazine");
-  revalidatePath("/media-center");
+  revalidateMagazineViews();
   return { success: true };
 }
 
@@ -57,8 +63,7 @@ export async function toggleMagazineIssuePublished(id: string, isPublished: bool
   await requireAdmin();
   await sql`UPDATE magazine_issues SET is_published = ${isPublished} WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/magazine");
-  revalidatePath("/media-center");
+  revalidateMagazineViews();
 }
 
 export async function deleteMagazineIssue(id: string, fileUrl: string) {
@@ -67,6 +72,5 @@ export async function deleteMagazineIssue(id: string, fileUrl: string) {
   await del(fileUrl).catch(() => {});
   await sql`DELETE FROM magazine_issues WHERE id = ${id}`;
 
-  revalidatePath("/portal/admin/media/magazine");
-  revalidatePath("/media-center");
+  revalidateMagazineViews();
 }

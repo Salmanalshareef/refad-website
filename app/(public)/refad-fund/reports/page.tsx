@@ -10,6 +10,11 @@ import { Download, FileText } from "lucide-react";
 
 const reportTypes: ReportType[] = ["financial", "performance", "minutes"];
 
+// Safety net under the explicit revalidatePath calls in the admin actions:
+// a path one of them forgets self-heals within five minutes, rather than
+// serving the stale build until the next deploy.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "التقارير",
   description: "التقارير المالية وتقارير الأداء ومحاضر الاجتماعات.",
