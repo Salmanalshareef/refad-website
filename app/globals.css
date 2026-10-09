@@ -314,6 +314,14 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
 
 /* Holds the light palette against the dark scope above it. */
 .tree-canvas {
+  /* The tree handles its own pan and zoom through d3-zoom. Without this the
+     browser claims one-finger drags for page scrolling first, so dragging
+     inside the canvas scrolls the page instead of moving the tree. */
+  touch-action: none;
+  /* And a drag that reaches the edge should stop there rather than chaining
+     into the page behind it. */
+  overscroll-behavior: contain;
+
   color-scheme: light;
   background-color: #ffffff;
   color: #1a2220;

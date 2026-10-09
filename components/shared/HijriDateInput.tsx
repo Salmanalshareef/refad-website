@@ -43,6 +43,10 @@ export function HijriDateInput({
       <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-neutral-800">
         {label} (هجري)
       </label>
+      {/* Kept three across even on a phone: day, month and year read as one
+          date, and stacking them turns a single field into three rows. At
+          375px each select still clears 100px, which fits "اليوم" and a
+          month name. */}
       <div className="grid grid-cols-3 gap-2">
         <select
           id={id}

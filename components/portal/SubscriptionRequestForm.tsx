@@ -29,7 +29,7 @@ export function SubscriptionRequestForm({
 
   return (
     <form action={action} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="mb-1.5 text-sm font-medium text-neutral-800">الاسم الكامل</p>
           <p className="rounded-lg border border-neutral-200 bg-neutral-100 px-3 py-2 text-sm text-neutral-600">

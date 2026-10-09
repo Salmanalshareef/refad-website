@@ -7,8 +7,8 @@ const contactDetails = [
   {
     icon: Mail,
     label: "البريد الإلكتروني",
-    value: "almojebfamily@gmail.com",
-    href: "mailto:almojebfamily@gmail.com",
+    value: "info@refad.sa",
+    href: "mailto:info@refad.sa",
   },
   { icon: MapPin, label: "العنوان", value: "الرياض، المملكة العربية السعودية", href: undefined },
 ];
@@ -45,7 +45,7 @@ export function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={social.label}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-800 text-primary-100 transition-colors hover:bg-brand-hover hover:text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-800 sm:h-8 sm:w-8 text-primary-100 transition-colors hover:bg-brand-hover hover:text-white"
               >
                 <social.Icon className="h-4 w-4" />
               </a>

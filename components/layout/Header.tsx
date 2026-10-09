@@ -40,7 +40,7 @@ export function Header() {
               alt="عائلة آل معجب"
               width={140}
               height={140}
-              className="h-[140px] w-[140px] object-contain"
+              className="h-20 w-20 object-contain sm:h-[140px] sm:w-[140px]"
               priority
             />
           </Link>

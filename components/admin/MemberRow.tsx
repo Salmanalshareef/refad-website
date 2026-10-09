@@ -26,8 +26,8 @@ export function MemberRow({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <MemberPhoto src={profile.avatar_url} size={40} />
         <div>
           <p className="font-medium text-primary-900">
@@ -43,7 +43,7 @@ export function MemberRow({
           {profile.phone && <p className="text-xs text-neutral-500">{profile.phone}</p>}
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         <button
           type="button"
           onClick={() => setEditing(true)}

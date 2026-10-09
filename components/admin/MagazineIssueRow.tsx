@@ -11,8 +11,8 @@ export function MagazineIssueRow({ issue }: { issue: MagazineIssue }) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <BookOpen className="h-5 w-5 shrink-0 text-primary-700" />
         <div>
           <p className="font-medium text-primary-900">{issue.title}</p>
@@ -22,7 +22,7 @@ export function MagazineIssueRow({ issue }: { issue: MagazineIssue }) {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         <button
           type="button"
           disabled={isPending}

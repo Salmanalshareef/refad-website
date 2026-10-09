@@ -27,7 +27,7 @@ export function SubscriptionStatusCard({
         </span>
       </div>
 
-      <dl className="grid grid-cols-2 gap-4 text-sm">
+      <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
           <dt className="text-xs text-neutral-500">اسم العضو</dt>
           <dd className="mt-0.5 font-medium text-primary-900">{profile.full_name}</dd>

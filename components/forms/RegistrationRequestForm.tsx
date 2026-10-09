@@ -25,7 +25,7 @@ export function RegistrationRequestForm() {
 
   return (
     <form action={action} className="space-y-5">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="first_name" className="mb-1.5 block text-sm font-medium text-neutral-800">
             الاسم الأول

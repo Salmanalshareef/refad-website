@@ -32,8 +32,8 @@ export function InitiativeTypeRow({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <span className="image-plate flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
           <InitiativeIcon src={type.icon} size={20} />
         </span>
@@ -44,7 +44,7 @@ export function InitiativeTypeRow({
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           disabled={isPending}

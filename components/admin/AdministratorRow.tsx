@@ -16,8 +16,8 @@ export function AdministratorRow({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-700">
           <ShieldCheck className="h-5 w-5" />
         </div>
@@ -31,7 +31,7 @@ export function AdministratorRow({
           {profile.phone && <p className="text-xs text-neutral-500">{profile.phone}</p>}
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         <button
           type="button"
           disabled={isPending || isSelf}

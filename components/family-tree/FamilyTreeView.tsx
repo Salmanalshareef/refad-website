@@ -229,15 +229,37 @@ export function FamilyTreeView({
     let finished = false;
     const deadline = Date.now() + 20000;
 
+    // A touch that travels is a drag; a tap is not.
+    let touchStart: { x: number; y: number } | null = null;
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType !== "touch" || !event.buttons) return;
+      if (!touchStart) {
+        touchStart = { x: event.clientX, y: event.clientY };
+        return;
+      }
+      const moved =
+        Math.abs(event.clientX - touchStart.x) + Math.abs(event.clientY - touchStart.y);
+      if (moved > 12) stop();
+    };
+
     const stop = () => {
       finished = true;
       cancelAnimationFrame(frame);
-      container.removeEventListener("pointerdown", stop);
+      container.removeEventListener("pointerdown", stopOnDrag);
+      container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("wheel", stop);
     };
 
     // Any deliberate interaction wins; never fight the member for the view.
-    container.addEventListener("pointerdown", stop);
+    // A touch only counts once it becomes a drag: on a phone the centring is
+    // still converging when the first stray tap lands, and aborting on that
+    // would leave the member wherever the tree happened to be.
+    const stopOnDrag = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      stop();
+    };
+    container.addEventListener("pointerdown", stopOnDrag);
+    container.addEventListener("pointermove", onPointerMove);
     container.addEventListener("wheel", stop);
 
     /** The SVG is the coordinate space the tree transform is expressed in. */
@@ -371,14 +393,14 @@ export function FamilyTreeView({
       <div
         ref={containerRef}
         dir="ltr"
-        className="tree-canvas relative h-[560px] w-full rounded-2xl border border-neutral-200"
+        className="tree-canvas relative h-[420px] w-full rounded-2xl border border-neutral-200 sm:h-[560px]"
       >
         <div className="absolute end-3 top-3 z-10 flex flex-col gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1 shadow-sm">
           <button
             type="button"
             aria-label="تكبير"
             onClick={zoomIn}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100 sm:h-8 sm:w-8"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -386,7 +408,7 @@ export function FamilyTreeView({
             type="button"
             aria-label="تصغير"
             onClick={zoomOut}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100 sm:h-8 sm:w-8"
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -394,7 +416,7 @@ export function FamilyTreeView({
             type="button"
             aria-label="إعادة ضبط التكبير"
             onClick={zoomReset}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-neutral-700 hover:bg-neutral-100 sm:h-8 sm:w-8"
           >
             <RotateCcw className="h-4 w-4" />
           </button>

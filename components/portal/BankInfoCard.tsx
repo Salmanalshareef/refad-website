@@ -60,7 +60,7 @@ export function BankInfoCard({ bankInfo }: { bankInfo: FundBankInfo | null }) {
       <h2 className="mb-4 font-bold">بيانات الحساب البنكي</h2>
 
       <dl className="space-y-3 text-sm">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <dt className="text-xs text-white/70">اسم الحساب</dt>
             <dd className="mt-0.5 font-medium">{bankInfo?.account_name || "—"}</dd>

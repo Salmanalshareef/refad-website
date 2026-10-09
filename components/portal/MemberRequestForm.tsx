@@ -79,7 +79,7 @@ export function MemberRequestForm({
 
   return (
     <form action={action} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="mb-1.5 text-sm font-medium text-neutral-800">مقدّم الطلب</p>
           <p className={readOnlyClasses}>{applicantFullName}</p>

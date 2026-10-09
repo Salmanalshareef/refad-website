@@ -95,7 +95,7 @@ export function NewsEventsSlider({ items }: { items: NewsItem[] }) {
             type="button"
             aria-label="السابق"
             onClick={() => goTo(index - 1)}
-            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary-800 shadow-sm hover:bg-white"
+            className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full sm:h-7 sm:w-7 bg-white/90 text-primary-800 shadow-sm hover:bg-white"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -103,7 +103,7 @@ export function NewsEventsSlider({ items }: { items: NewsItem[] }) {
             type="button"
             aria-label="التالي"
             onClick={() => goTo(index + 1)}
-            className="absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary-800 shadow-sm hover:bg-white"
+            className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full sm:h-7 sm:w-7 bg-white/90 text-primary-800 shadow-sm hover:bg-white"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>

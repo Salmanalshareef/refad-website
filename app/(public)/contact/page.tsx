@@ -20,7 +20,7 @@ export default function ContactPage() {
       />
 
       <Section>
-        <div className="grid gap-12 lg:grid-cols-5">
+        <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           <Reveal className="lg:col-span-2">
             <h2 className="mb-6 text-xl font-bold text-primary-900">
               معلومات التواصل
@@ -30,7 +30,7 @@ export default function ContactPage() {
                 <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary-700" />
                 <div>
                   <p className="font-medium text-neutral-900">البريد الإلكتروني</p>
-                  <p dir="ltr" className="text-left">almojebfamily@gmail.com</p>
+                  <p dir="ltr" className="text-left">info@refad.sa</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">

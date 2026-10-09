@@ -40,8 +40,8 @@ export function InitiativeRow({
   const date = formatInitiativeDate(initiative);
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <div className="image-plate flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
           <InitiativeIcon src={initiative.icon} size={20} />
         </div>
@@ -59,7 +59,7 @@ export function InitiativeRow({
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1">
         <button
           type="button"
           disabled={isPending}

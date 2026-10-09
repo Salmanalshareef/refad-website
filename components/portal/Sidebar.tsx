@@ -145,7 +145,7 @@ export function Sidebar({
           alt="صندوق رفاد"
           width={180}
           height={120}
-          className="theme-light-only h-[120px] w-auto object-contain"
+          className="theme-light-only h-20 w-auto object-contain sm:h-[120px]"
           priority
         />
         <Image
@@ -154,7 +154,7 @@ export function Sidebar({
           aria-hidden
           width={180}
           height={120}
-          className="theme-dark-only h-[120px] w-auto object-contain"
+          className="theme-dark-only h-20 w-auto object-contain sm:h-[120px]"
           priority
         />
       </Link>
