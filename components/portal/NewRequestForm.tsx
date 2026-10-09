@@ -62,9 +62,15 @@ export function NewRequestForm({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
-  if (state?.success) {
-    submittedRef.current = true;
-  }
+  // Set in an effect rather than during render: a render can be discarded and
+  // replayed, and the unmount cleanup above must skip its delete only for a
+  // submission that actually committed. Effects run at commit time, so this is
+  // already true before any later unmount or beforeunload reads it.
+  useEffect(() => {
+    if (state?.success) {
+      submittedRef.current = true;
+    }
+  }, [state?.success]);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -102,7 +108,7 @@ export function NewRequestForm({
       <input type="hidden" name="draft_id" value={draft.id} />
 
       <p className="rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
-        هذا طلب غير مكتمل — إذا غادرت هذه الصفحة دون الضغط على "إرسال الطلب" فلن يتم
+        هذا طلب غير مكتمل — إذا غادرت هذه الصفحة دون الضغط على &quot;إرسال الطلب&quot; فلن يتم
         حفظه ولن يُحتسب كطلب.
       </p>
 
