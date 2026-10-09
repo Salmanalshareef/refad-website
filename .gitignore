@@ -43,3 +43,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# database dumps from `npm run backup` — these hold members' personal data
+# and password hashes, and must never be committed
+backups/
