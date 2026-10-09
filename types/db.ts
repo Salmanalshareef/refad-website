@@ -43,6 +43,8 @@ export type Profile = {
   education_level: EducationLevel | null;
   employment_status: EmploymentStatus | null;
   role: ProfileRole;
+  /** False once the account has been closed; the row and its history remain. */
+  is_active: boolean;
   show_birth_date: boolean;
   family_member_id: string | null;
   created_at: string;
@@ -307,6 +309,25 @@ export type MemberRequestWithDetails = MemberRequest & {
   member_name: string;
   applicant_national_id: string | null;
   type_title: string | null;
+};
+
+export type AccountDeletionRequestStatus = "pending" | "approved" | "rejected";
+
+export type AccountDeletionRequest = {
+  id: string;
+  profile_id: string;
+  reason: string | null;
+  status: AccountDeletionRequestStatus;
+  admin_comment: string | null;
+  created_at: string;
+  resolved_at: string | null;
+};
+
+export type AccountDeletionRequestWithMember = AccountDeletionRequest & {
+  member_name: string;
+  member_number: number;
+  phone: string;
+  national_id: string | null;
 };
 
 export type RegistrationRequest = {

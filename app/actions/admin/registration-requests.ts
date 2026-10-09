@@ -26,6 +26,45 @@ export async function approveRegistrationRequest(id: string) {
     return { error: "تعذر العثور على الطلب أو أنه تمت معالجته مسبقًا." };
   }
 
+  // A member who closed their account and signed up again already has a
+  // profile, carrying their requests, subscriptions and family tree links.
+  // Creating a second one would hand them an empty account and strand the
+  // first, so the existing row is reactivated and refreshed instead.
+  const existing = (await sql`
+    SELECT id FROM profiles
+    WHERE national_id IS NOT NULL AND btrim(national_id) = btrim(${request.national_id})
+    LIMIT 2
+  `) as { id: string }[];
+
+  if (existing.length === 1) {
+    const profileId = existing[0].id;
+    try {
+      await sql`
+        UPDATE users
+        SET email = ${request.email}, password_hash = ${request.password_hash}
+        WHERE id = ${profileId}
+      `;
+      await sql`
+        UPDATE profiles
+        SET full_name = ${request.full_name}, gender = ${request.gender},
+            phone = ${request.phone}, birth_date = ${request.birth_date},
+            is_active = true
+        WHERE id = ${profileId}
+      `;
+    } catch {
+      return { error: "تعذر إعادة تفعيل الحساب. تأكد من أن رقم الجوال أو البريد غير مستخدم من قبل عضو آخر." };
+    }
+
+    await sql`UPDATE registration_requests SET status = 'approved' WHERE id = ${id}`;
+
+    const returningName = request.full_name.trim().split(/\s+/)[0] ?? request.full_name;
+    await sendSms(request.phone, welcomeMessage(returningName)).catch(() => undefined);
+
+    revalidatePath("/portal/admin/registration-requests");
+    revalidatePath("/portal/admin/members");
+    return { success: true };
+  }
+
   let userId: string;
   try {
     const created = (await sql`

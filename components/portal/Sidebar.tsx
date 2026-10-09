@@ -16,6 +16,7 @@ import {
   Settings,
   SlidersHorizontal,
   User,
+  UserX,
   Users2,
   Wallet,
 } from "lucide-react";
@@ -236,6 +237,15 @@ export function Sidebar({
 
       <div className="space-y-2 border-t border-neutral-200 p-3">
         <ThemeSwitcher />
+
+        <Link
+          href="/portal/account/delete"
+          onClick={onNavigate}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 hover:bg-red-50 hover:text-red-600"
+        >
+          <UserX className="h-5 w-5" />
+          طلب حذف الحساب
+        </Link>
 
         <form action={logout}>
           <button

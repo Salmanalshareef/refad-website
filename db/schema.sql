@@ -15,6 +15,7 @@ create type task_status as enum ('todo', 'in_progress', 'done');
 create type member_request_type as enum ('news', 'family_member', 'other');
 create type member_request_status as enum ('pending', 'rejected', 'completed');
 create type registration_request_status as enum ('pending', 'approved', 'rejected');
+create type account_deletion_request_status as enum ('pending', 'approved', 'rejected');
 create type member_request_field_kind as enum ('text', 'number', 'long_text', 'applicant_name');
 create type initiative_date_mode as enum ('single', 'period');
 create type marital_status as enum ('single', 'married', 'divorced', 'widowed');
@@ -66,6 +67,9 @@ create table profiles (
   education_level education_level,
   employment_status employment_status,
   role profile_role not null default 'member',
+  -- Closing an account deactivates it rather than deleting the row, so the
+  -- member keeps their history if they ever come back.
+  is_active boolean not null default true,
   -- When false, the family tree hides this member's birth date.
   show_birth_date boolean not null default true,
   family_member_id uuid references family_members (id) on delete set null,
@@ -278,6 +282,19 @@ create table password_reset_codes (
 
 create index password_reset_codes_user_idx
   on password_reset_codes (user_id, created_at desc);
+
+create table account_deletion_requests (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null references profiles (id) on delete cascade,
+  reason text,
+  status account_deletion_request_status not null default 'pending',
+  admin_comment text,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
+create index account_deletion_requests_status_idx
+  on account_deletion_requests (status, created_at desc);
 
 create table registration_requests (
   id uuid primary key default gen_random_uuid(),

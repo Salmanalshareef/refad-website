@@ -39,6 +39,7 @@ async function findUserByPhone(phone: string) {
     FROM users u
     JOIN profiles p ON p.id = u.id
     WHERE regexp_replace(p.phone, '[^0-9]', '', 'g') = ${normalizeLocalPhone(phone)}
+      AND p.is_active = true
     LIMIT 2
   `) as UserRow[];
   return rows.length === 1 ? rows[0] : null;
