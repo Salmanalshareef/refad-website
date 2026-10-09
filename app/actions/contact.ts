@@ -1,6 +1,12 @@
 "use server";
 
 import { sql } from "@/lib/db";
+import {
+  RATE_LIMITS,
+  getClientIp,
+  isRateLimited,
+  recordAttempt,
+} from "@/lib/rate-limit";
 import { ContactFormSchema, type ContactFormState } from "@/lib/validation/contact";
 
 export async function submitContactMessage(
@@ -17,6 +23,18 @@ export async function submitContactMessage(
   if (!validatedFields.success) {
     return { errors: validatedFields.error.flatten().fieldErrors };
   }
+
+  // Anyone can reach this form, and every submission lands in an inbox an
+  // admin reads by hand. The attempt is recorded before the insert, so
+  // hammering the endpoint counts even when the write itself fails.
+  const ip = await getClientIp();
+  if (await isRateLimited(RATE_LIMITS.contactByIp, ip)) {
+    return {
+      success: false,
+      message: "تم إرسال عدد كبير من الرسائل. يرجى المحاولة بعد قليل.",
+    };
+  }
+  await recordAttempt(RATE_LIMITS.contactByIp, ip);
 
   const { full_name, mobile, subject, message } = validatedFields.data;
 

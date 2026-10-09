@@ -3,6 +3,12 @@
 import { sql } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import {
+  RATE_LIMITS,
+  getClientIp,
+  isRateLimited,
+  recordAttempt,
+} from "@/lib/rate-limit";
+import {
   RegistrationRequestFormSchema,
   type RegistrationRequestFormState,
 } from "@/lib/validation/registration-request";
@@ -28,6 +34,17 @@ export async function submitRegistrationRequest(
   if (!validatedFields.success) {
     return { error: validatedFields.error.issues[0]?.message };
   }
+
+  // Checked before the password is hashed: bcrypt at cost 12 is about a
+  // quarter-second of CPU per call, so an unguarded flood here costs real
+  // money as well as burying genuine sign-ups among junk an admin has to sort
+  // by hand. The allowance is per IP and generous enough for several members
+  // registering from one household on the same evening.
+  const ip = await getClientIp();
+  if (await isRateLimited(RATE_LIMITS.registrationByIp, ip)) {
+    return { error: "تم إرسال عدد كبير من الطلبات. يرجى المحاولة بعد قليل." };
+  }
+  await recordAttempt(RATE_LIMITS.registrationByIp, ip);
 
   const {
     first_name,
