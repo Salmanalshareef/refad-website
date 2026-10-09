@@ -21,7 +21,7 @@ export default async function SubscriptionsPage() {
       <div>
         <h1 className="text-2xl font-bold text-primary-900">الاشتراكات</h1>
         <p className="mt-1 text-sm text-neutral-600">
-          تابع حالة اشتراكك في صندوق رفاد العائلي.
+          تابع حالة اشتراكك في صندوق رفاد.
         </p>
       </div>
 

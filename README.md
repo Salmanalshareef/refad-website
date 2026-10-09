@@ -1,4 +1,4 @@
-# صندوق رفاد العائلي — Refad Family Fund Website
+# صندوق رفاد — Refad Family Fund Website
 
 Next.js 16 (App Router) + TypeScript + Tailwind CSS v4, Arabic RTL, Neon Postgres backend.
 

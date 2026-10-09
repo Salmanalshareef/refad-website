@@ -42,7 +42,7 @@ export default function RefadFundPage() {
     <>
       <PageHeader
         eyebrow="صندوق رفاد"
-        title="صندوق رفاد العائلي"
+        title="صندوق رفاد"
         description="الإطار المالي والإداري الذي يحكم شؤون الأسرة، بهدف تنظيم الموارد وتنمية الأصول وتقديم الدعم المستدام."
       />
 

@@ -16,7 +16,7 @@ const sections = [
     href: "/media-center/fund-news",
     icon: Radio,
     title: "أخبار الصندوق",
-    description: "آخر مستجدات وأخبار صندوق رفاد العائلي.",
+    description: "آخر مستجدات وأخبار صندوق رفاد.",
   },
   {
     href: "/media-center/videos",
