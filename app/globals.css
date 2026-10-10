@@ -357,12 +357,35 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
   border-color: #3b82f6;
 }
 
+/* react-d3-tree marks each node group .rd3t-node when it has children and
+   .rd3t-leaf-node when it does not, and both set stroke: #000 — at width 2 for
+   the first and 1 for the second. Both properties inherit in SVG, so every
+   label inside a card was being painted with a black outline around the
+   glyphs. That is why the cards fell into two groups: green and white are the
+   has-children statuses and wore the 2px outline, which reads as bold and
+   smudged, while blue and yellow are the childless ones and wore 1px, which
+   merely looked soft. No card was actually clean.
+
+   An inherited value only applies where the element declares nothing itself,
+   and every shape here that wants an outline sets its own stroke through a
+   status class and its own stroke-width as an attribute. Clearing the
+   inherited one at the group therefore reaches the text and nothing else.
+
+   The library does this for its own labels too — .rd3t-label__title carries
+   stroke: none — but that class is for its built-in nodes, not custom ones. */
+.portal-shell .rd3t-node,
+.portal-shell .rd3t-leaf-node {
+  stroke: none;
+}
+
 .tree-node-name {
   fill: #1a2220;
+  stroke: none;
 }
 
 .tree-node-years {
   fill: #4a524f;
+  stroke: none;
 }
 
 .tree-self-ring {
@@ -371,6 +394,7 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
 
 .tree-avatar-plate {
   fill: #eef6f3;
+  stroke: none;
 }
 
 /* Lucide draws with stroke: currentColor, so the glyph follows this. */
