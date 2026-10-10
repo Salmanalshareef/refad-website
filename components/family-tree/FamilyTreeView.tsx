@@ -138,11 +138,19 @@ function FamilyTreeNodeElement({
         textAnchor="middle"
         y={10}
         fontSize={15}
-        fontWeight={500}
+        // 600 rather than 500: the labels used to be stroked, and losing that
+        // outline cost them apparent weight. Cairo 600 is already loaded.
+        fontWeight={600}
       >
         {data.firstName}
       </text>
-      <text className="tree-node-years" textAnchor="middle" y={29} fontSize={12}>
+      <text
+        className="tree-node-years"
+        textAnchor="middle"
+        y={29}
+        fontSize={12}
+        fontWeight={500}
+      >
         {data.yearRange}
       </text>
     </g>
