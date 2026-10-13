@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { SnapchatIcon, WhatsAppIcon, XIcon } from "@/components/shared/SocialIcons";
 
@@ -75,8 +76,22 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-primary-800 py-3 text-center text-xs text-primary-300">
-        © {new Date().getFullYear()} أسرة آل معجب – صندوق رفاد. جميع الحقوق محفوظة.
+      {/* The policy link shares the copyright row rather than sitting in a bar
+          of its own. In RTL the first child lands on the right, so the link is
+          on the reading side and the copyright trails it. Below sm they stack
+          and centre, because side by side they would wrap mid-sentence. */}
+      <div className="border-t border-primary-800">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-6 py-3 text-xs text-primary-300 sm:flex-row sm:justify-between">
+          <Link
+            href="/privacy-policy"
+            className="rounded transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-300"
+          >
+            سياسة الخصوصية
+          </Link>
+          <p>
+            © {new Date().getFullYear()} أسرة آل معجب – صندوق رفاد. جميع الحقوق محفوظة.
+          </p>
+        </div>
       </div>
     </footer>
   );

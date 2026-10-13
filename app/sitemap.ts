@@ -17,6 +17,7 @@ const routes = [
   "/media-center/magazine",
   "/media-center/videos",
   "/contact",
+  "/privacy-policy",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
