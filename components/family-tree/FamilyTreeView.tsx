@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Minus, Plus, RotateCcw, User } from "lucide-react";
+import { ChevronDown, ChevronUp, Minus, Plus, RotateCcw, User } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
 import { cn } from "@/lib/utils";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
@@ -31,6 +31,13 @@ const AVATAR_CY = -NODE_HEIGHT / 2;
 // Matches the placeholder MemberPhoto shows for a board member with no photo:
 // the same lucide glyph at half the circle, on the same tinted ground.
 const AVATAR_ICON_SIZE = AVATAR_RADIUS;
+// Collapse toggle, seated on the bottom edge the way the avatar sits on the
+// top one. The hit radius is larger than the drawn circle so the target stays
+// usable with a finger at low zoom, where the card itself is small.
+const TOGGLE_CY = NODE_HEIGHT / 2;
+const TOGGLE_RADIUS = 13;
+const TOGGLE_HIT_RADIUS = 20;
+const TOGGLE_ICON_SIZE = 16;
 const ZOOM_MIN = 0.3;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.2;
@@ -58,13 +65,16 @@ function FamilyTreeNodeElement({
   const clipId = `tree-avatar-${data.id}`;
   const hasPhoto = Boolean(data.photoUrl);
 
+  // Read from the library's own datum rather than ours: __rd3t is what it
+  // updates when a node is collapsed, and children stay on the datum while
+  // collapsed, so their presence is what says the node has a branch at all.
+  const hasChildren = Boolean(nodeDatum.children && nodeDatum.children.length > 0);
+  const isCollapsed = nodeDatum.__rd3t.collapsed;
+
   return (
     <g
       data-self-node={isSelf ? "true" : undefined}
-      onClick={(evt) => {
-        toggleNode();
-        onNodeClick(evt);
-      }}
+      onClick={onNodeClick}
       style={{ cursor: "pointer" }}
     >
       {isSelf && (
@@ -153,6 +163,60 @@ function FamilyTreeNodeElement({
       >
         {data.yearRange}
       </text>
+
+      {/* Expanding a branch and reading a member are different intentions, so
+          they get different targets. The card opens the details panel; this
+          button, and only this button, collapses and expands the branch.
+          stopPropagation is what keeps the two apart — without it the click
+          would reach the card handler underneath and do both.
+
+          It sits on the bottom edge, where the line down to the children
+          leaves the card, and only exists when there is a branch to toggle.
+          The wider transparent circle is the tap target: the visible button
+          is 26px across, which is small for a finger at low zoom. */}
+      {hasChildren && (
+        <g
+          className="tree-toggle"
+          role="button"
+          aria-label={isCollapsed ? "إظهار الأبناء" : "إخفاء الأبناء"}
+          onClick={(evt) => {
+            evt.stopPropagation();
+            toggleNode();
+          }}
+        >
+          <circle
+            cx={0}
+            cy={TOGGLE_CY}
+            r={TOGGLE_HIT_RADIUS}
+            fill="transparent"
+            stroke="none"
+          />
+          <circle
+            cx={0}
+            cy={TOGGLE_CY}
+            r={TOGGLE_RADIUS}
+            className="tree-toggle-plate"
+            strokeWidth={1.5}
+          />
+          {isCollapsed ? (
+            <ChevronDown
+              className="tree-toggle-ink"
+              x={-TOGGLE_ICON_SIZE / 2}
+              y={TOGGLE_CY - TOGGLE_ICON_SIZE / 2}
+              width={TOGGLE_ICON_SIZE}
+              height={TOGGLE_ICON_SIZE}
+            />
+          ) : (
+            <ChevronUp
+              className="tree-toggle-ink"
+              x={-TOGGLE_ICON_SIZE / 2}
+              y={TOGGLE_CY - TOGGLE_ICON_SIZE / 2}
+              width={TOGGLE_ICON_SIZE}
+              height={TOGGLE_ICON_SIZE}
+            />
+          )}
+        </g>
+      )}
     </g>
   );
 }

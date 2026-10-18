@@ -402,6 +402,30 @@ html[data-theme="dark"] .portal-shell .theme-dark-only {
   color: #1f5850;
 }
 
+/* The collapse toggle on a card's bottom edge. Neutral rather than tinted with
+   the status colour, so it reads as a control on all five card variants rather
+   than as part of the card. stroke: none on the plate because the node group
+   still hands down react-d3-tree's black stroke to anything that declares
+   none of its own. */
+.tree-toggle {
+  cursor: pointer;
+}
+
+.tree-toggle-plate {
+  fill: #ffffff;
+  stroke: #cbd3d0;
+}
+
+.tree-toggle:hover .tree-toggle-plate {
+  fill: #eef6f3;
+  stroke: #286e62;
+}
+
+/* Lucide draws with stroke: currentColor, so the chevron follows this. */
+.tree-toggle-ink {
+  color: #1f5850;
+}
+
 .portal-shell .rd3t-link {
   stroke: #cbd3d0;
 }
