@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Minus, Plus, RotateCcw, User } from "lucide-react";
+import { Crosshair, Minus, Plus, RotateCcw, Search, User, X } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
 import { cn } from "@/lib/utils";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
@@ -39,6 +39,88 @@ const ZOOM_DEFAULT = 1;
 // card is as large as it can get. Follows ZOOM_MAX if that limit ever changes.
 const ZOOM_FOCUS = ZOOM_MAX;
 
+/** How long an on-demand focus keeps correcting before it gives up. */
+const FOCUS_TIMEOUT_MS = 4000;
+const SEARCH_RESULT_LIMIT = 8;
+
+/* ── Reading the tree out of the DOM ────────────────────────────────────────
+   react-d3-tree computes its layout internally and never exposes a node's
+   coordinates, so the only way to centre one is to measure where it was
+   actually painted. These read that; the loops that use them live below. */
+
+const svgOf = (container: HTMLElement) =>
+  container.querySelector<SVGSVGElement>("svg.rd3t-svg");
+
+/** The transform react-d3-tree currently has applied to the whole tree. */
+const appliedTransformOf = (container: HTMLElement) => {
+  const g = container.querySelector<SVGGElement>("g.rd3t-g");
+  const match = g
+    ?.getAttribute("transform")
+    ?.match(/translate\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)\s*scale\(\s*([\d.]+)\s*\)/);
+  return match
+    ? { x: Number(match[1]), y: Number(match[2]), k: Number(match[3]) }
+    : null;
+};
+
+/**
+ * Centre of a node in SVG pixels, taken from the painted box so the real card
+ * — stroke, ring and all — is what gets centred.
+ */
+const measureNode = (
+  container: HTMLElement,
+  svg: SVGSVGElement,
+  selector: string
+) => {
+  const marker = container.querySelector<SVGGElement>(selector);
+  const group = marker?.closest<SVGGElement>("g.rd3t-node, g.rd3t-leaf-node");
+  if (!group) return null;
+  const nodeBox = group.getBoundingClientRect();
+  if (nodeBox.width === 0 && nodeBox.height === 0) return null;
+  const svgBox = svg.getBoundingClientRect();
+  return {
+    x: nodeBox.left + nodeBox.width / 2 - svgBox.left,
+    y: nodeBox.top + nodeBox.height / 2 - svgBox.top,
+  };
+};
+
+/** Midpoint of every drawn node, in layout units. */
+const treeCenterOf = (container: HTMLElement) => {
+  const g = container.querySelector<SVGGElement>("g.rd3t-g");
+  if (!g || g.childNodes.length === 0) return null;
+  try {
+    const box = g.getBBox();
+    if (box.width === 0 && box.height === 0) return null;
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Folds the spellings that differ only in writing, so searching for "عبدالله"
+ * finds "عبداللّٰه" and "احمد" finds "أحمد". Members type the plain forms;
+ * the records were entered by many different hands over the years.
+ */
+const normalizeArabic = (value: string) =>
+  value
+    .replace(/[ً-ْـٰ]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/[ؤئ]/g, "ي")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/**
+ * Matching form: the above with the spaces taken out too.
+ *
+ * "عبد الله" and "عبدالله" are the same name written two ways, and both are
+ * in the records. Comparing without spaces means whichever way a member types
+ * it finds both, at the cost of a query occasionally spanning a word boundary
+ * — a fair trade when the alternative is finding nobody.
+ */
+const searchKey = (value: string) => normalizeArabic(value).replace(/ /g, "");
+
 const LEGEND_ITEMS: { color: NodeStatusColor; label: string }[] = [
   { color: "green", label: "على قيد الحياة، وله أبناء" },
   { color: "lightblue", label: "على قيد الحياة، بدون أبناء" },
@@ -60,6 +142,7 @@ function FamilyTreeNodeElement({
 
   return (
     <g
+      data-node-id={data.id}
       data-self-node={isSelf ? "true" : undefined}
       onClick={onNodeClick}
       style={{ cursor: "pointer" }}
@@ -155,6 +238,118 @@ function FamilyTreeNodeElement({
   );
 }
 
+/**
+ * Finds a member by name and hands the id back.
+ *
+ * The tree draws every member at once, so with two hundred of them the only
+ * way to reach someone used to be panning until you spotted them. Searching
+ * goes straight there.
+ */
+function TreeSearch({
+  members,
+  onPick,
+}: {
+  members: FamilyTreeNode[];
+  onPick: (id: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+
+  // Normalised once per member rather than once per keystroke.
+  const haystack = useMemo(
+    () => members.map((m) => ({ member: m, search: searchKey(m.name) })),
+    [members]
+  );
+
+  const results = useMemo(() => {
+    const needle = searchKey(query);
+    if (needle.length < 2) return [];
+    return haystack
+      .filter((entry) => entry.search.includes(needle))
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((entry) => entry.member);
+  }, [haystack, query]);
+
+  const pick = (id: string) => {
+    onPick(id);
+    setOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <input
+          type="search"
+          value={query}
+          placeholder="ابحث عن فرد بالاسم..."
+          aria-label="ابحث عن فرد في الشجرة"
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setOpen(false);
+            // Enter takes the top match, which is the whole interaction when
+            // the name typed is already unambiguous.
+            if (event.key === "Enter" && results[0]) {
+              event.preventDefault();
+              pick(results[0].id);
+            }
+          }}
+          className="w-full rounded-lg border border-neutral-300 bg-neutral-50 py-2.5 pe-4 ps-9 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+        {query && (
+          <button
+            type="button"
+            aria-label="مسح البحث"
+            onClick={() => {
+              setQuery("");
+              setOpen(false);
+            }}
+            className="absolute end-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      {open && searchKey(query).length >= 2 && (
+        <div className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 shadow-lg">
+          {results.length === 0 ? (
+            <p className="px-3 py-2.5 text-sm text-neutral-500">
+              لا يوجد فرد بهذا الاسم.
+            </p>
+          ) : (
+            <ul className="max-h-64 overflow-y-auto">
+              {results.map((member) => (
+                <li key={member.id}>
+                  <button
+                    type="button"
+                    onClick={() => pick(member.id)}
+                    className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-start text-sm hover:bg-primary-50"
+                  >
+                    <span className="min-w-0 truncate text-neutral-800">
+                      {member.name}
+                    </span>
+                    {member.yearRange && (
+                      <span dir="ltr" className="shrink-0 text-xs text-neutral-500">
+                        {member.yearRange}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FamilyTreeView({
   data,
   selfNodeId,
@@ -163,15 +358,39 @@ export function FamilyTreeView({
   selfNodeId?: string | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<RawNodeDatum | null>(null);
+  // The id rather than the node: the panel wants the member's relatives too,
+  // and the index below is what knows who those are.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 80 });
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
+
+  // Every member by id, each with the father they hang off. The tree only
+  // links downward, so the parent is recorded on the way down rather than
+  // searched for afterwards.
+  const index = useMemo(() => {
+    const map = new Map<string, { node: FamilyTreeNode; parent: FamilyTreeNode | null }>();
+    const walk = (node: FamilyTreeNode, parent: FamilyTreeNode | null) => {
+      map.set(node.id, { node, parent });
+      node.children?.forEach((child) => walk(child, node));
+    };
+    data.forEach((root) => walk(root, null));
+    return map;
+  }, [data]);
+
+  const members = useMemo(() => [...index.values()].map((entry) => entry.node), [index]);
+
+  const selectedEntry = selectedId ? index.get(selectedId) : undefined;
+  const selectedNode = selectedEntry?.node ?? null;
+  const selectedParent = selectedEntry?.parent ?? null;
+  const selectedChildren = selectedNode?.children ?? [];
 
   // react-d3-tree keeps its own pan/zoom internally and only reads these props
   // when they change, so the live transform is mirrored into a ref rather than
   // state: writing it to state on every pan would re-render mid-gesture.
   const liveTransformRef = useRef({ x: 0, y: 80, k: ZOOM_DEFAULT });
   const hasFocusedRef = useRef(false);
+  /** The in-flight on-demand focus, so a second request cancels the first. */
+  const focusFrameRef = useRef(0);
 
   /** Mirrors the transform actually applied, so later moves start from truth. */
   const setView = (next: { x: number; y: number }, nextZoom: number) => {
@@ -200,6 +419,83 @@ export function FamilyTreeView({
   const zoomIn = () => applyZoom(Math.min(ZOOM_MAX, +(zoom + ZOOM_STEP).toFixed(2)));
   const zoomOut = () => applyZoom(Math.max(ZOOM_MIN, +(zoom - ZOOM_STEP).toFixed(2)));
   const zoomReset = () => applyZoom(ZOOM_DEFAULT);
+
+  /**
+   * Drives the view onto one member and selects them.
+   *
+   * Same closed loop as the landing focus below: measure where the card was
+   * actually painted, correct, measure again, and stop only once it has held
+   * the centre for a few frames. A single correction is not enough because the
+   * tree may still be settling when the first reading is taken.
+   *
+   * Unlike the landing focus this is something the member asked for, so it
+   * runs on a short deadline and only a pan or a wheel cancels it.
+   */
+  const focusOnNode = (nodeId: string) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    setSelectedId(nodeId);
+    cancelAnimationFrame(focusFrameRef.current);
+
+    const selector = `[data-node-id="${CSS.escape(nodeId)}"]`;
+    const deadline = Date.now() + FOCUS_TIMEOUT_MS;
+    let corrections = 0;
+    let onTargetFrames = 0;
+
+    const stop = () => {
+      cancelAnimationFrame(focusFrameRef.current);
+      container.removeEventListener("pointerdown", stop);
+      container.removeEventListener("wheel", stop);
+    };
+
+    // The click that asked for this already fired its pointerdown, so these
+    // only catch what the member does next.
+    container.addEventListener("pointerdown", stop);
+    container.addEventListener("wheel", stop);
+
+    const step = () => {
+      const svg = svgOf(container);
+      const applied = appliedTransformOf(container);
+      const sample = svg ? measureNode(container, svg, selector) : null;
+
+      if (svg && applied && sample) {
+        const svgBox = svg.getBoundingClientRect();
+        const targetX = svgBox.width / 2;
+        const targetY = svgBox.height / 2;
+        const offBy = Math.max(Math.abs(targetX - sample.x), Math.abs(targetY - sample.y));
+
+        if (offBy < 1 && Math.abs(applied.k - ZOOM_FOCUS) < 0.001) {
+          onTargetFrames += 1;
+          if (onTargetFrames >= 3) {
+            stop();
+            return;
+          }
+        } else {
+          onTargetFrames = 0;
+          if (corrections < 40) {
+            corrections += 1;
+            // The view is ours now; stop the resize handler re-centring.
+            hasFocusedRef.current = true;
+            const layoutX = (sample.x - applied.x) / applied.k;
+            const layoutY = (sample.y - applied.y) / applied.k;
+            setView(
+              { x: targetX - layoutX * ZOOM_FOCUS, y: targetY - layoutY * ZOOM_FOCUS },
+              ZOOM_FOCUS
+            );
+          }
+        }
+      }
+
+      if (Date.now() < deadline) {
+        focusFrameRef.current = requestAnimationFrame(step);
+      } else {
+        stop();
+      }
+    };
+
+    focusFrameRef.current = requestAnimationFrame(step);
+  };
 
   useEffect(() => {
     const node = containerRef.current;
@@ -268,56 +564,13 @@ export function FamilyTreeView({
     container.addEventListener("pointermove", onPointerMove);
     container.addEventListener("wheel", stop);
 
-    /** The SVG is the coordinate space the tree transform is expressed in. */
-    const svgEl = () => container.querySelector<SVGSVGElement>("svg.rd3t-svg");
-
-    /** The transform react-d3-tree currently has applied to the whole tree. */
-    const appliedTransform = () => {
-      const g = container.querySelector<SVGGElement>("g.rd3t-g");
-      const match = g
-        ?.getAttribute("transform")
-        ?.match(/translate\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)\s*scale\(\s*([\d.]+)\s*\)/);
-      return match
-        ? { x: Number(match[1]), y: Number(match[2]), k: Number(match[3]) }
-        : null;
-    };
-
-    /**
-     * Centre of the member node in SVG pixels, taken from the painted box so
-     * the real card - stroke, ring and all - is what gets centred.
-     */
-    const measureSelf = (svg: SVGSVGElement) => {
-      const marker = container.querySelector<SVGGElement>(`[data-self-node="true"]`);
-      const group = marker?.closest<SVGGElement>("g.rd3t-node, g.rd3t-leaf-node");
-      if (!group) return null;
-      const nodeBox = group.getBoundingClientRect();
-      if (nodeBox.width === 0 && nodeBox.height === 0) return null;
-      const svgBox = svg.getBoundingClientRect();
-      return {
-        x: nodeBox.left + nodeBox.width / 2 - svgBox.left,
-        y: nodeBox.top + nodeBox.height / 2 - svgBox.top,
-      };
-    };
-
-    /** Midpoint of every drawn node, in layout units. */
-    const treeCenter = () => {
-      const g = container.querySelector<SVGGElement>("g.rd3t-g");
-      if (!g || g.childNodes.length === 0) return null;
-      try {
-        const box = g.getBBox();
-        if (box.width === 0 && box.height === 0) return null;
-        return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-      } catch {
-        return null;
-      }
-    };
-
     const step = () => {
       if (finished) return;
 
-      const svg = svgEl();
-      const applied = appliedTransform();
-      const sample = svg && selfNodeId ? measureSelf(svg) : null;
+      const svg = svgOf(container);
+      const applied = appliedTransformOf(container);
+      const sample =
+        svg && selfNodeId ? measureNode(container, svg, `[data-self-node="true"]`) : null;
 
       if (svg && applied && sample) {
         const svgBox = svg.getBoundingClientRect();
@@ -359,7 +612,7 @@ export function FamilyTreeView({
       // No node to focus, or it never appeared: settle on the middle of the
       // tree rather than leaving the view pinned to the root.
       if (!hasFocusedRef.current && (!selfNodeId || Date.now() >= deadline)) {
-        const center = treeCenter();
+        const center = treeCenterOf(container);
         if (center && svg) {
           const svgBox = svg.getBoundingClientRect();
           hasFocusedRef.current = true;
@@ -396,6 +649,8 @@ export function FamilyTreeView({
 
   return (
     <div className="w-full space-y-4">
+      <TreeSearch members={members} onPick={focusOnNode} />
+
       <div
         ref={containerRef}
         dir="ltr"
@@ -426,6 +681,20 @@ export function FamilyTreeView({
           >
             <RotateCcw className="h-4 w-4" />
           </button>
+          {/* Only for a member whose account is linked to a card. Panning a
+              two-hundred-node tree is easy to get lost in, and this is the way
+              back. */}
+          {selfNodeId && (
+            <button
+              type="button"
+              aria-label="العودة إلى بطاقتي"
+              title="العودة إلى بطاقتي"
+              onClick={() => focusOnNode(selfNodeId)}
+              className="flex h-11 w-11 items-center justify-center rounded-md border-t border-neutral-200 text-primary-700 hover:bg-neutral-100 sm:h-8 sm:w-8"
+            >
+              <Crosshair className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <Tree
@@ -448,7 +717,9 @@ export function FamilyTreeView({
               }
             />
           )}
-          onNodeClick={(nodeDatum) => setSelected(nodeDatum.data)}
+          onNodeClick={(nodeDatum) =>
+            setSelectedId((nodeDatum.data as unknown as FamilyTreeNode).id)
+          }
           onUpdate={({ zoom: liveZoom, translate: liveTranslate }) => {
             liveTransformRef.current = {
               x: liveTranslate.x,
@@ -474,20 +745,58 @@ export function FamilyTreeView({
         <h2 className="mb-3 text-sm font-semibold text-neutral-500">
           تفاصيل الفرد
         </h2>
-        {selected ? (
+        {selectedNode ? (
           <div>
-            <p className="text-lg font-bold text-primary-900">{selected.name}</p>
-            {selected.attributes &&
-              Object.entries(selected.attributes).map(([key, value]) => (
+            <p className="text-lg font-bold text-primary-900">{selectedNode.name}</p>
+            {selectedNode.attributes &&
+              Object.entries(selectedNode.attributes).map(([key, value]) => (
                 <p key={key} className="mt-1 text-sm text-neutral-600">
                   <span className="font-medium text-neutral-800">{key}:</span>{" "}
                   {value}
                 </p>
               ))}
+
+            {/* Walking the tree a relative at a time, which is the only way
+                that works on a phone: panning a canvas this wide to find the
+                next person is far harder than naming them. */}
+            {(selectedParent || selectedChildren.length > 0) && (
+              <div className="mt-4 space-y-3 border-t border-neutral-200 pt-4">
+                {selectedParent && (
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-xs font-medium text-neutral-500">الأب</span>
+                    <button
+                      type="button"
+                      onClick={() => focusOnNode(selectedParent.id)}
+                      className="rounded text-sm font-medium text-primary-700 hover:underline"
+                    >
+                      {selectedParent.name}
+                    </button>
+                  </div>
+                )}
+
+                {selectedChildren.length > 0 && (
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-xs font-medium text-neutral-500">
+                      الأبناء ({selectedChildren.length})
+                    </span>
+                    {selectedChildren.map((child) => (
+                      <button
+                        key={child.id}
+                        type="button"
+                        onClick={() => focusOnNode(child.id)}
+                        className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50"
+                      >
+                        {child.firstName}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <p className="text-sm text-neutral-500">
-            انقر على أي فرد في الشجرة لعرض تفاصيله هنا.
+            انقر على أي فرد في الشجرة لعرض تفاصيله هنا، أو ابحث عنه بالاسم.
           </p>
         )}
       </div>
