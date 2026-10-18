@@ -31,10 +31,13 @@ const AVATAR_CY = -NODE_HEIGHT / 2;
 // Matches the placeholder MemberPhoto shows for a board member with no photo:
 // the same lucide glyph at half the circle, on the same tinted ground.
 const AVATAR_ICON_SIZE = AVATAR_RADIUS;
-// Collapse toggle, seated on the bottom edge the way the avatar sits on the
-// top one. The hit radius is larger than the drawn circle so the target stays
-// usable with a finger at low zoom, where the card itself is small.
-const TOGGLE_CY = NODE_HEIGHT / 2;
+// Collapse toggle, straddling the right edge the way the avatar straddles the
+// top one. It is off the bottom edge on purpose: that is where the link down
+// to the children leaves the card, and a control sitting on the connector
+// reads as part of it. The hit radius is larger than the drawn circle so the
+// target stays usable with a finger at low zoom, where the card is small.
+const TOGGLE_CX = NODE_WIDTH / 2;
+const TOGGLE_CY = 0;
 const TOGGLE_RADIUS = 13;
 const TOGGLE_HIT_RADIUS = 20;
 const TOGGLE_ICON_SIZE = 16;
@@ -170,8 +173,9 @@ function FamilyTreeNodeElement({
           stopPropagation is what keeps the two apart — without it the click
           would reach the card handler underneath and do both.
 
-          It sits on the bottom edge, where the line down to the children
-          leaves the card, and only exists when there is a branch to toggle.
+          It straddles the right edge, clear of the bottom centre where the
+          link down to the children leaves the card, and only exists when
+          there is a branch to toggle.
           The wider transparent circle is the tap target: the visible button
           is 26px across, which is small for a finger at low zoom. */}
       {hasChildren && (
@@ -185,14 +189,14 @@ function FamilyTreeNodeElement({
           }}
         >
           <circle
-            cx={0}
+            cx={TOGGLE_CX}
             cy={TOGGLE_CY}
             r={TOGGLE_HIT_RADIUS}
             fill="transparent"
             stroke="none"
           />
           <circle
-            cx={0}
+            cx={TOGGLE_CX}
             cy={TOGGLE_CY}
             r={TOGGLE_RADIUS}
             className="tree-toggle-plate"
@@ -201,7 +205,7 @@ function FamilyTreeNodeElement({
           {isCollapsed ? (
             <ChevronDown
               className="tree-toggle-ink"
-              x={-TOGGLE_ICON_SIZE / 2}
+              x={TOGGLE_CX - TOGGLE_ICON_SIZE / 2}
               y={TOGGLE_CY - TOGGLE_ICON_SIZE / 2}
               width={TOGGLE_ICON_SIZE}
               height={TOGGLE_ICON_SIZE}
@@ -209,7 +213,7 @@ function FamilyTreeNodeElement({
           ) : (
             <ChevronUp
               className="tree-toggle-ink"
-              x={-TOGGLE_ICON_SIZE / 2}
+              x={TOGGLE_CX - TOGGLE_ICON_SIZE / 2}
               y={TOGGLE_CY - TOGGLE_ICON_SIZE / 2}
               width={TOGGLE_ICON_SIZE}
               height={TOGGLE_ICON_SIZE}
