@@ -119,12 +119,18 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
       photoUrl: member.profile_avatar_url ?? member.photo_url,
       statusColor,
       // The detail panel renders the name itself and then every entry here, so
-      // this object is the whole of what a member's details show: date of
-      // birth and mother's name, and nothing else. Living status and date of
-      // death were dropped deliberately — is_living still decides the card
-      // colour and the year range, it is just no longer stated in words.
+      // this object is the whole of what a member's details show. Date of
+      // death is the only conditional row: it appears for a deceased member
+      // and is absent for a living one, rather than showing an empty field.
+      //
+      // Living status is deliberately not listed. is_living still decides the
+      // card colour and orders the year range, so it stays visible through the
+      // colour without being stated in words.
       attributes: {
         "تاريخ الميلاد": birthYear ? `${birthYear}هـ` : "غير معروف",
+        ...(isLiving
+          ? {}
+          : { "تاريخ الوفاة": deathYear ? `${deathYear}هـ` : "غير معروف" }),
         "اسم الأم": member.mother_name ?? "غير مسجل",
       },
       ...(children && children.length > 0
