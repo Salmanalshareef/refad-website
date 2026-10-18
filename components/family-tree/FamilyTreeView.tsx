@@ -753,7 +753,7 @@ export function FamilyTreeView({
           </div>
         ) : (
           <p className="text-sm text-neutral-500">
-            انقر على أي فرد في الشجرة لعرض تفاصيله هنا، أو ابحث عنه بالاسم.
+            انقر على أي فرد في الشجرة لعرض تفاصيله هنا.
           </p>
         )}
       </div>
