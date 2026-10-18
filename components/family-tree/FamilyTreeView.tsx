@@ -364,25 +364,20 @@ export function FamilyTreeView({
   const [translate, setTranslate] = useState({ x: 0, y: 80 });
   const [zoom, setZoom] = useState(ZOOM_DEFAULT);
 
-  // Every member by id, each with the father they hang off. The tree only
-  // links downward, so the parent is recorded on the way down rather than
-  // searched for afterwards.
+  // Every member by id, flattened out of the tree once. Search reads the
+  // values; selection reads one by id.
   const index = useMemo(() => {
-    const map = new Map<string, { node: FamilyTreeNode; parent: FamilyTreeNode | null }>();
-    const walk = (node: FamilyTreeNode, parent: FamilyTreeNode | null) => {
-      map.set(node.id, { node, parent });
-      node.children?.forEach((child) => walk(child, node));
+    const map = new Map<string, FamilyTreeNode>();
+    const walk = (node: FamilyTreeNode) => {
+      map.set(node.id, node);
+      node.children?.forEach(walk);
     };
-    data.forEach((root) => walk(root, null));
+    data.forEach(walk);
     return map;
   }, [data]);
 
-  const members = useMemo(() => [...index.values()].map((entry) => entry.node), [index]);
-
-  const selectedEntry = selectedId ? index.get(selectedId) : undefined;
-  const selectedNode = selectedEntry?.node ?? null;
-  const selectedParent = selectedEntry?.parent ?? null;
-  const selectedChildren = selectedNode?.children ?? [];
+  const members = useMemo(() => [...index.values()], [index]);
+  const selectedNode = (selectedId ? index.get(selectedId) : null) ?? null;
 
   // react-d3-tree keeps its own pan/zoom internally and only reads these props
   // when they change, so the live transform is mirrored into a ref rather than
@@ -755,44 +750,6 @@ export function FamilyTreeView({
                   {value}
                 </p>
               ))}
-
-            {/* Walking the tree a relative at a time, which is the only way
-                that works on a phone: panning a canvas this wide to find the
-                next person is far harder than naming them. */}
-            {(selectedParent || selectedChildren.length > 0) && (
-              <div className="mt-4 space-y-3 border-t border-neutral-200 pt-4">
-                {selectedParent && (
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-xs font-medium text-neutral-500">الأب</span>
-                    <button
-                      type="button"
-                      onClick={() => focusOnNode(selectedParent.id)}
-                      className="rounded text-sm font-medium text-primary-700 hover:underline"
-                    >
-                      {selectedParent.name}
-                    </button>
-                  </div>
-                )}
-
-                {selectedChildren.length > 0 && (
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-xs font-medium text-neutral-500">
-                      الأبناء ({selectedChildren.length})
-                    </span>
-                    {selectedChildren.map((child) => (
-                      <button
-                        key={child.id}
-                        type="button"
-                        onClick={() => focusOnNode(child.id)}
-                        className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50"
-                      >
-                        {child.firstName}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         ) : (
           <p className="text-sm text-neutral-500">
