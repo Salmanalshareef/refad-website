@@ -127,10 +127,13 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
       // card colour and orders the year range, so it stays visible through the
       // colour without being stated in words.
       attributes: {
-        "تاريخ الميلاد": birthYear ? `${birthYear}هـ` : "غير معروف",
+        // "سنة" rather than "تاريخ": these values are Hijri years, not full
+        // dates. The forms elsewhere do collect a full date, so their labels
+        // stay as they are.
+        "سنة الميلاد": birthYear ? `${birthYear}هـ` : "غير معروف",
         ...(isLiving
           ? {}
-          : { "تاريخ الوفاة": deathYear ? `${deathYear}هـ` : "غير معروف" }),
+          : { "سنة الوفاة": deathYear ? `${deathYear}هـ` : "غير معروف" }),
         "اسم الأم": member.mother_name ?? "غير مسجل",
       },
       ...(children && children.length > 0
