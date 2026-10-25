@@ -1,11 +1,13 @@
 import { Users } from "lucide-react";
-import type { Gender } from "@/types/db";
+import type { Gender, SpouseRelation } from "@/types/db";
 
 type Relative = {
   id: string;
   full_name: string;
   gender?: Gender;
   is_living?: boolean;
+  /** Spouses only: whether this person is the husband or the wife. */
+  relation?: SpouseRelation;
 };
 
 function Card({
@@ -97,7 +99,9 @@ export function MyFamilyCards({
         count={spouses.length}
         people={spouses}
         emptyMessage="لم تُسجَّل بيانات الأزواج أو الزوجات في شجرة الأسرة بعد."
-        labelFor={(person) => (person.gender === "female" ? "زوجة" : "زوج")}
+        // Reads the stated relation. It used to check person.gender, which a
+        // spouse never has, so every entry came out "زوج".
+        labelFor={(person) => (person.relation === "husband" ? "زوج" : "زوجة")}
       />
 
       <Card

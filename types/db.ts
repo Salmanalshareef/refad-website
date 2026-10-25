@@ -351,11 +351,15 @@ export type RegistrationRequest = {
   created_at: string;
 };
 
+export type SpouseRelation = "husband" | "wife";
+
 export type Spouse = {
   id: string;
   /** The family_members row this spouse is married to. */
   member_id: string;
   full_name: string;
+  /** Stated rather than inferred: the table holds a name, not a sex. */
+  relation: SpouseRelation;
   national_id: string | null;
   created_at: string;
 };

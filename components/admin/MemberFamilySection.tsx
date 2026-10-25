@@ -126,6 +126,9 @@ export function MemberFamilySection({
                 <span className="min-w-0 flex-1 text-sm text-neutral-800">
                   {spouse.full_name}
                 </span>
+                <span className="shrink-0 text-xs text-neutral-500">
+                  {spouse.relation === "husband" ? "زوج" : "زوجة"}
+                </span>
                 {spouse.national_id && (
                   <span dir="ltr" className="shrink-0 text-xs text-neutral-500">
                     {spouse.national_id}
@@ -141,8 +144,18 @@ export function MemberFamilySection({
         )}
 
         {showSpouseForm && (
-          <form action={spouseAction} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+          <form action={spouseAction} className="grid gap-2 sm:grid-cols-[auto_1fr_1fr_auto]">
             <input type="hidden" name="member_id" value={familyMemberId} />
+            {/* Defaults to the opposite of the member's own sex, which is right
+                nearly always and is still a choice rather than an assumption. */}
+            <select
+              name="relation"
+              defaultValue={motherOnly ? "husband" : "wife"}
+              className={inputClasses}
+            >
+              <option value="wife">زوجة</option>
+              <option value="husband">زوج</option>
+            </select>
             <input
               name="full_name"
               placeholder="اسم الزوج / الزوجة"
@@ -160,7 +173,7 @@ export function MemberFamilySection({
               {spousePending ? "جارٍ الحفظ..." : "حفظ"}
             </Button>
             {spouseState?.error && (
-              <p className="text-xs font-medium text-red-600 sm:col-span-3">
+              <p className="text-xs font-medium text-red-600 sm:col-span-4">
                 {spouseState.error}
               </p>
             )}

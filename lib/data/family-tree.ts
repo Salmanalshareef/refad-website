@@ -1,6 +1,12 @@
 import { sql } from "@/lib/db";
 import { gregorianToHijriYear } from "@/lib/hijri";
-import type { FamilyMember, FamilyMemberWithProfile, Profile, Spouse } from "@/types/db";
+import type {
+  FamilyMember,
+  FamilyMemberWithProfile,
+  Gender,
+  Profile,
+  Spouse,
+} from "@/types/db";
 
 export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue" | "pink";
 
@@ -15,6 +21,15 @@ export type FamilyTreeNode = {
   /** The linked account holder's profile photo, when there is one. */
   photoUrl: string | null;
   statusColor: NodeStatusColor;
+  /**
+   * Her sons and daughters, present on women's nodes only.
+   *
+   * A man's children hang beneath him in the diagram, so listing them in the
+   * details panel as well would say the same thing twice. A woman's do not
+   * appear anywhere — the tree is a male line and places people by father —
+   * so the panel is the only place they can be read.
+   */
+  offspring?: { id: string; name: string; gender: Gender }[];
 };
 
 export async function getFamilyMembers(): Promise<FamilyMemberWithProfile[]> {
@@ -93,6 +108,21 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
     list.sort(byAgeYoungestFirst);
   }
 
+  // Children recorded against a mother. They are not placed in the diagram —
+  // see the root rule below — so this is what lets her node name them.
+  const childrenByMother = new Map<string, FamilyMemberWithProfile[]>();
+  for (const member of members) {
+    if (!member.mother_id) continue;
+    const list = childrenByMother.get(member.mother_id) ?? [];
+    list.push(member);
+    childrenByMother.set(member.mother_id, list);
+  }
+  for (const list of childrenByMother.values()) {
+    // Oldest first here, unlike the diagram: this is read as a list, and a
+    // family names its children eldest down.
+    list.sort((a, b) => byAgeYoungestFirst(b, a));
+  }
+
   function toNode(member: FamilyMemberWithProfile): FamilyTreeNode {
     const children = childrenByFather.get(member.id);
     const hasChildren = Boolean(children && children.length > 0);
@@ -145,6 +175,18 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
       },
       ...(children && children.length > 0
         ? { children: children.map(toNode) }
+        : {}),
+      // Women only, and only when there are any. A man's children are drawn
+      // beneath him, so naming them in the panel too would repeat the diagram;
+      // hers are nowhere else to be seen.
+      ...(member.gender === "female" && childrenByMother.get(member.id)?.length
+        ? {
+            offspring: childrenByMother.get(member.id)!.map((child) => ({
+              id: child.id,
+              name: child.full_name,
+              gender: child.gender,
+            })),
+          }
         : {}),
     };
   }
@@ -218,7 +260,7 @@ export async function getImmediateFamily(familyMemberId: string) {
   `) as Pick<FamilyMember, "id" | "full_name" | "gender" | "is_living">[];
 
   const spouses = (await sql`
-    SELECT id, member_id, full_name, national_id, created_at
+    SELECT id, member_id, full_name, national_id, relation, created_at
     FROM spouses
     WHERE member_id = ${familyMemberId}
     ORDER BY created_at ASC
@@ -306,7 +348,7 @@ export async function getFamiliesByProfile(): Promise<Record<string, MemberFamil
 
   if (ids.length > 0) {
     spouses = (await sql`
-      SELECT id, member_id, full_name, national_id, created_at
+      SELECT id, member_id, full_name, national_id, relation, created_at
       FROM spouses WHERE member_id = ANY(${ids}::uuid[])
       ORDER BY created_at ASC
     `) as Spouse[];

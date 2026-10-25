@@ -750,6 +750,30 @@ export function FamilyTreeView({
                   {value}
                 </p>
               ))}
+
+            {/* Present on women's nodes only, and only when she has children —
+                the data layer decides both, so this just renders what it finds.
+                A man's children are already drawn beneath him. */}
+            {selectedNode.offspring && selectedNode.offspring.length > 0 && (
+              <div className="mt-4 border-t border-neutral-200 pt-3">
+                <p className="mb-2 text-xs font-semibold text-neutral-500">
+                  الأبناء والبنات ({selectedNode.offspring.length})
+                </p>
+                <ul className="space-y-1.5">
+                  {selectedNode.offspring.map((child) => (
+                    <li
+                      key={child.id}
+                      className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-sm"
+                    >
+                      <span className="min-w-0 text-neutral-800">{child.name}</span>
+                      <span className="shrink-0 text-xs text-neutral-500">
+                        {child.gender === "female" ? "ابنة" : "ابن"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         ) : (
           <p className="text-sm text-neutral-500">

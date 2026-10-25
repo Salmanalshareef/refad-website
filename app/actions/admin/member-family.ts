@@ -37,6 +37,7 @@ export async function addSpouse(
     member_id: formData.get("member_id"),
     full_name: formData.get("full_name"),
     national_id: formData.get("national_id"),
+    relation: formData.get("relation"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message };
@@ -44,8 +45,11 @@ export async function addSpouse(
 
   try {
     await sql`
-      INSERT INTO spouses (member_id, full_name, national_id)
-      VALUES (${parsed.data.member_id}, ${parsed.data.full_name}, ${parsed.data.national_id ?? null})
+      INSERT INTO spouses (member_id, full_name, national_id, relation)
+      VALUES (
+        ${parsed.data.member_id}, ${parsed.data.full_name},
+        ${parsed.data.national_id ?? null}, ${parsed.data.relation}::spouse_relation
+      )
     `;
   } catch {
     return { error: "تعذر حفظ البيانات." };

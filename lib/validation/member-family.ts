@@ -6,6 +6,7 @@ const emptyToUndefined = (v: unknown) => (v === "" || v == null ? undefined : v)
 export const AddSpouseSchema = z.object({
   member_id: z.string().trim().min(1),
   full_name: z.string().trim().min(2, "الرجاء إدخال اسم الزوج أو الزوجة."),
+  relation: z.enum(["husband", "wife"]),
   // Optional because a spouse who married in from another family often has no
   // record here at all, and a name is enough to say who she is.
   national_id: z.preprocess(emptyToUndefined, NationalIdSchema.optional()),
