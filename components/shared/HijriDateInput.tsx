@@ -11,11 +11,18 @@ export function HijriDateInput({
   name,
   label,
   defaultValue,
+  optional = false,
 }: {
   id: string;
   name: string;
   label: string;
   defaultValue?: string | null;
+  /**
+   * Says so in the label. The three selects never carry `required`, so an
+   * unfilled date already submits an empty value — this is about the field
+   * looking as optional as it behaves, next to siblings that say "اختياري".
+   */
+  optional?: boolean;
 }) {
   const initial = useMemo(() => gregorianToHijri(defaultValue), [defaultValue]);
   const currentHijriYear = useMemo(
@@ -41,7 +48,7 @@ export function HijriDateInput({
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-neutral-800">
-        {label} (هجري)
+        {label} {optional ? "(هجري، اختياري)" : "(هجري)"}
       </label>
       {/* Kept three across even on a phone: day, month and year read as one
           date, and stacking them turns a single field into three rows. At

@@ -4,14 +4,18 @@ import { useMemo, useState } from "react";
 import { Download, Search } from "lucide-react";
 import { MemberRow } from "@/components/admin/MemberRow";
 import { EmptyState } from "@/components/shared/EmptyState";
+import type { MemberFamily } from "@/lib/data/family-tree";
 import type { ProfileWithEmail } from "@/types/db";
 
 export function MemberList({
   profiles,
   currentProfileId,
+  families,
 }: {
   profiles: ProfileWithEmail[];
   currentProfileId: string;
+  /** Spouses and children per profile id, resolved on the server. */
+  families: Record<string, MemberFamily>;
 }) {
   const [query, setQuery] = useState("");
 
@@ -54,6 +58,7 @@ export function MemberList({
           key={profile.id}
           profile={profile}
           isSelf={profile.id === currentProfileId}
+          family={families[profile.id]}
         />
       ))}
     </div>

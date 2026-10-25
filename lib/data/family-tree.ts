@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { gregorianToHijriYear } from "@/lib/hijri";
-import type { FamilyMemberWithProfile, Profile } from "@/types/db";
+import type { FamilyMember, FamilyMemberWithProfile, Profile, Spouse } from "@/types/db";
 
 export type NodeStatusColor = "white" | "green" | "yellow" | "lightblue" | "pink";
 
@@ -149,8 +149,18 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
     };
   }
 
+  // A root is someone with no father in the tree — the apex of the line, or a
+  // branch whose father was never recorded.
+  //
+  // Except where a mother was recorded instead. The tree is a male line and
+  // places people by father_id alone, so a child known only through his mother
+  // has no position in it: showing him as a root would present him as an
+  // ancestor of the family, which is the opposite of true. He is absent from
+  // the diagram and present in his parents' own family view, which is where
+  // the mother's link is meant to be read.
   const roots = members
     .filter((m) => !m.father_id || !byId.has(m.father_id))
+    .filter((m) => !m.mother_id)
     .sort(byAgeYoungestFirst);
 
   return roots.map(toNode);
@@ -185,4 +195,141 @@ export async function getLivingFamilyMemberCount() {
     SELECT count(*)::int AS n FROM family_members WHERE is_living = true
   `) as { n: number }[];
   return rows[0]?.n ?? 0;
+}
+
+/**
+ * One member's spouses and children, for the read-only "عائلتي" tab and for
+ * the administrator's view of the same records.
+ *
+ * Children are matched on either parent. father_id is what the tree is built
+ * from; mother_id is set when an administrator records a child against a
+ * mother, and is the only way a woman's children can be found at all, since
+ * mother_name is free text rather than a reference.
+ *
+ * Oldest first, which is how a family lists its children; those with no
+ * recorded birth date fall to the end rather than being guessed at.
+ */
+export async function getImmediateFamily(familyMemberId: string) {
+  const children = (await sql`
+    SELECT id, full_name, gender, is_living
+    FROM family_members
+    WHERE father_id = ${familyMemberId} OR mother_id = ${familyMemberId}
+    ORDER BY birth_date ASC NULLS LAST, full_name ASC
+  `) as Pick<FamilyMember, "id" | "full_name" | "gender" | "is_living">[];
+
+  const spouses = (await sql`
+    SELECT id, member_id, full_name, national_id, created_at
+    FROM spouses
+    WHERE member_id = ${familyMemberId}
+    ORDER BY created_at ASC
+  `) as Spouse[];
+
+  return { children, spouses };
+}
+
+/**
+ * The tree record an administrator is editing a member's family against.
+ *
+ * Same matching rule as findSelfFamilyMemberId — explicit link first, then a
+ * national ID that matches exactly one record — so the admin view and the
+ * member's own view always agree about which node is theirs.
+ */
+export async function findFamilyMemberIdForProfile(
+  profile: Pick<Profile, "id" | "national_id">
+): Promise<string | null> {
+  const rows = (await sql`
+    SELECT id FROM family_members WHERE profile_id = ${profile.id} LIMIT 1
+  `) as { id: string }[];
+  if (rows[0]) return rows[0].id;
+
+  const nationalId = profile.national_id?.trim();
+  if (!nationalId) return null;
+
+  const matched = (await sql`
+    SELECT id FROM family_members
+    WHERE national_id IS NOT NULL AND btrim(national_id) = ${nationalId}
+    LIMIT 2
+  `) as { id: string }[];
+
+  return matched.length === 1 ? matched[0].id : null;
+}
+
+export type MemberFamily = {
+  familyMemberId: string | null;
+  parentGender: "male" | "female" | null;
+  spouses: Spouse[];
+  children: Pick<FamilyMember, "id" | "full_name" | "gender" | "is_living">[];
+};
+
+/**
+ * Every member's spouses and children, keyed by profile id, for the admin list.
+ *
+ * Three queries rather than three per member: the list renders every account
+ * at once, and resolving each one separately would turn opening the page into
+ * dozens of round trips to a database on another continent.
+ *
+ * The tree record is matched the same way everywhere else matches it — the
+ * explicit link first, then a national ID that identifies exactly one record.
+ * An ambiguous ID resolves to nothing rather than attaching one member's
+ * family to another.
+ */
+export async function getFamiliesByProfile(): Promise<Record<string, MemberFamily>> {
+  const resolved = (await sql`
+    SELECT p.id AS profile_id,
+           -- Cast both sides to text: the lateral aggregates with min(),
+           -- which cannot take a uuid, and COALESCE refuses a uuid/text pair.
+           COALESCE(linked.id::text, matched.id) AS family_member_id,
+           COALESCE(linked.gender::text, matched.gender) AS gender
+    FROM profiles p
+    LEFT JOIN family_members linked ON linked.profile_id = p.id
+    LEFT JOIN LATERAL (
+      SELECT CASE WHEN count(*) = 1 THEN min(fm.id::text) END AS id,
+             CASE WHEN count(*) = 1 THEN min(fm.gender::text) END AS gender
+      FROM family_members fm
+      WHERE p.national_id IS NOT NULL AND btrim(p.national_id) <> ''
+        AND fm.national_id IS NOT NULL
+        AND btrim(fm.national_id) = btrim(p.national_id)
+    ) matched ON true
+  `) as { profile_id: string; family_member_id: string | null; gender: "male" | "female" | null }[];
+
+  const ids = resolved.map((r) => r.family_member_id).filter((id): id is string => Boolean(id));
+
+  type ChildRow = Pick<FamilyMember, "id" | "full_name" | "gender" | "is_living"> & {
+    father_id: string | null;
+    mother_id: string | null;
+  };
+
+  // The driver's query object is not a plain Promise, so each result is
+  // awaited and then typed, the way every other query in this file does it.
+  let spouses: Spouse[] = [];
+  let children: ChildRow[] = [];
+
+  if (ids.length > 0) {
+    spouses = (await sql`
+      SELECT id, member_id, full_name, national_id, created_at
+      FROM spouses WHERE member_id = ANY(${ids}::uuid[])
+      ORDER BY created_at ASC
+    `) as Spouse[];
+
+    children = (await sql`
+      SELECT id, full_name, gender, is_living, father_id, mother_id
+      FROM family_members
+      WHERE father_id = ANY(${ids}::uuid[]) OR mother_id = ANY(${ids}::uuid[])
+      ORDER BY birth_date ASC NULLS LAST, full_name ASC
+    `) as ChildRow[];
+  }
+
+  const result: Record<string, MemberFamily> = {};
+  for (const row of resolved) {
+    const fmId = row.family_member_id;
+    result[row.profile_id] = {
+      familyMemberId: fmId,
+      parentGender: row.gender,
+      spouses: fmId ? spouses.filter((s) => s.member_id === fmId) : [],
+      children: fmId
+        ? children.filter((c) => c.father_id === fmId || c.mother_id === fmId)
+        : [],
+    };
+  }
+  return result;
 }

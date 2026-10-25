@@ -1,12 +1,16 @@
 import { requireAdmin } from "@/lib/auth";
 import { getAllProfilesWithEmail } from "@/lib/data/members";
+import { getFamiliesByProfile } from "@/lib/data/family-tree";
 import { MemberForm } from "@/components/admin/MemberForm";
 import { MemberList } from "@/components/admin/MemberList";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function AdminMembersPage() {
   const currentAdmin = await requireAdmin();
-  const profiles = await getAllProfilesWithEmail().catch(() => null);
+  const [profiles, families] = await Promise.all([
+    getAllProfilesWithEmail().catch(() => null),
+    getFamiliesByProfile().catch(() => ({})),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -18,7 +22,11 @@ export default async function AdminMembersPage() {
       {profiles === null ? (
         <EmptyState message="تعذر تحميل البيانات. تأكد من إعداد الاتصال بقاعدة البيانات." />
       ) : (
-        <MemberList profiles={profiles} currentProfileId={currentAdmin.id} />
+        <MemberList
+            profiles={profiles}
+            currentProfileId={currentAdmin.id}
+            families={families}
+          />
       )}
     </div>
   );

@@ -6,21 +6,35 @@ import { EditMemberForm } from "@/components/admin/EditMemberForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import { deleteMember, removeMemberAvatar } from "@/app/actions/admin/members";
+import { MemberFamilySection } from "@/components/admin/MemberFamilySection";
+import type { MemberFamily } from "@/lib/data/family-tree";
 import type { ProfileWithEmail } from "@/types/db";
 
 export function MemberRow({
   profile,
   isSelf,
+  family,
 }: {
   profile: ProfileWithEmail;
   isSelf: boolean;
+  family?: MemberFamily;
 }) {
   const [editing, setEditing] = useState(false);
 
   if (editing) {
     return (
-      <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-4">
+      <div className="space-y-4 rounded-xl border border-primary-200 bg-primary-50/40 p-4">
         <EditMemberForm profile={profile} onDone={() => setEditing(false)} />
+
+        {/* Below the profile form rather than inside it: that form saves in
+            one submit, while these are lists that grow an entry at a time,
+            and a half-typed spouse must not block a phone correction. */}
+        <MemberFamilySection
+          familyMemberId={family?.familyMemberId ?? null}
+          parentGender={family?.parentGender ?? null}
+          spouses={family?.spouses ?? []}
+          offspring={family?.children ?? []}
+        />
       </div>
     );
   }

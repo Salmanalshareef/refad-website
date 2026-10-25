@@ -71,6 +71,12 @@ export type FamilyMember = {
   is_living: boolean;
   father_id: string | null;
   mother_name: string | null;
+  /**
+   * Set when an administrator records a child against a mother. The tree stays
+   * patrilineal and does not use this to place anyone; it is what lets a woman
+   * see her own children.
+   */
+  mother_id: string | null;
   branch_id: string | null;
   photo_url: string | null;
   /** Administrator's switch. Read together with the member's own. */
@@ -342,5 +348,14 @@ export type RegistrationRequest = {
   birth_date: string | null;
   status: RegistrationRequestStatus;
   admin_comment: string | null;
+  created_at: string;
+};
+
+export type Spouse = {
+  id: string;
+  /** The family_members row this spouse is married to. */
+  member_id: string;
+  full_name: string;
+  national_id: string | null;
   created_at: string;
 };
