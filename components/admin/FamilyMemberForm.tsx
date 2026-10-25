@@ -127,6 +127,33 @@ export function FamilyMemberForm({
           defaultValue={member?.death_date}
           disabled={isLiving}
         />
+
+        <label className="mt-1 flex items-start gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <input
+            type="checkbox"
+            name="show_birth_date"
+            defaultChecked={member?.show_birth_date ?? true}
+            className="mt-0.5 h-4 w-4 shrink-0"
+          />
+          <span className="min-w-0">
+            <span className="block text-sm font-medium text-neutral-800">
+              إظهار تاريخ الميلاد في شجرة الأسرة
+            </span>
+            <span className="mt-0.5 block text-xs leading-relaxed text-neutral-500">
+              عند إلغاء التحديد لن يظهر تاريخ ميلاد هذا الفرد في بطاقته داخل
+              الشجرة لأي عضو. ترتيب الإخوة لا يتغير.
+            </span>
+            {/* Told plainly, because otherwise the box looks broken: it is
+                ticked, and the date still does not appear. The member's own
+                setting wins, and an administrator cannot overturn it. */}
+            {member?.profile_show_birth_date === false && (
+              <span className="mt-1.5 block text-xs font-medium leading-relaxed text-gold-700">
+                هذا الفرد أخفى تاريخ ميلاده من حسابه، ولن يظهر في الشجرة حتى مع
+                تفعيل هذا الخيار.
+              </span>
+            )}
+          </span>
+        </label>
       </div>
       <select
         name="father_id"

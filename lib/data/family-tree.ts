@@ -54,6 +54,13 @@ function effectiveBirthDateOf(member: FamilyMemberWithProfile) {
  * and leak roughly the same thing while breaking the layout people know.
  */
 function displayBirthDateOf(member: FamilyMemberWithProfile) {
+  // Two switches, and both must allow it. The administrator's sits on the tree
+  // record so it covers everyone, including the great majority who never
+  // registered and the dead, who cannot speak for themselves. The member's own
+  // covers their account. Read this way an administrator can withhold anyone's
+  // date but cannot reveal one a member chose to hide, which is the
+  // undertaking the privacy policy makes to them.
+  if (member.show_birth_date === false) return null;
   if (member.profile_show_birth_date === false) return null;
   return effectiveBirthDateOf(member);
 }

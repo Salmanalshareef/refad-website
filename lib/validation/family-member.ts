@@ -16,6 +16,8 @@ export const FamilyMemberFormSchema = z.object({
   is_living: z.enum(["true", "false"]).transform((v) => v === "true"),
   father_id: z.preprocess(emptyToUndefined, z.string().optional()),
   mother_name: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  // An unchecked checkbox submits nothing at all, so absence means hidden.
+  show_birth_date: z.preprocess((val) => val === "on" || val === true, z.boolean()),
 });
 
 export type FamilyMemberFormState = { error?: string; success?: boolean } | undefined;

@@ -30,6 +30,7 @@ export async function saveFamilyMember(
     is_living: formData.get("is_living"),
     father_id: formData.get("father_id"),
     mother_name: formData.get("mother_name"),
+    show_birth_date: formData.get("show_birth_date"),
   });
 
   if (!validatedFields.success) {
@@ -49,6 +50,7 @@ export async function saveFamilyMember(
     is_living,
     father_id,
     mother_name,
+    show_birth_date,
   } = validatedFields.data;
   const full_name = [first_name, second_name, third_name, fourth_name].join(" ");
 
@@ -92,19 +94,19 @@ export async function saveFamilyMember(
         SET full_name = ${full_name}, national_id = ${national_id ?? null}, gender = ${gender},
             birth_date = ${birth_date ?? null}, death_date = ${effectiveDeathDate}, is_living = ${is_living},
             father_id = ${father_id ?? null}, mother_name = ${mother_name ?? null},
-            photo_url = ${photoUrl}
+            photo_url = ${photoUrl}, show_birth_date = ${show_birth_date}
         WHERE id = ${id}
       `;
     } else {
       await sql`
         INSERT INTO family_members (
           full_name, national_id, gender, birth_date, death_date, is_living,
-          father_id, mother_name, photo_url
+          father_id, mother_name, photo_url, show_birth_date
         )
         VALUES (
           ${full_name}, ${national_id ?? null}, ${gender}, ${birth_date ?? null},
           ${effectiveDeathDate}, ${is_living}, ${father_id ?? null}, ${mother_name ?? null},
-          ${photoUrl}
+          ${photoUrl}, ${show_birth_date}
         )
       `;
     }

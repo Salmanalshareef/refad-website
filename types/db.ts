@@ -73,6 +73,8 @@ export type FamilyMember = {
   mother_name: string | null;
   branch_id: string | null;
   photo_url: string | null;
+  /** Administrator's switch. Read together with the member's own. */
+  show_birth_date: boolean;
 };
 
 export type FamilyMemberWithProfile = FamilyMember & {
