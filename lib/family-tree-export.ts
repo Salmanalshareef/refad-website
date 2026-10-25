@@ -10,6 +10,15 @@ import type { FamilyMember } from "@/types/db";
  * the diagram themselves from it. The GEDCOM is the genealogy standard, which
  * matters less for drawing and more for outliving this application: a .ged
  * file is still readable in software that does not exist yet.
+ *
+ * Birth dates are included in full, and the show_birth_date toggles are
+ * deliberately not consulted. Those settings govern what the family tree shows
+ * other members; these files are the fund's own administrative archive, and an
+ * archive with holes in it is not an archive. Both routes are behind
+ * requireAdmin, and national ID is left out of both — see toCsv.
+ *
+ * This is a decision, not an oversight. Anyone tempted to filter on the
+ * toggles here should take it to the fund's administrators first.
  */
 
 type Member = Pick<
