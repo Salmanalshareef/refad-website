@@ -6,28 +6,48 @@ import { FamilyMemberForm } from "@/components/admin/FamilyMemberForm";
 import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { deleteFamilyMember } from "@/app/actions/admin/family-members";
-import type { FamilyMemberWithProfile, Profile } from "@/types/db";
+import { MemberFamilySection } from "@/components/admin/MemberFamilySection";
+import type { FamilyMemberWithProfile, Profile, Spouse } from "@/types/db";
 
 export function FamilyMemberRow({
   member,
   allMembers,
   profiles,
+  spouses,
 }: {
   member: FamilyMemberWithProfile;
   allMembers: FamilyMemberWithProfile[];
   profiles: Profile[];
+  spouses: Spouse[];
 }) {
   const [editing, setEditing] = useState(false);
   const father = allMembers.find((m) => m.id === member.father_id);
 
+  // The page already holds every member, so this record's children are the
+  // ones in that list pointing back at it. No second query for what is
+  // already in memory.
+  const offspring = allMembers.filter(
+    (m) => m.father_id === member.id || m.mother_id === member.id
+  );
+
   if (editing) {
     return (
-      <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-4">
+      <div className="space-y-4 rounded-xl border border-primary-200 bg-primary-50/40 p-4">
         <FamilyMemberForm
           member={member}
           allMembers={allMembers}
           profiles={profiles}
           onDone={() => setEditing(false)}
+        />
+
+        {/* Keyed on the tree record rather than an account, so it reaches
+            every member — the 223 who never registered and the 27 who have
+            died as much as the ten who can sign in. */}
+        <MemberFamilySection
+          familyMemberId={member.id}
+          parentGender={member.gender}
+          spouses={spouses}
+          offspring={offspring}
         />
       </div>
     );

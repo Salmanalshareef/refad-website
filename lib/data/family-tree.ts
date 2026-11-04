@@ -375,3 +375,25 @@ export async function getFamiliesByProfile(): Promise<Record<string, MemberFamil
   }
   return result;
 }
+
+/**
+ * Every spouse in the tree, grouped by the member they belong to.
+ *
+ * For the family members page, which lists all 233 records rather than the ten
+ * with accounts. Children are not fetched here: that page already holds every
+ * member, so a record's children are the ones in that list pointing back at it,
+ * and asking the database again for what is already in memory would be waste.
+ */
+export async function getSpousesByMember(): Promise<Record<string, Spouse[]>> {
+  const rows = (await sql`
+    SELECT id, member_id, full_name, national_id, relation, created_at
+    FROM spouses
+    ORDER BY created_at ASC
+  `) as Spouse[];
+
+  const grouped: Record<string, Spouse[]> = {};
+  for (const row of rows) {
+    (grouped[row.member_id] ??= []).push(row);
+  }
+  return grouped;
+}

@@ -1,14 +1,15 @@
 import { Download } from "lucide-react";
-import { getFamilyMembers } from "@/lib/data/family-tree";
+import { getFamilyMembers, getSpousesByMember } from "@/lib/data/family-tree";
 import { getAllProfiles } from "@/lib/data/members";
 import { FamilyMemberForm } from "@/components/admin/FamilyMemberForm";
 import { FamilyMemberList } from "@/components/admin/FamilyMemberList";
 import { EmptyState } from "@/components/shared/EmptyState";
 
 export default async function AdminFamilyMembersPage() {
-  const [members, profiles] = await Promise.all([
+  const [members, profiles, spousesByMember] = await Promise.all([
     getFamilyMembers().catch(() => null),
     getAllProfiles().catch(() => []),
+    getSpousesByMember().catch(() => ({})),
   ]);
 
   return (
@@ -48,7 +49,11 @@ export default async function AdminFamilyMembersPage() {
       {members === null ? (
         <EmptyState message="تعذر تحميل البيانات. تأكد من إعداد الاتصال بقاعدة البيانات." />
       ) : (
-        <FamilyMemberList members={members} profiles={profiles} />
+        <FamilyMemberList
+          members={members}
+          profiles={profiles}
+          spousesByMember={spousesByMember}
+        />
       )}
     </div>
   );

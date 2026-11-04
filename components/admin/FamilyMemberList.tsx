@@ -4,14 +4,17 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { FamilyMemberRow } from "@/components/admin/FamilyMemberRow";
 import { EmptyState } from "@/components/shared/EmptyState";
-import type { FamilyMemberWithProfile, Profile } from "@/types/db";
+import type { FamilyMemberWithProfile, Profile, Spouse } from "@/types/db";
 
 export function FamilyMemberList({
   members,
   profiles,
+  spousesByMember,
 }: {
   members: FamilyMemberWithProfile[];
   profiles: Profile[];
+  /** Spouses keyed by family_members.id. */
+  spousesByMember: Record<string, Spouse[]>;
 }) {
   const [query, setQuery] = useState("");
 
@@ -41,7 +44,13 @@ export function FamilyMemberList({
         />
       )}
       {filtered.map((member) => (
-        <FamilyMemberRow key={member.id} member={member} allMembers={members} profiles={profiles} />
+        <FamilyMemberRow
+          key={member.id}
+          member={member}
+          allMembers={members}
+          profiles={profiles}
+          spouses={spousesByMember[member.id] ?? []}
+        />
       ))}
     </div>
   );

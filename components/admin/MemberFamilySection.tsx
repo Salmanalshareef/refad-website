@@ -96,10 +96,13 @@ export function MemberFamilySection({
       <div>
         <h3 className="text-sm font-semibold text-neutral-700">عائلة العضو</h3>
         <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-          تُحفظ هذه البيانات في شجرة الأسرة، وتظهر للعضو في تبويب «عائلتي» للاطلاع
-          فقط.
+          {/* Worded to be true on both pages. On Members every record has an
+              account; here most do not, and promising them a tab they cannot
+              reach would be wrong. */}
+          تُحفظ هذه البيانات في شجرة الأسرة. وإن كان لهذا الفرد حساب، ظهرت له في
+          تبويب «عائلتي» للاطلاع فقط.
           {motherOnly &&
-            " الأبناء المضافون لعضوة يظهرون في عائلتها فقط، إذ إن الشجرة تعرض خط الآباء."}
+            " الأبناء المضافون لأنثى يظهرون في عائلتها فقط، إذ إن الشجرة تعرض خط الآباء."}
         </p>
       </div>
 
