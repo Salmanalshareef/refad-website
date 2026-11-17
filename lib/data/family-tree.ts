@@ -94,7 +94,16 @@ function byAgeYoungestFirst(a: FamilyMemberWithProfile, b: FamilyMemberWithProfi
   return dateB.localeCompare(dateA);
 }
 
-export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeNode[] {
+export function buildFamilyTree(
+  allMembers: FamilyMemberWithProfile[]
+): FamilyTreeNode[] {
+  // The diagram draws the register, not every row in the table. A child
+  // entered inside a member's عائلة العضو is that member's own family record
+  // and is no more a part of the line than a spouse is. Filtering once, here,
+  // keeps that true of the parent links, the roots and everyone drawn, rather
+  // than leaving each of those to remember it separately.
+  const members = allMembers.filter((m) => m.in_tree);
+
   const byId = new Map(members.map((m) => [m.id, m]));
   const childrenByFather = new Map<string, FamilyMemberWithProfile[]>();
 
@@ -110,8 +119,13 @@ export function buildFamilyTree(members: FamilyMemberWithProfile[]): FamilyTreeN
 
   // Children recorded against a mother. They are not placed in the diagram —
   // see the root rule below — so this is what lets her node name them.
+  // Read from the unfiltered list on purpose. Only عائلة العضو ever writes a
+  // mother link, so every one of these is outside the register; taking them
+  // from the filtered list would leave a woman's panel permanently empty,
+  // which is the opposite of why it exists — being absent from the diagram is
+  // precisely the reason her node has to name them.
   const childrenByMother = new Map<string, FamilyMemberWithProfile[]>();
-  for (const member of members) {
+  for (const member of allMembers) {
     if (!member.mother_id) continue;
     const list = childrenByMother.get(member.mother_id) ?? [];
     list.push(member);
@@ -234,7 +248,10 @@ export async function findSelfFamilyMemberId(
 /** Counted in the database rather than by loading every row for the dashboard. */
 export async function getLivingFamilyMemberCount() {
   const rows = (await sql`
-    SELECT count(*)::int AS n FROM family_members WHERE is_living = true
+    -- The register only. A child entered inside a member's عائلة العضو is
+    -- that member's own family record, counted no more than a spouse is.
+    SELECT count(*)::int AS n FROM family_members
+    WHERE is_living = true AND in_tree = true
   `) as { n: number }[];
   return rows[0]?.n ?? 0;
 }

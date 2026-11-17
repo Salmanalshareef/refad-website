@@ -28,7 +28,12 @@ export function FamilyMemberForm({
   const [photoPreview, setPhotoPreview] = useState(member?.photo_url ?? null);
   const [removePhoto, setRemovePhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const candidateParents = allMembers.filter((m) => m.id !== member?.id);
+  // Only a register entry can be a father in the register. A child recorded
+  // inside someone's عائلة العضو is that member's own family record, not
+  // somewhere another branch can be hung from.
+  const candidateParents = allMembers.filter(
+    (m) => m.id !== member?.id && m.in_tree
+  );
 
   // Prefer the direct account link when one already exists; otherwise fall
   // back to matching the typed national ID against registered profiles.

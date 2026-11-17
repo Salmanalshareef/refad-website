@@ -18,11 +18,19 @@ export function FamilyMemberList({
 }) {
   const [query, setQuery] = useState("");
 
+  // This table is the register. A child entered inside someone's عائلة العضو
+  // is that member's own family record, and showed here as an orphan row — a
+  // first name with no father, and no mother either, because this table reads
+  // mother_name while that form sets mother_id. It belongs in the places that
+  // know what it is: the member's عائلة العضو, their عائلتي tab, and a
+  // mother's panel in the tree.
+  const register = useMemo(() => members.filter((m) => m.in_tree), [members]);
+
   const filtered = useMemo(() => {
     const trimmed = query.trim();
-    if (!trimmed) return members;
-    return members.filter((member) => member.full_name.includes(trimmed));
-  }, [members, query]);
+    if (!trimmed) return register;
+    return register.filter((member) => member.full_name.includes(trimmed));
+  }, [register, query]);
 
   return (
     <div className="space-y-3">
@@ -39,7 +47,7 @@ export function FamilyMemberList({
       {filtered.length === 0 && (
         <EmptyState
           message={
-            members.length === 0 ? "لم تتم إضافة أفراد بعد." : "لا توجد نتائج مطابقة للبحث."
+            register.length === 0 ? "لم تتم إضافة أفراد بعد." : "لا توجد نتائج مطابقة للبحث."
           }
         />
       )}
@@ -47,6 +55,10 @@ export function FamilyMemberList({
         <FamilyMemberRow
           key={member.id}
           member={member}
+          // Unfiltered on purpose: each row reads this to find its own
+          // children, and the ones entered through عائلة العضو are exactly
+          // the ones it has to find. Filtering here would empty the list
+          // inside the very section that owns those records.
           allMembers={members}
           profiles={profiles}
           spouses={spousesByMember[member.id] ?? []}

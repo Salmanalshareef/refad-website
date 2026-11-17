@@ -99,8 +99,15 @@ export async function addChild(
 
   try {
     await sql`
-      INSERT INTO family_members (full_name, gender, birth_date, is_living, father_id, mother_id)
-      VALUES (${full_name}, ${gender}, ${birth_date ?? null}, true, ${fatherId}, ${motherId})
+      -- in_tree false: this is the member's own family record. It is read in
+      -- their عائلتي tab and in this section, and is not part of the register.
+      INSERT INTO family_members (
+        full_name, gender, birth_date, is_living, father_id, mother_id, in_tree
+      )
+      VALUES (
+        ${full_name}, ${gender}, ${birth_date ?? null}, true,
+        ${fatherId}, ${motherId}, false
+      )
     `;
   } catch {
     return { error: "تعذر حفظ البيانات." };

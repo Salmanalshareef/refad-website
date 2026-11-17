@@ -11,7 +11,16 @@ export default async function FamilyTreePage() {
   const profile = await requireProfile();
   const members = await getFamilyMembers().catch(() => null);
   const selfNodeId = await findSelfFamilyMemberId(profile).catch(() => null);
-  const livingCount = members?.filter((m) => m.is_living).length ?? 0;
+  // Counts the living people the diagram below actually draws, so the number
+  // and the picture agree. in_tree matters as much as is_living here: a child
+  // entered inside a member's عائلة العضو is that member's own family record
+  // and is not part of the register, the same way a spouse never was.
+  //
+  // This filter has to stay in step with the one in buildFamilyTree. It is
+  // counted from the loaded array rather than queried separately precisely so
+  // that the two read the same rows.
+  const livingCount =
+    members?.filter((m) => m.is_living && m.in_tree).length ?? 0;
 
   return (
     <div className="space-y-6">

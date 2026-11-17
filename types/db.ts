@@ -81,6 +81,13 @@ export type FamilyMember = {
   photo_url: string | null;
   /** Administrator's switch. Read together with the member's own. */
   show_birth_date: boolean;
+  /**
+   * False for a child entered inside a member's عائلة العضو: that member's own
+   * family record rather than the fund's register. Not counted, not listed in
+   * the أفراد الأسرة table and not drawn in the diagram — the standing a
+   * spouse has always had.
+   */
+  in_tree: boolean;
 };
 
 export type FamilyMemberWithProfile = FamilyMember & {
