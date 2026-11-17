@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
-import { searchKey } from "@/lib/arabic-search";
+import { firstNameKey, searchKey } from "@/lib/arabic-search";
 import { cn } from "@/lib/utils";
 
 const RESULT_LIMIT = 20;
@@ -40,18 +40,46 @@ export function FatherPicker({
 
   const selected = candidates.find((c) => c.id === value) ?? null;
 
-  // Normalised once per candidate rather than once per keystroke.
+  // Normalised once per candidate rather than once per keystroke, and the
+  // given name kept apart from the chain so the two can be ranked separately.
   const haystack = useMemo(
-    () => candidates.map((c) => ({ candidate: c, key: searchKey(c.full_name) })),
+    () =>
+      candidates.map((c) => ({
+        candidate: c,
+        key: searchKey(c.full_name),
+        firstKey: firstNameKey(c.full_name),
+      })),
     [candidates]
   );
 
-  const results = useMemo(() => {
+  /**
+   * Men named what was typed come first; men merely descended from someone of
+   * that name come after.
+   *
+   * Ranked rather than filtered. Narrowing to given names alone would be the
+   * stricter reading, but it would also throw away the chain search that makes
+   * "محمد بن سعد" land on one man out of 284 — and the whole point of typing a
+   * second word is to use the chain.
+   */
+  const { results, firstNameCount } = useMemo(() => {
     const needle = searchKey(query);
-    const pool = needle
-      ? haystack.filter((entry) => entry.key.includes(needle))
-      : haystack;
-    return pool.slice(0, RESULT_LIMIT).map((entry) => entry.candidate);
+    if (!needle) {
+      return {
+        results: haystack.slice(0, RESULT_LIMIT).map((e) => e.candidate),
+        firstNameCount: 0,
+      };
+    }
+
+    const named: Candidate[] = [];
+    const related: Candidate[] = [];
+    for (const entry of haystack) {
+      if (entry.firstKey.includes(needle)) named.push(entry.candidate);
+      else if (entry.key.includes(needle)) related.push(entry.candidate);
+    }
+    return {
+      results: [...named, ...related].slice(0, RESULT_LIMIT),
+      firstNameCount: named.length,
+    };
   }, [haystack, query]);
 
   // A click outside closes the list. Without this the panel stays open behind
@@ -150,8 +178,16 @@ export function FatherPicker({
                 لا يوجد فرد بهذا الاسم.
               </li>
             ) : (
-              results.map((candidate) => (
+              results.map((candidate, index) => (
                 <li key={candidate.id}>
+                  {/* Where the men actually bearing the name end and those
+                      merely descended from one begin. Without the line the
+                      ordering is invisible and the tail looks like noise. */}
+                  {index === firstNameCount && firstNameCount > 0 && (
+                    <p className="border-y border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-500">
+                      مطابقات في بقية الاسم
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={() => choose(candidate.id)}

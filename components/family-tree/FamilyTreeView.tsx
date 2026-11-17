@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Crosshair, Minus, Plus, RotateCcw, Search, User, X } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
-import { searchKey } from "@/lib/arabic-search";
+import { firstNameKey, searchKey } from "@/lib/arabic-search";
 import { cn } from "@/lib/utils";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
 
@@ -234,17 +234,29 @@ function TreeSearch({
 
   // Normalised once per member rather than once per keystroke.
   const haystack = useMemo(
-    () => members.map((m) => ({ member: m, search: searchKey(m.name) })),
+    () =>
+      members.map((m) => ({
+        member: m,
+        search: searchKey(m.name),
+        firstName: firstNameKey(m.name),
+      })),
     [members]
   );
 
+  // Men named what was typed come before men merely descended from someone of
+  // that name. The names here are patronymic, so without this the chain
+  // swamps the given name — "محمد" matches 124 of 284 records and names 29.
   const results = useMemo(() => {
     const needle = searchKey(query);
     if (needle.length < 2) return [];
-    return haystack
-      .filter((entry) => entry.search.includes(needle))
-      .slice(0, SEARCH_RESULT_LIMIT)
-      .map((entry) => entry.member);
+
+    const named: FamilyTreeNode[] = [];
+    const related: FamilyTreeNode[] = [];
+    for (const entry of haystack) {
+      if (entry.firstName.includes(needle)) named.push(entry.member);
+      else if (entry.search.includes(needle)) related.push(entry.member);
+    }
+    return [...named, ...related].slice(0, SEARCH_RESULT_LIMIT);
   }, [haystack, query]);
 
   const pick = (id: string) => {
