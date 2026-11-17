@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Crosshair, Minus, Plus, RotateCcw, Search, User, X } from "lucide-react";
 import type { CustomNodeElementProps, RawNodeDatum } from "react-d3-tree";
+import { searchKey } from "@/lib/arabic-search";
 import { cn } from "@/lib/utils";
 import type { FamilyTreeNode, NodeStatusColor } from "@/lib/data/family-tree";
 
@@ -96,30 +97,6 @@ const treeCenterOf = (container: HTMLElement) => {
   }
 };
 
-/**
- * Folds the spellings that differ only in writing, so searching for "عبدالله"
- * finds "عبداللّٰه" and "احمد" finds "أحمد". Members type the plain forms;
- * the records were entered by many different hands over the years.
- */
-const normalizeArabic = (value: string) =>
-  value
-    .replace(/[ً-ْـٰ]/g, "")
-    .replace(/[أإآٱ]/g, "ا")
-    .replace(/[ؤئ]/g, "ي")
-    .replace(/ى/g, "ي")
-    .replace(/ة/g, "ه")
-    .replace(/\s+/g, " ")
-    .trim();
-
-/**
- * Matching form: the above with the spaces taken out too.
- *
- * "عبد الله" and "عبدالله" are the same name written two ways, and both are
- * in the records. Comparing without spaces means whichever way a member types
- * it finds both, at the cost of a query occasionally spanning a word boundary
- * — a fair trade when the alternative is finding nobody.
- */
-const searchKey = (value: string) => normalizeArabic(value).replace(/ /g, "");
 
 const LEGEND_ITEMS: { color: NodeStatusColor; label: string }[] = [
   { color: "green", label: "على قيد الحياة، وله أبناء" },

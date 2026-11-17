@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { saveFamilyMember } from "@/app/actions/admin/family-members";
 import { useSaveOutcome } from "@/lib/use-save-outcome";
 import { Button } from "@/components/shared/Button";
+import { FatherPicker } from "@/components/admin/FatherPicker";
 import { HijriYearInput } from "@/components/shared/HijriYearInput";
 import { MemberPhoto } from "@/components/shared/MemberPhoto";
 import type { FamilyMemberWithProfile, Profile } from "@/types/db";
@@ -155,19 +156,14 @@ export function FamilyMemberForm({
           </span>
         </label>
       </div>
-      <select
-        name="father_id"
+      {/* Was a select listing every member in the tree. Two hundred names,
+          most of them opening the same way, is not a list anyone can scan —
+          so it is typed into instead. */}
+      <FatherPicker
+        candidates={candidateParents}
         value={fatherId}
-        onChange={(e) => setFatherId(e.target.value)}
-        className="rounded-lg border border-neutral-300 px-3 py-2 text-sm"
-      >
-        <option value="">بدون أب محدد</option>
-        {candidateParents.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.full_name}
-          </option>
-        ))}
-      </select>
+        onChange={setFatherId}
+      />
       <input
         value={selectedFather?.national_id ?? ""}
         disabled
